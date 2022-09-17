@@ -20,7 +20,14 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            greet, get_timer, get_pause, get_label, set_timer, set_pause, set_label
+            greet,
+            get_timer,
+            get_pause,
+            get_label,
+            set_timer,
+            set_pause,
+            set_label,
+            get_timer_state
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

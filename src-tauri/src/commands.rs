@@ -1,12 +1,12 @@
-use crate::settings::get_timer_instance;
+use crate::settings::{get_timer_instance, Timer};
 
 #[tauri::command]
-pub fn get_timer() -> f32 {
+pub fn get_timer() -> u32 {
     get_timer_instance().get_time()
 }
 
 #[tauri::command]
-pub fn get_pause() -> f32 {
+pub fn get_pause() -> u32 {
     get_timer_instance().get_pause()
 }
 
@@ -16,7 +16,7 @@ pub fn get_label() -> String {
 }
 
 #[tauri::command]
-pub fn set_timer(new_timer: f32) -> String {
+pub fn set_timer(new_timer: u32) -> String {
     match get_timer_instance().change_time(new_timer).save() {
         Ok(_) => "saved".to_string(),
         Err(_) => "not saved".to_string(),
@@ -24,7 +24,7 @@ pub fn set_timer(new_timer: f32) -> String {
 }
 
 #[tauri::command]
-pub fn set_pause(new_pause: f32) -> String {
+pub fn set_pause(new_pause: u32) -> String {
     match get_timer_instance().change_pause(new_pause).save() {
         Ok(_) => "saved".to_string(),
         Err(_) => "not saved".to_string(),
@@ -42,4 +42,9 @@ pub fn set_label(new_label: &str) -> String {
 #[tauri::command]
 pub fn greet(name: &str) -> String {
     format!("Hello, {}", name)
+}
+
+#[tauri::command]
+pub fn get_timer_state() -> Timer {
+    get_timer_instance()
 }

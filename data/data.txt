@@ -1,1 +1,1 @@
-{"timer":13.0,"pause":5.0,"label":"main"}
+{"timer":801,"pause":300,"label":"main"}

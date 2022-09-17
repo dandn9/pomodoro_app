@@ -5,25 +5,25 @@ use std::io::Write;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Timer {
-    timer: f32,
-    pause: f32,
+    timer: u32,
+    pause: u32,
     label: String,
 }
 // could probably do some singleton patterns but i have no idea how to implement them in rust
 // and also serialize them with the lifetimes etc.
 impl Timer {
-    pub fn new(timer: f32, pause: f32, label: &str) -> Self {
+    pub fn new(timer: u32, pause: u32, label: &str) -> Self {
         Timer {
             timer,
             pause,
             label: label.to_string(),
         }
     }
-    pub fn change_time(mut self, new_timer: f32) -> Self {
+    pub fn change_time(mut self, new_timer: u32) -> Self {
         self.timer = new_timer;
         self
     }
-    pub fn change_pause(mut self, new_pause: f32) -> Self {
+    pub fn change_pause(mut self, new_pause: u32) -> Self {
         self.pause = new_pause;
         self
     }
@@ -31,10 +31,10 @@ impl Timer {
         self.label = new_label.to_string();
         self
     }
-    pub fn get_time(&self) -> f32 {
+    pub fn get_time(&self) -> u32 {
         self.timer
     }
-    pub fn get_pause(&self) -> f32 {
+    pub fn get_pause(&self) -> u32 {
         self.pause
     }
     pub fn get_label(&self) -> &str {
@@ -80,10 +80,15 @@ impl Timer {
 
 pub fn get_timer_instance() -> Timer {
     let timer = Timer::get_timer().unwrap_or_else(|_e| {
-        let timer = Timer::new(25.0, 5.0, "main");
+        // give a default timer else
+        let timer = Timer::new(minute_to_secs(25), minute_to_secs(5), "main");
         timer.save().expect("Something went wrong with saving");
         Timer::get_timer().expect("Something went wrong")
     });
 
     timer
+}
+
+fn minute_to_secs(minutes: u32) -> u32 {
+    minutes * 60
 }
