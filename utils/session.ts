@@ -21,3 +21,12 @@ export async function deleteSession(id: number) {
         console.log("error", e)
     }
 }
+
+export async function setSessionSelected(id: number) {
+    try {
+        const res = await invoke("set_session_selected", { sessionId: id })
+        console.log(res)
+    } catch (e) {
+        console.log("error", e)
+    }
+}

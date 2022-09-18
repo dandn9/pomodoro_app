@@ -102,6 +102,7 @@ pub struct Session {
     label: String,
     total_time: u32,
     started_at: u64,
+    selected: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -122,6 +123,7 @@ impl Session {
                 .unwrap()
                 .as_millis() as u64,
             total_time: duration,
+            selected: false,
         }
     }
 }
@@ -146,6 +148,17 @@ impl Sessions {
             None => Err(String::from("None found")),
         }
     }
+    pub fn set_session_selected(mut self, session_id: u32) -> Self {
+        for existing_session in &mut self.sessions {
+            if existing_session.id == session_id {
+                (*existing_session).selected = true;
+            } else {
+                (*existing_session).selected = false;
+            }
+        }
+        self
+    }
+
     pub fn save(self) -> Result<(), std::io::Error> {
         let serialized = serde_json::to_string(&self)?;
 

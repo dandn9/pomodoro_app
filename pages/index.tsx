@@ -12,18 +12,20 @@ import {
 } from '../utils/displayTime';
 // import Slider from '../components/Slider';
 import SettinginsMenu from '../components/SettingsMenu';
+import SessionsMenu from '../components/SessionsMenu';
 
 // in server side next js context does not know about tauri, so tauri calls can only happen in clientside code
 
 const Home: NextPage = () => {
 	const [isMenuOpened, setIsMenuOpened] = useState(false);
+	const [isSessionsOpened, setIsSessionsOpened] = useState(false);
 
-	const [timer, isRunning, pause, mode, label] = useStore((state) => [
+	const [timer, isRunning, pause, mode, currSession] = useStore((state) => [
 		state.currTimer,
 		state.isRunning,
 		state.currPause,
 		state.mode,
-		state.label,
+		state.currSession,
 	]);
 
 	const onStartTimer = () => {
@@ -50,8 +52,14 @@ const Home: NextPage = () => {
 	console.log(mode);
 	return (
 		<div className='w-screen h-screen flex justify-center items-center flex-col'>
-			<div>{label}</div>
-			{mode}
+			<span className='absolute top-0'>{mode}</span>
+			<div
+				onClick={() => setIsSessionsOpened(!isSessionsOpened)}
+				className='relative'
+			>
+				<span>{currSession ? currSession.label : 'Select a session'}</span>
+				{isSessionsOpened && <SessionsMenu />}
+			</div>
 			<div className='flex gap-2'>
 				<div
 					className='text-red-600 p-12 bg-white/10 rounded-full relative'

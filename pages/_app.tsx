@@ -8,7 +8,10 @@ import Layout from '../components/Layout';
 const tick = useStore.getState().tick;
 
 function MyApp({ Component, pageProps }: AppProps) {
-	const isRunning = useStore((state) => state.isRunning);
+	const [isRunning, currSession] = useStore((state) => [
+		state.isRunning,
+		state.currSession,
+	]);
 	const intervalRef = useRef<NodeJS.Timer | null>(null);
 
 	useEffect(() => {
@@ -16,7 +19,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 	}, []);
 
 	useEffect(() => {
-		if (isRunning) {
+		if (isRunning && currSession) {
 			if (intervalRef.current) {
 				clearInterval(intervalRef.current);
 			}
@@ -29,7 +32,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 				clearInterval(intervalRef.current);
 			}
 		};
-	}, [isRunning]);
+	}, [isRunning, currSession]);
 	return (
 		<Layout>
 			<Component {...pageProps} />

@@ -9,6 +9,11 @@ const Stats = () => {
 	const newLabelRef = useRef<HTMLInputElement | null>(null);
 
 	const onLabelKeyDown = (ev: KeyboardEvent) => {
+		if (ev.key === 'Escape') {
+			if (newLabelRef.current) newLabelRef.current.value = '';
+			setMenuOpen(false);
+			return;
+		}
 		if (ev.key === 'Enter' && newLabelRef.current) {
 			const sessionName = newLabelRef.current.value;
 			saveSession(sessionName, 0).then(() => {
@@ -23,6 +28,15 @@ const Stats = () => {
 		deleteSession(sessionId).then(() => {
 			useStore.getState().loadSessions();
 		});
+	};
+
+	const toggleMenu = () => {
+		if (menuOpen) {
+			setMenuOpen(false);
+		} else {
+			setMenuOpen(true);
+			newLabelRef.current?.focus();
+		}
 	};
 
 	return (
@@ -40,7 +54,7 @@ const Stats = () => {
 							<div>
 								Started At: {new Date(session.started_at).toISOString()}
 							</div>
-
+							<div>Selected: {session.selected ? 'true' : 'false'}</div>
 							<button
 								className='bg-red-500'
 								onClick={onDeleteSession.bind(null, session.id)}
@@ -52,20 +66,20 @@ const Stats = () => {
 				})}
 			</ul>
 			{menuOpen && (
-				<div className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex-col flex border rounded-md border-slate-600 p-4'>
+				<div
+					onKeyDown={onLabelKeyDown}
+					className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex-col flex border rounded-md border-slate-600 bg-gray-800 p-4'
+				>
 					<input
 						className='text-black'
 						type='text'
 						placeholder='Label...'
 						ref={newLabelRef}
-						onKeyDown={onLabelKeyDown}
+						autoFocus={true}
 					/>
 				</div>
 			)}
-			<button
-				className='mt-2 border border-red-300'
-				onClick={() => setMenuOpen(!menuOpen)}
-			>
+			<button className='mt-2 border border-red-300' onClick={toggleMenu}>
 				Add new session
 			</button>
 		</div>

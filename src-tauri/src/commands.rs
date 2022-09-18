@@ -92,3 +92,14 @@ pub fn get_sessions() -> Result<Sessions, String> {
         )),
     }
 }
+
+#[tauri::command]
+pub fn set_session_selected(session_id: u32) -> Result<String, String> {
+    match Sessions::load() {
+        Ok(sessions) => {
+            sessions.set_session_selected(session_id).save().unwrap();
+            Ok(String::from("Success"))
+        }
+        Err(_) => Err(String::from("Soomething went wrong!")),
+    }
+}

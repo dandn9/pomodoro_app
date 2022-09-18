@@ -30,6 +30,7 @@ fn main() {
             get_timer_state,
             save_session,
             remove_session,
+            set_session_selected,
             get_sessions
         ])
         .run(tauri::generate_context!())

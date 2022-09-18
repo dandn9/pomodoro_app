@@ -11,6 +11,7 @@ interface Session {
 	id: number;
 	started_at: number;
 	total_time: number;
+	selected: boolean;
 }
 
 interface IStore {
@@ -18,9 +19,9 @@ interface IStore {
 	currTimer: number;
 	pause: number;
 	currPause: number;
-	label: string;
 	isRunning: boolean;
 	sessions: Session[];
+	currSession?: Session;
 	saveTimer: () => void;
 	savePause: () => void;
 	getInitialState: () => void;
@@ -29,6 +30,7 @@ interface IStore {
 	setLocalPause: (n: number) => void;
 	loadSessions: () => void;
 	mode: 'timer' | 'pause'; // describes if it needs to count down the timer or the pause
+
 	// setTimer: () => void;
 }
 
@@ -44,7 +46,6 @@ const useStore = create<IStore>()(
 		pause: 0,
 		sessions: [],
 		currPause: 0,
-		label: '',
 		isRunning: false,
 		mode: 'timer',
 
@@ -59,6 +60,9 @@ const useStore = create<IStore>()(
 				const sessionsState = await invoke<{ sessions: Session[] }>(
 					'get_sessions'
 				);
+				const latestSession = sessionsState.sessions.find(
+					(session) => session.selected === true
+				);
 
 				console.log(sessionsState);
 
@@ -67,6 +71,7 @@ const useStore = create<IStore>()(
 					currTimer: timerState.timer,
 					currPause: timerState.pause,
 					sessions: sessionsState.sessions,
+					currSession: latestSession,
 				}));
 			} catch (e) {
 				console.error('error', e);
@@ -79,7 +84,9 @@ const useStore = create<IStore>()(
 						// make sound
 						playSound();
 						timerExpires();
-						saveSession(state.label, state.timer);
+						if (state.currSession) {
+							saveSession(state.currSession.label, state.timer);
+						}
 						state.mode = 'pause';
 						state.currTimer = state.timer;
 						console.log('its 0 !');
@@ -102,9 +109,15 @@ const useStore = create<IStore>()(
 			const sessionsState = await invoke<{ sessions: Session[] }>(
 				'get_sessions'
 			);
+			const latestSession = sessionsState.sessions.find(
+				(session) => session.selected === true
+			);
+
+			console.log('LOAD SESSIONS', sessionsState, latestSession);
 
 			set((state) => {
 				state.sessions = sessionsState.sessions;
+				state.currSession = latestSession;
 			});
 		},
 		setLocalTimer: (n: number) => {
