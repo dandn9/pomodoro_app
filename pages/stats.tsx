@@ -16,18 +16,14 @@ const Stats = () => {
 		}
 		if (ev.key === 'Enter' && newLabelRef.current) {
 			const sessionName = newLabelRef.current.value;
-			saveSession(sessionName, 0).then(() => {
-				useStore.getState().loadSessions();
-			});
+			saveSession(sessionName, 0);
 			newLabelRef.current.value = '';
 			setMenuOpen(false);
 		}
 	};
 
 	const onDeleteSession = (sessionId: number) => {
-		deleteSession(sessionId).then(() => {
-			useStore.getState().loadSessions();
-		});
+		deleteSession(sessionId);
 	};
 
 	const toggleMenu = () => {

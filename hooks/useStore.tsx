@@ -19,6 +19,7 @@ interface IStore {
 	currTimer: number;
 	pause: number;
 	currPause: number;
+	interruptedTime: number; // if the user switches task during timer, here should be the time left that was done [reset it to 0 if no task was switched]
 	isRunning: boolean;
 	sessions: Session[];
 	currSession?: Session;
@@ -46,6 +47,7 @@ const useStore = create<IStore>()(
 		pause: 0,
 		sessions: [],
 		currPause: 0,
+		interruptedTime: 0,
 		isRunning: false,
 		mode: 'timer',
 
@@ -84,12 +86,19 @@ const useStore = create<IStore>()(
 						// make sound
 						playSound();
 						timerExpires();
+
 						if (state.currSession) {
-							saveSession(state.currSession.label, state.timer);
+							console.log('FINISHED!', state.interruptedTime);
+							if (state.interruptedTime > 0) {
+								saveSession(state.currSession.label, state.interruptedTime);
+								state.interruptedTime = 0;
+							} else {
+								saveSession(state.currSession.label, state.timer);
+							}
 						}
 						state.mode = 'pause';
 						state.currTimer = state.timer;
-						console.log('its 0 !');
+						state.isRunning = false;
 						return;
 					}
 					state.currTimer--;
@@ -99,6 +108,7 @@ const useStore = create<IStore>()(
 						timerExpires();
 						state.mode = 'timer';
 						state.currPause = state.pause;
+						state.isRunning = false;
 						return;
 					}
 					state.currPause--;

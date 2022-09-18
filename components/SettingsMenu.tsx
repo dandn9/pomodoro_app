@@ -1,4 +1,5 @@
-import React, { ChangeEvent, useState, useRef } from 'react';
+/* eslint-disable react/display-name */
+import React, { ChangeEvent, useState, useRef, forwardRef } from 'react';
 import Slider from './Slider';
 import { minutesToTime, timeToMinutes } from '../utils/displayTime';
 import useStore from '../hooks/useStore';
@@ -6,11 +7,14 @@ import useStore from '../hooks/useStore';
 const setTimer = useStore.getState().setLocalTimer;
 const setPause = useStore.getState().setLocalPause;
 
-const SliderMenu = () => {
-	const [timer, globalTimer, pause, globalPause] = useStore((state) => [
-		state.currTimer,
+// export const SliderMenu = React.forwardRef((_props: any, ref: any) => {
+
+// 	);
+// });
+
+const SliderMenu = React.forwardRef<HTMLDivElement>((_props, ref) => {
+	const [globalTimer, globalPause] = useStore((state) => [
 		state.timer,
-		state.currPause,
 		state.pause,
 	]);
 
@@ -45,6 +49,7 @@ const SliderMenu = () => {
 
 	return (
 		<div
+			ref={ref}
 			className='absolute left-[80%] bg-slate-900 top-0 py-2 px-4 border-slate-600 border rounded-md'
 			onClick={(ev) => {
 				// ev.preventDefault();
@@ -54,7 +59,7 @@ const SliderMenu = () => {
 		>
 			<Slider
 				max={minutesToTime(60)}
-				min={minutesToTime(0.3)}
+				min={minutesToTime(0.1)}
 				onChange={onTimerChange}
 				value={globalTimer}
 				converValue={timeToMinutes}
@@ -63,13 +68,15 @@ const SliderMenu = () => {
 			/>
 			<Slider
 				max={minutesToTime(20)}
-				min={minutesToTime(1)}
+				min={minutesToTime(0.1)}
 				onChange={onPauseChange}
 				converValue={timeToMinutes}
 				value={globalPause}
 				label='Pause'
+				step={30}
 			/>
 		</div>
 	);
-};
+});
+
 export default SliderMenu;

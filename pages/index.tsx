@@ -11,14 +11,36 @@ import {
 	timeToSeconds,
 } from '../utils/displayTime';
 // import Slider from '../components/Slider';
-import SettinginsMenu from '../components/SettingsMenu';
+import SettingsMenu from '../components/SettingsMenu';
 import SessionsMenu from '../components/SessionsMenu';
+import useClickOutside from '../hooks/useClickOutside';
 
 // in server side next js context does not know about tauri, so tauri calls can only happen in clientside code
 
 const Home: NextPage = () => {
-	const [isMenuOpened, setIsMenuOpened] = useState(false);
+	const [isSettingsOpened, setIsSettingsOpened] = useState(false);
 	const [isSessionsOpened, setIsSessionsOpened] = useState(false);
+
+	const sessionsMenuRef = useRef<HTMLDivElement>(null);
+	const settingsMenuRef = useRef<HTMLDivElement>(null);
+
+	const settingsContainerRef = useRef<HTMLDivElement>(null);
+	const sessionsContainerRef = useRef<HTMLDivElement>(null);
+
+	useClickOutside(
+		sessionsMenuRef,
+		(_) => {
+			setIsSessionsOpened(false);
+		},
+		sessionsContainerRef
+	);
+	useClickOutside(
+		settingsMenuRef,
+		(_) => {
+			setIsSettingsOpened(false);
+		},
+		settingsContainerRef
+	);
 
 	const [timer, isRunning, pause, mode, currSession] = useStore((state) => [
 		state.currTimer,
@@ -54,20 +76,23 @@ const Home: NextPage = () => {
 		<div className='w-screen h-screen flex justify-center items-center flex-col'>
 			<span className='absolute top-0'>{mode}</span>
 			<div
-				onClick={() => setIsSessionsOpened(!isSessionsOpened)}
+				ref={sessionsContainerRef}
+				onClick={() => setIsSessionsOpened(true)}
 				className='relative'
 			>
 				<span>{currSession ? currSession.label : 'Select a session'}</span>
-				{isSessionsOpened && <SessionsMenu />}
+				{isSessionsOpened && <SessionsMenu ref={sessionsMenuRef} />}
 			</div>
 			<div className='flex gap-2'>
 				<div
 					className='text-red-600 p-12 bg-white/10 rounded-full relative'
-					onClick={() => {
-						setIsMenuOpened(!isMenuOpened);
+					onClick={(ev) => {
+						ev.stopPropagation();
+						setIsSettingsOpened(true);
 					}}
+					ref={settingsContainerRef}
 				>
-					{isMenuOpened && <SettinginsMenu />}
+					{isSettingsOpened && <SettingsMenu ref={settingsMenuRef} />}
 					<span>
 						{mode === 'timer' ? timeToMinutes(timer) : timeToMinutes(pause)}
 					</span>
