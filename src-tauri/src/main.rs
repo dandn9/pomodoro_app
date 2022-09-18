@@ -29,6 +29,7 @@ fn main() {
             set_label,
             get_timer_state,
             save_session,
+            remove_session,
             get_sessions
         ])
         .run(tauri::generate_context!())

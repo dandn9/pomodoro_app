@@ -137,6 +137,15 @@ impl Sessions {
         self.sessions.push(session);
         self
     }
+    pub fn remove_session(mut self, session_id: u32) -> Result<Self, String> {
+        match self.sessions.iter().position(|x| x.id == session_id) {
+            Some(id) => {
+                self.sessions.remove(id);
+                Ok(self)
+            }
+            None => Err(String::from("None found")),
+        }
+    }
     pub fn save(self) -> Result<(), std::io::Error> {
         let serialized = serde_json::to_string(&self)?;
 

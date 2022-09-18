@@ -4,7 +4,7 @@ import create from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { invoke } from '@tauri-apps/api/tauri';
 import { timerExpires } from '../utils/sendNotification';
-import { saveSession } from '../utils/saveSession';
+import { saveSession } from '../utils/session';
 
 interface Session {
 	label: string;
@@ -27,6 +27,7 @@ interface IStore {
 	tick: () => void;
 	setLocalTimer: (n: number) => void;
 	setLocalPause: (n: number) => void;
+	loadSessions: () => void;
 	mode: 'timer' | 'pause'; // describes if it needs to count down the timer or the pause
 	// setTimer: () => void;
 }
@@ -95,6 +96,15 @@ const useStore = create<IStore>()(
 					}
 					state.currPause--;
 				}
+			});
+		},
+		loadSessions: async () => {
+			const sessionsState = await invoke<{ sessions: Session[] }>(
+				'get_sessions'
+			);
+
+			set((state) => {
+				state.sessions = sessionsState.sessions;
 			});
 		},
 		setLocalTimer: (n: number) => {

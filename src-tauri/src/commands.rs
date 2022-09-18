@@ -64,6 +64,25 @@ pub fn save_session(label: &str, duration: u32) -> String {
 }
 
 #[tauri::command]
+pub fn remove_session(session_id: u32) -> Result<String, String> {
+    // this is a mess XD
+
+    match Sessions::load() {
+        Ok(session) => match session.remove_session(session_id) {
+            Ok(session) => match session.save() {
+                Ok(_) => Ok(String::from("Success")),
+                Err(_) => Err(String::from("Couldnt remove it")),
+            },
+            Err(_) => Err(String::from("Couldnt remove it")),
+        },
+        Err(err) => Err(format!(
+            "Something went wrong loading sessions, Error: {:?}",
+            err
+        )),
+    }
+}
+
+#[tauri::command]
 pub fn get_sessions() -> Result<Sessions, String> {
     match Sessions::load() {
         Ok(session) => Ok(session),
