@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
+use std::collections::hash_map::DefaultHasher;
 use std::fs::*;
+use std::hash::{Hash, Hasher};
 use std::io::Read;
 use std::io::Write;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Timer {
@@ -41,7 +44,7 @@ impl Timer {
         &self.label
     }
     pub fn get_timer() -> Result<Self, std::io::Error> {
-        let mut file = File::open("../data/data.txt")?;
+        let mut file = File::open("../data/timer.json")?;
         let mut serialized_json = String::new();
         file.read_to_string(&mut serialized_json)?;
 
@@ -63,9 +66,9 @@ impl Timer {
 
         println!("created dir");
 
-        let mut file = File::create("../data/data.txt").unwrap_or_else(|_e| {
+        let mut file = File::create("../data/timer.json").unwrap_or_else(|_e| {
             println!("Already exists");
-            File::open("../data/data.txt").unwrap()
+            File::open("../data/timer.json").unwrap()
         });
 
         println!("created file");
@@ -91,4 +94,96 @@ pub fn get_timer_instance() -> Timer {
 
 fn minute_to_secs(minutes: u32) -> u32 {
     minutes * 60
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Session {
+    id: u32,
+    label: String,
+    total_time: u32,
+    started_at: u64,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Sessions {
+    sessions: Vec<Session>,
+}
+
+impl Session {
+    pub fn new(label: &str, duration: u32) -> Self {
+        let mut s = DefaultHasher::new();
+        label.hash(&mut s);
+        let id = s.finish();
+        Self {
+            id: id as u32,
+            label: label.to_string(),
+            started_at: SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_millis() as u64,
+            total_time: duration,
+        }
+    }
+}
+impl Sessions {
+    // pub fn get_session(&self, id: u32) -> Session {}
+    pub fn add_session(mut self, session: Session) -> Self {
+        for existing_session in &mut self.sessions {
+            if existing_session.id == session.id {
+                (*existing_session).total_time += session.total_time;
+                return self;
+            }
+        }
+        self.sessions.push(session);
+        self
+    }
+    pub fn save(self) -> Result<(), std::io::Error> {
+        let serialized = serde_json::to_string(&self)?;
+
+        println!("{:?}", self);
+
+        match create_dir("../data") {
+            Ok(_) => println!("Created"),
+            Err(_) => println!("Already Exists"),
+        }
+
+        println!("created dir");
+
+        let mut file = File::create("../data/sessions.json").unwrap_or_else(|_e| {
+            println!("Already exists");
+            File::open("../data/sessions.json").unwrap()
+        });
+
+        println!("created file");
+
+        file.write_all(serialized.as_bytes())?;
+
+        println!("wrote file");
+
+        Ok(())
+    }
+    pub fn load() -> Result<Self, std::io::Error> {
+        let mut file = match File::open("../data/sessions.json") {
+            Ok(file) => file,
+            Err(_) => File::create("../data/sessions.json")?,
+        };
+        println!("opened sessions file {:#?}", file);
+        let mut serialized_json = String::new();
+
+        match file.read_to_string(&mut serialized_json) {
+            Ok(_) => println!("There was content"),
+            Err(_) => println!("No content"),
+        };
+
+        let sessions: Sessions = serde_json::from_str(&serialized_json)
+            .unwrap_or_else(|_err| Sessions { sessions: vec![] });
+
+        println!("Loaded sessions: {:?}", sessions);
+
+        Ok(sessions)
+    }
+}
+
+pub fn get_sessions() -> Sessions {
+    Sessions::load().unwrap()
 }

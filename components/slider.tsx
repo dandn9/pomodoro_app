@@ -8,6 +8,7 @@ const Slider = (
 		value: number;
 		label?: string;
 		converValue?: (val: number) => string;
+		step?: number;
 	}>
 ) => {
 	return (
@@ -20,6 +21,7 @@ const Slider = (
 				max={props.max}
 				onChange={props.onChange}
 				value={props.value}
+				step={props.step ? props.step : 'any'}
 			/>
 			<div className='w-full flex justify-between'>
 				<span>

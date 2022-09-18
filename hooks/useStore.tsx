@@ -3,16 +3,37 @@ import create from 'zustand';
 // import produce from 'immer';
 import { immer } from 'zustand/middleware/immer';
 import { invoke } from '@tauri-apps/api/tauri';
+import { timerExpires } from '../utils/sendNotification';
+import { saveSession } from '../utils/saveSession';
+
+interface Session {
+	label: string;
+	id: number;
+	started_at: number;
+	total_time: number;
+}
 
 interface IStore {
 	timer: number;
 	currTimer: number;
 	pause: number;
+	currPause: number;
 	label: string;
 	isRunning: boolean;
+	sessions: Session[];
 	saveTimer: () => void;
+	savePause: () => void;
 	getInitialState: () => void;
+	tick: () => void;
+	setLocalTimer: (n: number) => void;
+	setLocalPause: (n: number) => void;
+	mode: 'timer' | 'pause'; // describes if it needs to count down the timer or the pause
 	// setTimer: () => void;
+}
+
+function playSound() {
+	const audio = new Audio('/assets/bonk.mp3');
+	audio.play();
 }
 
 const useStore = create<IStore>()(
@@ -20,8 +41,11 @@ const useStore = create<IStore>()(
 		currTimer: 0,
 		timer: 0,
 		pause: 0,
+		sessions: [],
+		currPause: 0,
 		label: '',
 		isRunning: false,
+		mode: 'timer',
 
 		getInitialState: async () => {
 			try {
@@ -30,13 +54,64 @@ const useStore = create<IStore>()(
 					pause: number;
 					timer: number;
 				}>('get_timer_state');
+
+				const sessionsState = await invoke<{ sessions: Session[] }>(
+					'get_sessions'
+				);
+
+				console.log(sessionsState);
+
 				set(() => ({
 					...timerState,
 					currTimer: timerState.timer,
+					currPause: timerState.pause,
+					sessions: sessionsState.sessions,
 				}));
 			} catch (e) {
 				console.error('error', e);
 			}
+		},
+		tick: () => {
+			set((state) => {
+				if (state.mode === 'timer') {
+					if (state.currTimer <= 0) {
+						// make sound
+						playSound();
+						timerExpires();
+						saveSession(state.label, state.timer);
+						state.mode = 'pause';
+						state.currTimer = state.timer;
+						console.log('its 0 !');
+						return;
+					}
+					state.currTimer--;
+				} else if (state.mode === 'pause') {
+					if (state.currPause <= 0) {
+						playSound();
+						timerExpires();
+						state.mode = 'timer';
+						state.currPause = state.pause;
+						return;
+					}
+					state.currPause--;
+				}
+			});
+		},
+		setLocalTimer: (n: number) => {
+			set((state) => {
+				state.isRunning = false;
+
+				state.timer = n;
+				state.currTimer = n;
+			});
+		},
+		setLocalPause: (n: number) => {
+			set((state) => {
+				state.isRunning = false;
+
+				state.pause = n;
+				state.currPause = n;
+			});
 		},
 
 		saveTimer: async () => {
@@ -44,13 +119,18 @@ const useStore = create<IStore>()(
 				const curr_timer = useStore.getState().timer;
 				if (curr_timer < 0) return;
 				await invoke('set_timer', { newTimer: curr_timer });
-				const timer = await invoke<number>('get_timer');
-				set((state) => {
-					state.timer = timer;
-					state.currTimer = timer;
-				});
 			} catch (e) {
 				console.log('error', e);
+			}
+		},
+
+		savePause: async () => {
+			try {
+				const curr_pause = useStore.getState().pause;
+				if (curr_pause < 0) return;
+				await invoke('set_pause', { newPause: curr_pause });
+			} catch (e) {
+				console.error('error', e);
 			}
 		},
 	}))

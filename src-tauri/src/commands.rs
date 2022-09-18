@@ -1,4 +1,4 @@
-use crate::settings::{get_timer_instance, Timer};
+use crate::settings::{get_timer_instance, Session, Sessions, Timer};
 
 #[tauri::command]
 pub fn get_timer() -> u32 {
@@ -47,4 +47,29 @@ pub fn greet(name: &str) -> String {
 #[tauri::command]
 pub fn get_timer_state() -> Timer {
     get_timer_instance()
+}
+
+// SESSIONS
+
+#[tauri::command]
+pub fn save_session(label: &str, duration: u32) -> String {
+    println!("saving session");
+    match Sessions::load() {
+        Ok(sessions) => match sessions.add_session(Session::new(label, duration)).save() {
+            Ok(_) => "saved".to_string(),
+            Err(_) => "not saved".to_string(),
+        },
+        Err(_err) => "Something went wrong".to_string(),
+    }
+}
+
+#[tauri::command]
+pub fn get_sessions() -> Result<Sessions, String> {
+    match Sessions::load() {
+        Ok(session) => Ok(session),
+        Err(err) => Err(format!(
+            "Something went wrong loading sessions, Error: {:?}",
+            err
+        )),
+    }
 }

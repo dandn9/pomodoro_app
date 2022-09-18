@@ -3,6 +3,9 @@ import type { AppProps } from 'next/app';
 import { useEffect, useRef } from 'react';
 import create from 'zustand';
 import useStore from '../hooks/useStore';
+import Layout from '../components/Layout';
+
+const tick = useStore.getState().tick;
 
 function MyApp({ Component, pageProps }: AppProps) {
 	const isRunning = useStore((state) => state.isRunning);
@@ -18,10 +21,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 				clearInterval(intervalRef.current);
 			}
 			intervalRef.current = setInterval(() => {
-				console.log('update');
-				useStore.setState((state) => {
-					state.currTimer--;
-				});
+				tick();
 			}, 1000);
 		}
 		return () => {
@@ -30,7 +30,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 			}
 		};
 	}, [isRunning]);
-	return <Component {...pageProps} />;
+	return (
+		<Layout>
+			<Component {...pageProps} />
+		</Layout>
+	);
 }
 
 export default MyApp;

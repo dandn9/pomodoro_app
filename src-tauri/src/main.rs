@@ -27,7 +27,9 @@ fn main() {
             set_timer,
             set_pause,
             set_label,
-            get_timer_state
+            get_timer_state,
+            save_session,
+            get_sessions
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

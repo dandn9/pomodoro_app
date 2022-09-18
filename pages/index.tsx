@@ -10,22 +10,21 @@ import {
 	timeToMinutes,
 	timeToSeconds,
 } from '../utils/displayTime';
-import Slider from '../components/slider';
+// import Slider from '../components/Slider';
+import SettinginsMenu from '../components/SettingsMenu';
 
 // in server side next js context does not know about tauri, so tauri calls can only happen in clientside code
 
 const Home: NextPage = () => {
 	const [isMenuOpened, setIsMenuOpened] = useState(false);
 
-	const [timer, isRunning, pause] = useStore((state) => [
+	const [timer, isRunning, pause, mode, label] = useStore((state) => [
 		state.currTimer,
 		state.isRunning,
-		state.pause,
+		state.currPause,
+		state.mode,
+		state.label,
 	]);
-	const [timerSlider, setTimerSlider] = useState(timer);
-	const [pauseSlider, setPauseSlider] = useState(pause);
-
-	const timerTimeout = useRef<NodeJS.Timer | null>(null);
 
 	const onStartTimer = () => {
 		if (isRunning) return;
@@ -48,25 +47,11 @@ const Home: NextPage = () => {
 		});
 	};
 
-	const onMinutesChange = (ev: ChangeEvent<HTMLInputElement>) => {
-		const setMinutes = parseInt(ev.target.value);
-		useStore.setState((state) => {
-			state.timer = setMinutes;
-			state.currTimer = setMinutes;
-		});
-		setTimerSlider(setMinutes);
-
-		if (timerTimeout.current) {
-			clearTimeout(timerTimeout.current);
-		}
-		// waits 1 s on changes before sending it to backend to get saved
-		timerTimeout.current = setTimeout(() => {
-			useStore.getState().saveTimer();
-		}, 1000);
-	};
-
+	console.log(mode);
 	return (
 		<div className='w-screen h-screen flex justify-center items-center flex-col'>
+			<div>{label}</div>
+			{mode}
 			<div className='flex gap-2'>
 				<div
 					className='text-red-600 p-12 bg-white/10 rounded-full relative'
@@ -74,38 +59,14 @@ const Home: NextPage = () => {
 						setIsMenuOpened(!isMenuOpened);
 					}}
 				>
-					{isMenuOpened && (
-						<div
-							className='absolute left-[80%] bg-slate-900 top-0 py-2 px-4 border-slate-600 border rounded-md'
-							onClick={(ev) => {
-								// ev.preventDefault();
-								ev.stopPropagation();
-								console.log('capture');
-							}}
-						>
-							<Slider
-								max={minutesToTime(60)}
-								min={minutesToTime(5)}
-								onChange={onMinutesChange}
-								value={timerSlider}
-								converValue={timeToMinutes}
-								label='Minutes'
-							/>
-							<Slider
-								max={minutesToTime(20)}
-								min={minutesToTime(1)}
-								onChange={(ev) => {
-									console.log(ev.target.value);
-									setPauseSlider(parseInt(ev.target.value));
-								}}
-								converValue={timeToMinutes}
-								value={pauseSlider}
-								label='Pause'
-							/>
-						</div>
-					)}
-					<span>{timeToMinutes(timer)}</span>:
-					<span>{timeToSeconds(timer)}</span>
+					{isMenuOpened && <SettinginsMenu />}
+					<span>
+						{mode === 'timer' ? timeToMinutes(timer) : timeToMinutes(pause)}
+					</span>
+					:
+					<span>
+						{mode === 'timer' ? timeToSeconds(timer) : timeToSeconds(pause)}
+					</span>
 				</div>
 			</div>
 			<div className='flex gap-4 mt-2'>

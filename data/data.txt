@@ -1,1 +1,0 @@
-{"timer":801,"pause":300,"label":"main"}
