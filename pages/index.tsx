@@ -15,6 +15,7 @@ import SettingsMenu from '../components/SettingsMenu';
 import SessionsMenu from '../components/SessionsMenu';
 import useClickOutside from '../hooks/useClickOutside';
 import CircleTimer from '../components/CircleTimer';
+import Button from '../components/Button';
 
 // in server side next js context does not know about tauri, so tauri calls can only happen in clientside code
 
@@ -80,7 +81,7 @@ const Home: NextPage = () => {
 				onClick={() => setIsSessionsOpened(!isSessionsOpened)}
 				className='relative'
 			>
-				<span>{currSession ? currSession.label : 'Select a session'}</span>
+				<Button>{currSession ? currSession.label : 'Select a session'}</Button>
 				{isSessionsOpened && <SessionsMenu ref={sessionsMenuRef} />}
 			</div>
 			<CircleTimer />

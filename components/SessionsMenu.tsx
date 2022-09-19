@@ -15,10 +15,10 @@ const SessionsMenu = React.forwardRef<HTMLDivElement>((_props, ref) => {
 	const sessions = useStore((state) => state.sessions);
 
 	return (
-		<Menu ref={ref}>
+		<Menu ref={ref} position='top'>
 			{sessions.length === 0 ? (
 				<div>
-					Please create a{' '}
+					Please create a
 					<Link href='/stats'>
 						<span className='underline font-bold cursor-pointer'>Session</span>
 					</Link>
@@ -28,6 +28,7 @@ const SessionsMenu = React.forwardRef<HTMLDivElement>((_props, ref) => {
 					{sessions.map((session) => (
 						<li
 							key={session.id}
+							className='min-w-[160px] border-b border-gray-700/80 shadow-sm hover:bg-gray-700/40 transition-all cursor-pointer last-of-type:border-b-0 px-4 py-1'
 							onClick={(ev) => onSessionSelected(ev, session.id)}
 						>
 							{session.label}
