@@ -14,6 +14,7 @@ import {
 import SettingsMenu from '../components/SettingsMenu';
 import SessionsMenu from '../components/SessionsMenu';
 import useClickOutside from '../hooks/useClickOutside';
+import CircleTimer from '../components/CircleTimer';
 
 // in server side next js context does not know about tauri, so tauri calls can only happen in clientside code
 
@@ -71,24 +72,25 @@ const Home: NextPage = () => {
 		});
 	};
 
-	console.log(mode);
 	return (
 		<div className='w-screen h-screen flex justify-center items-center flex-col'>
 			<span className='absolute top-0'>{mode}</span>
 			<div
 				ref={sessionsContainerRef}
-				onClick={() => setIsSessionsOpened(true)}
+				onClick={() => setIsSessionsOpened(!isSessionsOpened)}
 				className='relative'
 			>
 				<span>{currSession ? currSession.label : 'Select a session'}</span>
 				{isSessionsOpened && <SessionsMenu ref={sessionsMenuRef} />}
 			</div>
+			<CircleTimer />
+
 			<div className='flex gap-2'>
 				<div
 					className='text-red-600 p-12 bg-white/10 rounded-full relative'
 					onClick={(ev) => {
 						ev.stopPropagation();
-						setIsSettingsOpened(true);
+						setIsSettingsOpened(!isSettingsOpened);
 					}}
 					ref={settingsContainerRef}
 				>

@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import React from 'react';
 import useStore from '../hooks/useStore';
+import Menu from './Menu';
 import { setSessionSelected } from '../utils/session';
 const SessionsMenu = React.forwardRef<HTMLDivElement>((_props, ref) => {
 	const onSessionSelected = (
@@ -14,10 +15,7 @@ const SessionsMenu = React.forwardRef<HTMLDivElement>((_props, ref) => {
 	const sessions = useStore((state) => state.sessions);
 
 	return (
-		<div
-			className='bg-slate-700 p-4 border border-red-400 absolute z-20'
-			ref={ref}
-		>
+		<Menu ref={ref}>
 			{sessions.length === 0 ? (
 				<div>
 					Please create a{' '}
@@ -37,7 +35,7 @@ const SessionsMenu = React.forwardRef<HTMLDivElement>((_props, ref) => {
 					))}
 				</ul>
 			)}
-		</div>
+		</Menu>
 	);
 });
 export default SessionsMenu;

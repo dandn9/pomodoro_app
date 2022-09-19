@@ -41,3 +41,20 @@ body {
 	background: #04aa6d;
 	cursor: pointer;
 }
+
+/* SVG */
+
+.circle-svg {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	pointer-events: none;
+	transform: translate(-50%, -50%);
+}
+.circle-svg .circle {
+	fill: none;
+	stroke: orange;
+	stroke-width: 12px;
+	stroke-linecap: round;
+	transition: all 0.2s ease;
+}

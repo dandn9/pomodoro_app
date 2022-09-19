@@ -12,9 +12,6 @@ const Layout = (props: React.PropsWithChildren) => {
 					<li>
 						<Link href='/stats'>Stats</Link>
 					</li>
-					<li>
-						<Link href='/settings'>Settings</Link>
-					</li>
 				</ul>
 			</div>
 			{props.children}
