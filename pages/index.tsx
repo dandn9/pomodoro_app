@@ -139,7 +139,7 @@ const Home: NextPage = () => {
 			<div className='z-10'>
 				<CircleTimer className={isRunning ? 'animate-glow' : ''} />
 
-				<div className='flex gap-2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-black'>
+				<div className='flex gap-1 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-black'>
 					<span>
 						{mode === 'timer' ? timeToMinutes(timer) : timeToMinutes(pause)}
 					</span>

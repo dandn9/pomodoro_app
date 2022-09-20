@@ -59,12 +59,13 @@
 		"windows": [
 			{
 				"fullscreen": false,
-				"height": 600,
+				"height": 700,
+				"minWidth": 400,
+				"minHeight": 500,
+				"width": 624,
 				"resizable": true,
 				"title": "Pomodoro",
-				"decorations": false,
-
-				"width": 800
+				"decorations": false
 			}
 		]
 	}

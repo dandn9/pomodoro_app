@@ -24,7 +24,7 @@ const CustomWindowbar = () => {
 	return (
 		<div
 			data-tauri-drag-region
-			className='titlebar h-5 z-50  shadow-sm fixed bg-main_bg border-b border-main_outline flex justify-end items-center  overflow-hidden'
+			className='titlebar h-7 gap-1 z-50 pr-1  shadow-sm fixed bg-main_bg border-b border-main_outline flex justify-end items-center  overflow-hidden'
 		>
 			<div
 				onClick={() => {
