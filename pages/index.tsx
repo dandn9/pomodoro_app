@@ -23,10 +23,13 @@ import { motion, LayoutGroup, AnimatePresence } from 'framer-motion';
 
 const Home: NextPage = () => {
 	const [isSessionsOpened, setIsSessionsOpened] = useState(false);
-	const [showModeText, setShowModeText] = useState(true);
+	const [showModeText, setShowModeText] = useState(false);
 
 	const sessionsMenuRef = useRef<HTMLDivElement>(null);
 	const sessionsContainerRef = useRef<HTMLDivElement>(null);
+
+	const isJustOpened = useRef(true);
+	const labelTimerRef = useRef<NodeJS.Timeout | null>(null);
 
 	useClickOutside(
 		sessionsMenuRef,
@@ -43,7 +46,27 @@ const Home: NextPage = () => {
 		state.mode,
 		state.currSession,
 	]);
-	useEffect(() => {}, [mode]);
+	useEffect(() => {
+		console.log('useeffect show mode');
+		if (isJustOpened.current) {
+			setShowModeText(true);
+			isJustOpened.current = false;
+			return;
+		}
+
+		setShowModeText(true);
+		labelTimerRef.current = setTimeout(() => {
+			console.log('clear it');
+			setShowModeText(false);
+		}, 6000);
+
+		return () => {
+			console.log('clearning function sueeffect');
+			if (labelTimerRef.current) {
+				clearTimeout(labelTimerRef.current);
+			}
+		};
+	}, [mode]);
 
 	const onStartTimer = () => {
 		if (isRunning) return;
@@ -72,9 +95,23 @@ const Home: NextPage = () => {
 
 	return (
 		<div className='w-screen h-screen overflow-hidden relative'>
-			<span className='absolute top-1/2 -translate-y-[250px] left-1/2 -translate-x-1/2'>
-				{mode}
-			</span>
+			<AnimatePresence>
+				{showModeText && (
+					<motion.span
+						exit={{
+							opacity: 0,
+							y: -210,
+							x: '-50%',
+						}}
+						initial={{ opacity: 0, y: -280, x: '-50%' }}
+						animate={{ opacity: 1, y: -250, x: '-50%' }}
+						transition={{ duration: 0.6 }}
+						className='absolute top-1/2 left-1/2'
+					>
+						{mode}
+					</motion.span>
+				)}
+			</AnimatePresence>
 			<div
 				ref={sessionsContainerRef}
 				onClick={() => setIsSessionsOpened(!isSessionsOpened)}

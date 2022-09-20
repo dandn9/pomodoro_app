@@ -6,6 +6,7 @@ const useClickOutside = (
 	...exceptions: React.RefObject<HTMLElement>[]
 ) => {
 	useEffect(() => {
+		console.log('aa', ref, cb);
 		const handler = (event: MouseEvent | TouchEvent) => {
 			if (!ref.current || ref.current.contains(event.target as Node)) {
 				return;
@@ -32,6 +33,6 @@ const useClickOutside = (
 			document.removeEventListener('mousedown', handler);
 			document.removeEventListener('touchstart', handler);
 		};
-	}, [ref, cb]);
+	}, [ref, cb, exceptions]);
 };
 export default useClickOutside;
