@@ -50,7 +50,7 @@ const SliderMenu = React.forwardRef<HTMLDivElement>((_props, ref) => {
 	return (
 		<div
 			ref={ref}
-			className='absolute left-[80%] bg-slate-900 top-0 py-2 px-4 border-slate-600 border rounded-md'
+			className='absolute left-[80%] bg-main_upper top-0 py-2 px-4 border-main_outline border rounded-md'
 			onClick={(ev) => {
 				// ev.preventDefault();
 				ev.stopPropagation();

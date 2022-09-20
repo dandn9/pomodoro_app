@@ -1,6 +1,6 @@
 import React from 'react';
 import useStore from '../hooks/useStore';
-const CircleTimer = () => {
+const CircleTimer: React.FC<{ className: string }> = (props) => {
 	const [totalTimer, currTimer, totalPause, currPause, mode] = useStore(
 		(state) => [
 			state.timer,
@@ -14,7 +14,7 @@ const CircleTimer = () => {
 	const circumference = circleRadius * 2 * Math.PI;
 
 	return (
-		<svg width={400} height={400} className='circle-svg'>
+		<svg width={400} height={400} className={`circle-svg ${props.className}`}>
 			<circle
 				cx='50%'
 				cy='50%'
