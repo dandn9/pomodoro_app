@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import create from 'zustand';
 import useStore from '../hooks/useStore';
 import Layout from '../components/Layout';
+import CustomWindowbar from '../components/CustomWindowbar';
 
 const tick = useStore.getState().tick;
 
@@ -34,10 +35,17 @@ function MyApp({ Component, pageProps }: AppProps) {
 		};
 	}, [isRunning, currSession]);
 	return (
-		<Layout>
-			<Component {...pageProps} />
-		</Layout>
+		<div className='h-screen w-screen flex flex-col justify-end'>
+			<CustomWindowbar />
+			<Layout>
+				<Component {...pageProps} />
+			</Layout>
+		</div>
 	);
 }
 
 export default MyApp;
+
+/* 
+
+			*/

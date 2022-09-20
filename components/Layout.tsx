@@ -39,7 +39,7 @@ const Layout = (props: React.PropsWithChildren) => {
 	console.log(router);
 
 	return (
-		<main>
+		<main className='h-[calc(100%-20px)] w-full overflow-hidden'>
 			<AnimatePresence key={'dd'}>
 				{isOpen && (
 					<motion.section

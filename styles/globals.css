@@ -80,3 +80,11 @@ body {
 		@apply opacity-40;
 	}
 }
+
+/*WINDOW */
+.titlebar {
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 99;
+}

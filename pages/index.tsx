@@ -94,7 +94,7 @@ const Home: NextPage = () => {
 	};
 
 	return (
-		<div className='w-screen h-screen overflow-hidden relative'>
+		<div className='w-full h-full overflow-hidden relative'>
 			<AnimatePresence>
 				{showModeText && (
 					<motion.span
