@@ -16,7 +16,6 @@ const Menu = forwardRef<HTMLDivElement, PropsWithChildren<MenuProps>>(
 			case 'top':
 				positionClasses =
 					'bottom-full left-1/2 -translate-x-1/2 -translate-y-2';
-
 				break;
 			case 'bottom':
 				positionClasses = 'top-full left-1/2 -translate-x-1/2 translate-y-2';

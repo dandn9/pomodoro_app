@@ -58,7 +58,7 @@ const Layout = (props: React.PropsWithChildren) => {
 					>
 						<Link href='/stats'>
 							<a
-								className={`opacity-60 hover:opacity-90 transition-opacity px-2 flex justify-center items-center grow ${
+								className={`opacity-60 hover:opacity-90 transition-opacity select-none px-2 flex justify-center items-center grow ${
 									router.pathname === '/stats'
 										? 'opacity-90 bg-main_white/5'
 										: ''
@@ -74,7 +74,7 @@ const Layout = (props: React.PropsWithChildren) => {
 						</Link>
 						<Link href='/'>
 							<a
-								className={`opacity-60 hover:opacity-90 transition-opacity px-2 flex justify-center border-t border-b border-main_outline items-center grow ${
+								className={`opacity-60 hover:opacity-90 transition-opacity px-2 select-none flex justify-center border-t border-b border-main_outline items-center grow ${
 									router.pathname === '/' ? 'opacity-90 bg-main_white/5' : ''
 								}`}
 							>
@@ -88,7 +88,7 @@ const Layout = (props: React.PropsWithChildren) => {
 						</Link>
 						<Link href='/settings'>
 							<a
-								className={`opacity-60 hover:opacity-90 transition-opacity px-2 flex justify-center items-center grow ${
+								className={`opacity-60 hover:opacity-90 select-none transition-opacity px-2 flex justify-center items-center grow ${
 									router.pathname === '/settings'
 										? 'opacity-90 bg-main_white/5'
 										: ''

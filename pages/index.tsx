@@ -166,6 +166,7 @@ const Home: NextPage = () => {
 							}}
 							exit={{ opacity: 0, y: 50, transition: { duration: 0.1 } }}
 							onClick={onStartTimer}
+							className='select-none'
 						>
 							<Image
 								src='/assets/icons/play.svg'
@@ -192,7 +193,7 @@ const Home: NextPage = () => {
 									duration: 0.3,
 								}}
 								exit={{ opacity: 0, y: 20, transition: { duration: 0.1 } }}
-								className='opacity-50 hover:opacity-80'
+								className='opacity-50 hover:opacity-80 select-none'
 							>
 								<Image
 									src='/assets/icons/pause.svg'
@@ -214,7 +215,7 @@ const Home: NextPage = () => {
 								}}
 								animate={{ opacity: 0.5, y: 0 }}
 								exit={{ opacity: 0, y: 20, transition: { duration: 0.1 } }}
-								className='opacity-50 hover:opacity-80'
+								className='opacity-50 hover:opacity-80 select-none'
 							>
 								<Image
 									src='/assets/icons/stop.svg'

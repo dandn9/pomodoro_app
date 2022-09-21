@@ -53,7 +53,9 @@ body {
 
 	@apply opacity-40;
 }
-
+::selection {
+	@apply text-main_white bg-main_outline;
+}
 .circle-svg .circle {
 	fill: none;
 	@apply stroke-main_white;
@@ -66,7 +68,8 @@ body {
 	transform-origin: center;
 }
 .animate-glow {
-	animation: 1s glowing_animation 0.85s ease-in-out infinite both;
+	animation: 1s glowing_animation 0.85s cubic-bezier(0.4, 0, 0.6, 1) infinite
+		both;
 }
 
 @keyframes glowing_animation {
