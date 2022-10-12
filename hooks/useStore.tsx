@@ -66,7 +66,8 @@ const useStore = create<IStore>()(
 					(session) => session.selected === true
 				);
 
-				console.log(sessionsState);
+				console.log('sesssion', sessionsState);
+				console.log('timer', timerState);
 
 				set(() => ({
 					...timerState,
