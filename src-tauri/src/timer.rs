@@ -1,4 +1,12 @@
+use std::{
+    error::Error,
+    fs::{File, OpenOptions},
+    io::{BufReader, Write},
+};
+
 use serde::{Deserialize, Serialize};
+
+use crate::state::AppStateTrait;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Copy, Default)]
 pub struct TimerState {
@@ -8,11 +16,20 @@ pub struct TimerState {
 }
 
 impl TimerState {
-    pub fn new(timer_duration: u32, pause_duration: u32) -> TimerState {
-        TimerState {
-            timer_duration,
-            pause_duration,
-            is_running: false,
-        }
+    pub fn set_timer_duration(&mut self, timer_duration: u32) {
+        self.timer_duration = timer_duration;
+        TimerState::save_state(self);
     }
+    pub fn set_pause_duration(&mut self, timer_duration: u32) {
+        self.pause_duration = timer_duration;
+        TimerState::save_state(self);
+    }
+    pub fn set_is_running(&mut self, is_running: bool) {
+        self.is_running = is_running;
+        TimerState::save_state(self);
+    }
+}
+
+impl AppStateTrait for TimerState {
+    const FILE_PATH: &'static str = "../TimerSettings.json";
 }

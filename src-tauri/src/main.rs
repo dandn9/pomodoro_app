@@ -4,6 +4,7 @@
 // )]
 
 mod commands;
+mod session;
 mod state;
 mod timer;
 
@@ -30,7 +31,12 @@ fn main() {
             }
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![greet, get_state, set_timer])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            get_state,
+            set_timer_duration,
+            set_pause_duration
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

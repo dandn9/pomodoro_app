@@ -23,16 +23,25 @@ function App() {
 	}, [shouldGetState]);
 
 	async function onTimerHandle(num: number) {
-		const res = await invoke<AppState>('set_timer', { timerNum: num });
+		const res = await invoke<AppState>('set_timer_duration', { timerNum: num });
 		setShouldGetState(true);
 	}
 
+	async function onPauseHandle(num: number) {
+		const res = await invoke<AppState>('set_pause_duration', { pauseNum: num });
+		setShouldGetState(true);
+	}
 	return (
 		<>
 			<div>TIMER</div>
 			<input
 				type='number'
 				onChange={(ev) => onTimerHandle(parseInt(ev.target.value))}
+			/>
+			<div>PAUSE</div>
+			<input
+				type='number'
+				onChange={(ev) => onPauseHandle(parseInt(ev.target.value))}
 			/>
 		</>
 	);
