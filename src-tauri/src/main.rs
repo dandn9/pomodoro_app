@@ -7,8 +7,8 @@ mod commands;
 mod state;
 mod timer;
 
-use commands::get_state;
-use state::STATE;
+use commands::*;
+use state::init_or_get_state;
 use tauri::Manager;
 use timer::TimerState;
 
@@ -18,9 +18,10 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
+// TODO -> Use Tauri defasult state managment
 fn main() {
-    STATE.lock().unwrap().set_state(TimerState::new(10, 0));
     tauri::Builder::default()
+        .manage(init_or_get_state())
         .setup(|app| {
             #[cfg(debug_assertions)]
             {
@@ -29,7 +30,7 @@ fn main() {
             }
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![greet, get_state])
+        .invoke_handler(tauri::generate_handler![greet, get_state, set_timer])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

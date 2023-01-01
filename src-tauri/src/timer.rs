@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize, Copy)]
+#[derive(Debug, Clone, Serialize, Deserialize, Copy, Default)]
 pub struct TimerState {
     pub timer_duration: u32,
     pub pause_duration: u32,
