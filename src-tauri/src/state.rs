@@ -5,12 +5,14 @@ use std::{
     sync::Mutex,
 };
 
-use crate::timer::TimerState;
+use crate::{session::SessionState, theme::ThemeState, timer::TimerState};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AppState {
     pub timer: TimerState,
+    pub sessions: SessionState,
+    pub theme: ThemeState,
 }
 impl AppState {
     pub fn get_state(&self) -> AppState {
@@ -40,7 +42,7 @@ where
         }
     }
     fn save_state(&self) -> () {
-        let serialized = serde_json::to_string(self).unwrap();
+        let serialized = serde_json::to_string_pretty(self).unwrap();
         OpenOptions::new()
             .write(true)
             .truncate(true)
@@ -65,6 +67,8 @@ where
 pub fn init_or_get_state() -> Mutex<AppState> {
     let state = AppState {
         timer: TimerState::get_state_settings_or_init(),
+        sessions: SessionState::get_state_settings_or_init(),
+        theme: ThemeState::get_state_settings_or_init(),
     };
     Mutex::new(state)
 }

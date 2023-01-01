@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 
 
-# db.sqlite
-TimerState.toml
+SessionSettings.json
+ThemeSettings.json
+TimerSettings.json

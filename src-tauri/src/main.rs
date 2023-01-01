@@ -6,6 +6,7 @@
 mod commands;
 mod session;
 mod state;
+mod theme;
 mod timer;
 
 use commands::*;
