@@ -37,5 +37,5 @@ impl Default for Notification {
 }
 
 impl AppStateTrait for ThemeState {
-    const FILE_PATH: &'static str = "../ThemeSettings.json";
+    const FILE_NAME: &'static str = "ThemeSettings.json";
 }

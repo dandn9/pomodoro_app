@@ -23,7 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-
 SessionSettings.json
 ThemeSettings.json
 TimerSettings.json

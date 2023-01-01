@@ -65,5 +65,5 @@ impl SessionState {
 }
 
 impl AppStateTrait for SessionState {
-    const FILE_PATH: &'static str = "../SessionSettings.json";
+    const FILE_NAME: &'static str = "SessionSettings.json";
 }

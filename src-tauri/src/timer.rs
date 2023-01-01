@@ -31,5 +31,5 @@ impl TimerState {
 }
 
 impl AppStateTrait for TimerState {
-    const FILE_PATH: &'static str = "../TimerSettings.json";
+    const FILE_NAME: &'static str = "TimerSettings.json";
 }
