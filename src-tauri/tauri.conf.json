@@ -17,6 +17,9 @@
 			"shell": {
 				"all": false,
 				"open": true
+			},
+			"fs": {
+				"scope": ["$APPDATA/*"]
 			}
 		},
 		"bundle": {
@@ -34,7 +37,7 @@
 				"icons/icon.icns",
 				"icons/icon.ico"
 			],
-			"identifier": "com.tauri.dev",
+			"identifier": "pmdr_settings",
 			"longDescription": "",
 			"macOS": {
 				"entitlements": null,

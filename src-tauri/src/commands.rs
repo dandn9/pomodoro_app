@@ -1,9 +1,12 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::rc::Rc;
 use std::sync::Mutex;
 
 use serde::{Deserialize, Serialize};
+use tauri::api::path::*;
 use tauri::{command, State};
 
 use crate::state::AppState;
@@ -34,9 +37,15 @@ pub fn set_timer_sound(
     file_info: HashMap<String, String>,
     state: State<'_, Mutex<AppState>>,
 ) -> () {
-    println!("HI!");
-    // println!("set_timer_sound {:?}", sound_data);
-    println!("set_timer_sound {:?}", file_info);
-    file_info.get("name");
+    let file_name = file_info.get("name").unwrap();
+
+    // println!("app data", app_data_dir())
+
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .open(file_name)
+        .unwrap();
+    file.write_all(&sound_data).unwrap()
 }
 // pub fn set_

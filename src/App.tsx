@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api';
 import reactLogo from './assets/react.svg';
 import './App.css';
-import { W } from '@tauri-apps/api/event-2a9960e7';
+import { readBinaryFile, BaseDirectory } from '@tauri-apps/api/fs';
 
 interface AppState {
 	timer: {
@@ -33,9 +33,10 @@ function App() {
 		setShouldGetState(true);
 	}
 
-	async function onOpenHandle() {
+	async function onSetTimerAudio() {
 		const input = document.createElement('input');
 		input.type = 'file';
+		input.accept = 'audio/*,.mp4';
 		// input.webkitdirectory = true;
 
 		input.onchange = async (ev) => {
@@ -46,6 +47,10 @@ function App() {
 
 			const fileStream = first.stream().getReader();
 
+			// 10 mb
+			if (first.size > 10000000) {
+				throw new Error('File is too big');
+			}
 			console.log('on change');
 			let isDone = false;
 			let bytesReceived = 0;
@@ -61,25 +66,35 @@ function App() {
 				bytesReceived += value.length;
 				allChunks.push(value);
 			}
-			// 10 mb
-			if (bytesReceived > 10000000) {
-				throw new Error('File is too big');
-			}
 			const dataToSend = new Uint8Array(bytesReceived);
-			let dataStore = 0;
+			let dataStored = 0;
 			for (const fileChunk of allChunks) {
-				dataToSend.set(fileChunk, dataStore);
-				dataStore += fileChunk.length;
+				dataToSend.set(fileChunk, dataStored);
+				dataStored += fileChunk.length;
 			}
 
 			console.log('data', dataToSend);
 			console.log('data from array', Array.from(dataToSend));
+			console.log('file info', first);
 			await invoke('set_timer_sound', {
 				soundData: Array.from(dataToSend),
-				fileInfo: { FileInfo: 'hi', FileName: 'test!' },
+				fileInfo: { name: first.name },
 			});
 		};
 		input.click();
+	}
+	async function onPlayTimerAudio() {
+		// await invoke('play_timer_sound');
+		console.log(BaseDirectory.AppData);
+		const audioBin = await readBinaryFile('bonk_sound.mp4', {
+			dir: BaseDirectory.AppData,
+		});
+		const audioBlob = new Blob([audioBin], { type: 'audio/webm' });
+		const audiourl = URL.createObjectURL(audioBlob);
+		const audio = new Audio(audiourl);
+		audio.play();
+		// readB;
+		// let audio = new Audio("")
 	}
 
 	return (
@@ -95,7 +110,10 @@ function App() {
 				onChange={(ev) => onPauseHandle(parseInt(ev.target.value))}
 			/>
 			<div>
-				<button onClick={onOpenHandle}>OPEN</button>
+				<button onClick={onSetTimerAudio}>SET TIMER AUDIO</button>
+			</div>
+			<div>
+				<button onClick={onPlayTimerAudio}>PLAY TIMER AUDIO</button>
 			</div>
 		</>
 	);
