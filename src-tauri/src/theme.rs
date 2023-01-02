@@ -20,18 +20,18 @@ impl Default for ThemeState {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Notification {
-    message_on_timer: String,
-    message_on_pause: String,
-    audio_on_timer: String,
-    audio_on_pause: String,
+    pub message_on_timer: String,
+    pub message_on_pause: String,
+    pub audio_on_timer: String,
+    pub audio_on_pause: String,
 }
 impl Default for Notification {
     fn default() -> Self {
         Self {
             message_on_timer: "Timer is up!".to_string(),
             message_on_pause: "Pause is up!".to_string(),
-            audio_on_timer: "default".to_string(),
-            audio_on_pause: "default".to_string(),
+            audio_on_timer: "".to_string(),
+            audio_on_pause: "".to_string(),
         }
     }
 }

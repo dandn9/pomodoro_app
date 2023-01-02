@@ -30,8 +30,7 @@ fn main() {
                 let window = app.get_window("main").unwrap();
                 window.open_devtools();
             }
-            let app_config = app.config();
-            app.manage(init_or_get_state(&app_config));
+            app.manage(init_or_get_state(&app.config()));
 
             Ok(())
         })

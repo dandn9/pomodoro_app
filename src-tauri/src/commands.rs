@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use tauri::api::path::app_data_dir;
 use tauri::{command, State};
 
-use crate::state::AppState;
+use crate::state::{AppState, AppStateTrait};
 use crate::timer::TimerState;
 
 #[tauri::command]
@@ -37,8 +37,7 @@ pub fn set_timer_sound(
     file_info: HashMap<String, String>,
     state: State<'_, Mutex<AppState>>,
     app: tauri::AppHandle,
-    window: tauri::Window,
-) -> () {
+) -> AppState {
     let file_name = file_info.get("name").unwrap();
     let app_config = app.config();
     let path = app_data_dir(&app_config);
@@ -46,10 +45,17 @@ pub fn set_timer_sound(
 
     let mut file = OpenOptions::new()
         .write(true)
+        .truncate(true)
         .create(true)
         .open(path)
         .unwrap();
-    file.write_all(&sound_data).unwrap()
+    file.write_all(&sound_data).unwrap();
+
+    let mut curr_state = state.lock().unwrap();
+    curr_state.theme.notification.audio_on_timer = file_name.to_string();
+    curr_state.theme.save_state();
+
+    curr_state.get_state()
 }
 
 pub fn get_timer_sound_name(state: State<'_, Mutex<AppState>>) -> String {

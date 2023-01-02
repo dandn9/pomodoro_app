@@ -63,7 +63,6 @@ impl SessionState {
         self.save_state();
     }
 }
-
 impl AppStateTrait for SessionState {
     const FILE_NAME: &'static str = "SessionSettings.json";
 }

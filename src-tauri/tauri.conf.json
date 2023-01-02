@@ -19,7 +19,7 @@
 				"open": true
 			},
 			"fs": {
-				"scope": ["$APPDATA/*"]
+				"scope": ["$APPDATA/**"]
 			}
 		},
 		"bundle": {

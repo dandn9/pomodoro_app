@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^1.2.0",
+    "immer": "^9.0.17",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "zustand": "^4.2.0"

@@ -3,20 +3,15 @@ import { invoke } from '@tauri-apps/api';
 import reactLogo from './assets/react.svg';
 import './App.css';
 import { readBinaryFile, BaseDirectory } from '@tauri-apps/api/fs';
-
-interface AppState {
-	timer: {
-		is_running: boolean;
-		pause_duration: number;
-		timer_duration: number;
-	};
-}
+import useStateStore from './hooks/useStateStore';
+import type { AppStateData } from './hooks/useStateStore';
 
 function App() {
 	const [shouldGetState, setShouldGetState] = useState(true);
+	const store = useStateStore();
 	useEffect(() => {
 		if (shouldGetState) {
-			invoke<AppState>('get_state').then((res) => {
+			invoke<AppStateData>('get_state').then((res) => {
 				console.log(`res get : ${JSON.stringify(res)}`);
 				setShouldGetState(false);
 			});
@@ -24,12 +19,16 @@ function App() {
 	}, [shouldGetState]);
 
 	async function onTimerHandle(num: number) {
-		const res = await invoke<AppState>('set_timer_duration', { timerNum: num });
+		const res = await invoke<AppStateData>('set_timer_duration', {
+			timerNum: num,
+		});
 		setShouldGetState(true);
 	}
 
 	async function onPauseHandle(num: number) {
-		const res = await invoke<AppState>('set_pause_duration', { pauseNum: num });
+		const res = await invoke<AppStateData>('set_pause_duration', {
+			pauseNum: num,
+		});
 		setShouldGetState(true);
 	}
 
@@ -73,22 +72,24 @@ function App() {
 				dataStored += fileChunk.length;
 			}
 
-			console.log('data', dataToSend);
-			console.log('data from array', Array.from(dataToSend));
-			console.log('file info', first);
-			await invoke('set_timer_sound', {
+			const res = await invoke<AppStateData>('set_timer_sound', {
 				soundData: Array.from(dataToSend),
 				fileInfo: { name: first.name },
 			});
+			store.setStateData(res);
 		};
 		input.click();
 	}
 	async function onPlayTimerAudio() {
 		// await invoke('play_timer_sound');
+		console.log(store.data);
 		console.log(BaseDirectory.AppData);
-		const audioBin = await readBinaryFile('bonk_sound.mp4', {
-			dir: BaseDirectory.AppData,
-		});
+		const audioBin = await readBinaryFile(
+			`audio/${store.data.theme.notification.audio_on_timer}`,
+			{
+				dir: BaseDirectory.AppData,
+			}
+		);
 		const audioBlob = new Blob([audioBin], { type: 'audio/webm' });
 		const audiourl = URL.createObjectURL(audioBlob);
 		const audio = new Audio(audiourl);
