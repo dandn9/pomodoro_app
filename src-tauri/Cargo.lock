@@ -1992,6 +1992,7 @@ version = "0.0.0"
 dependencies = [
  "chrono",
  "dirs",
+ "once_cell",
  "serde",
  "serde_json",
  "tauri",

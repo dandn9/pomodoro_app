@@ -1,16 +1,21 @@
 use std::{
+    cell::RefCell,
     error::Error,
     fs::{self, File, OpenOptions},
     io::{self, BufReader, Write},
     path::PathBuf,
-    sync::Mutex,
+    sync::{Arc, Mutex},
 };
 
 use crate::{session::SessionState, theme::ThemeState, timer::TimerState};
+use once_cell::sync::Lazy;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use tauri::api::path::app_data_dir;
 
 // Preference Folder
-pub const PREF_FOLDER_NAME: &'static str = "pmdr_settings";
+pub static PREF_FOLDER_NAME: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new("".to_string()));
+// Appdata settings folder
+pub static SETTINGS_FOLDER_PATH: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new("".to_string()));
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AppState {
@@ -48,13 +53,8 @@ where
     fn save_state(&self) -> () {
         let serialized = serde_json::to_string_pretty(self).unwrap();
 
-        #[cfg(not(debug_assertions))]
-        let file_path = dirs::config_dir()
-            .unwrap()
-            .join(PREF_FOLDER_NAME)
-            .join(Self::FILE_NAME);
-        #[cfg(debug_assertions)]
-        let file_path = PathBuf::new().join("../").join(Self::FILE_NAME);
+        let file_path =
+            PathBuf::from(SETTINGS_FOLDER_PATH.lock().unwrap().to_string()).join(Self::FILE_NAME);
 
         OpenOptions::new()
             .write(true)
@@ -66,14 +66,8 @@ where
             .unwrap();
     }
     fn get_saved_state() -> Result<Self, Box<dyn Error>> {
-        #[cfg(not(debug_assertions))]
-        let file_path = dirs::config_dir()
-            .unwrap()
-            .join(PREF_FOLDER_NAME)
-            .join(Self::FILE_NAME);
-
-        #[cfg(debug_assertions)]
-        let file_path = PathBuf::new().join("../").join(Self::FILE_NAME);
+        let file_path =
+            PathBuf::from(SETTINGS_FOLDER_PATH.lock().unwrap().to_string()).join(Self::FILE_NAME);
 
         let f = OpenOptions::new().read(true).open(file_path)?;
 
@@ -86,8 +80,16 @@ where
 
 // pub static STATE: Mutex<AppState> = Mutex::new(AppState { timer: None });
 
-pub fn init_or_get_state() -> Mutex<AppState> {
+pub fn init_or_get_state(app_config: &tauri::Config) -> Mutex<AppState> {
+    SETTINGS_FOLDER_PATH
+        .lock()
+        .unwrap()
+        .push_str(app_data_dir(app_config).unwrap().to_str().unwrap());
+
     setup_state_folder();
+    println!("PREF_FOLDER_NAME: {}", PREF_FOLDER_NAME.lock().unwrap());
+    println!("BASE PATH: {}", SETTINGS_FOLDER_PATH.lock().unwrap());
+
     let state = AppState {
         timer: TimerState::get_state_settings_or_init(),
         sessions: SessionState::get_state_settings_or_init(),
@@ -97,15 +99,26 @@ pub fn init_or_get_state() -> Mutex<AppState> {
 }
 
 pub fn setup_state_folder() {
-    let config_dir = dirs::config_dir().unwrap().join(PREF_FOLDER_NAME);
+    // let config_dir = dirs::config_dir().unwrap().join(PREF_FOLDER_NAME);
+    let base_path = PathBuf::from(SETTINGS_FOLDER_PATH.lock().unwrap().to_string());
 
-    match fs::create_dir(&config_dir) {
+    match fs::create_dir(&base_path) {
         Ok(_) => println!("Created config directory"),
         Err(e) => {
             if e.kind() == io::ErrorKind::AlreadyExists {
                 println!("Config directory already exists");
             } else {
                 panic!("Failed to create config directory: {}", e);
+            }
+        }
+    }
+    match fs::create_dir(&base_path.join("audio")) {
+        Ok(_) => println!("Created audio directory"),
+        Err(e) => {
+            if e.kind() == io::ErrorKind::AlreadyExists {
+                println!("Audio directory already exists");
+            } else {
+                panic!("Failed to create audio directory: {}", e);
             }
         }
     }

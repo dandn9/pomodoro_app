@@ -6,7 +6,7 @@ use std::rc::Rc;
 use std::sync::Mutex;
 
 use serde::{Deserialize, Serialize};
-use tauri::api::path::*;
+use tauri::api::path::app_data_dir;
 use tauri::{command, State};
 
 use crate::state::AppState;
@@ -36,16 +36,25 @@ pub fn set_timer_sound(
     sound_data: Vec<u8>,
     file_info: HashMap<String, String>,
     state: State<'_, Mutex<AppState>>,
+    app: tauri::AppHandle,
+    window: tauri::Window,
 ) -> () {
     let file_name = file_info.get("name").unwrap();
-
-    // println!("app data", app_data_dir())
+    let app_config = app.config();
+    let path = app_data_dir(&app_config);
+    let path = path.unwrap().join("audio").join(file_name);
 
     let mut file = OpenOptions::new()
         .write(true)
         .create(true)
-        .open(file_name)
+        .open(path)
         .unwrap();
     file.write_all(&sound_data).unwrap()
+}
+
+pub fn get_timer_sound_name(state: State<'_, Mutex<AppState>>) -> String {
+    let curr_state = state.lock().unwrap();
+    // curr_state.theme.notification.clone()
+    String::from("")
 }
 // pub fn set_

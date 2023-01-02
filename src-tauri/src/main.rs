@@ -23,13 +23,16 @@ fn greet(name: &str) -> String {
 // TODO -> Use Tauri defasult state managment
 fn main() {
     tauri::Builder::default()
-        .manage(init_or_get_state())
+        // .manage(init_or_get_state())
         .setup(|app| {
             #[cfg(debug_assertions)]
             {
                 let window = app.get_window("main").unwrap();
                 window.open_devtools();
             }
+            let app_config = app.config();
+            app.manage(init_or_get_state(&app_config));
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
