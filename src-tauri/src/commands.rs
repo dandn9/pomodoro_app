@@ -58,9 +58,16 @@ pub fn set_timer_sound(
     curr_state.get_state()
 }
 
-pub fn get_timer_sound_name(state: State<'_, Mutex<AppState>>) -> String {
-    let curr_state = state.lock().unwrap();
-    // curr_state.theme.notification.clone()
-    String::from("")
+#[tauri::command]
+pub fn set_preferred_theme(
+    theme: String,
+    state: State<'_, Mutex<AppState>>,
+) -> Result<AppState, String> {
+    if theme != "light" || theme != "dark" {
+        return Err("Invalid theme".to_string());
+    }
+    let mut curr_state = state.lock().unwrap();
+    curr_state.theme.preferred_theme = theme;
+    Ok(curr_state.get_state())
 }
 // pub fn set_
