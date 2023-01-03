@@ -3,27 +3,71 @@
 //     windows_subsystem = "windows"
 // )]
 
+#![cfg_attr(
+    all(not(debug_assertions), target_os = "windows"),
+    windows_subsystem = "windows"
+)]
+
 mod commands;
+mod preferences;
 mod session;
 mod state;
-mod theme;
 mod timer;
 
+use std::sync::Mutex;
+
 use commands::*;
+use once_cell::sync::Lazy;
 use state::init_or_get_state;
-use tauri::Manager;
+use tauri::{
+    generate_context, CustomMenuItem, SystemTray, SystemTrayHandle, SystemTrayMenu,
+    SystemTrayMenuItem, WindowBuilder, WindowEvent, WindowUrl,
+};
+use tauri::{Manager, SystemTrayEvent};
 use timer::TimerState;
+use window_vibrancy::{apply_acrylic, apply_blur, apply_mica, Color};
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+fn create_system_tray() -> SystemTray {
+    let quit = CustomMenuItem::new("quit".to_string(), "Quit");
+    let toggle_timer = CustomMenuItem::new("toggle_timer".to_string(), "Start Timer");
+    let tray_menu = SystemTrayMenu::new()
+        .add_item(toggle_timer)
+        .add_native_item(SystemTrayMenuItem::Separator)
+        .add_item(quit);
+    SystemTray::new().with_menu(tray_menu)
 }
+// the payload type must implement `Serialize` and `Clone`.
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
+struct Payload {
+    message: Option<String>,
+}
+pub static SystemTray: Lazy<Mutex<Option<SystemTrayHandle>>> = Lazy::new(|| Mutex::new(None));
 
-// TODO -> Use Tauri defasult state managment
 fn main() {
     tauri::Builder::default()
-        // .manage(init_or_get_state())
+        .system_tray(create_system_tray())
+        .on_system_tray_event(|app, event| match event {
+            SystemTrayEvent::DoubleClick { .. } => {
+                let window = app.get_window("main").unwrap();
+                window.show().unwrap();
+                window.unminimize().unwrap();
+                window.set_focus().unwrap();
+            }
+            SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
+                "quit" => {
+                    std::process::exit(0);
+                }
+                "toggle_timer" => {
+                    let window = app.get_window("main").unwrap();
+                    window
+                        .emit("toggle_timer_tray", Payload { message: None })
+                        .unwrap()
+                }
+
+                _ => {}
+            },
+            _ => {}
+        })
         .setup(|app| {
             #[cfg(debug_assertions)]
             {
@@ -31,11 +75,36 @@ fn main() {
                 window.open_devtools();
             }
             app.manage(init_or_get_state(&app.config()));
+            let main_window = app.get_window("main").unwrap();
+            let tray_handle = app.tray_handle();
+            SystemTray.lock().unwrap().replace(tray_handle);
+
+            // event for system tray to switch between "start timer" and "stop timer"
+            main_window.listen("toggle_timer_app", |event| {
+                println!("got event! {:?}", event.payload());
+                let payload = serde_json::from_str::<Payload>(event.payload().unwrap()).unwrap();
+                let mut tray_handle_ref = SystemTray.lock().unwrap();
+                let tray_handgg = tray_handle_ref.as_mut();
+                let tray_handle = tray_handgg.unwrap();
+                let g = tray_handle.get_item("toggle_timer");
+                g.set_title(payload.message.unwrap()).unwrap();
+            });
+            main_window.set_decorations(true).unwrap();
+
+            #[cfg(target_os = "macos")]
+            apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None)
+                .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
+
+            #[cfg(target_os = "windows")]
+            {
+                apply_mica(&main_window)
+                    .or_else(|_| apply_acrylic(&main_window, None))
+                    .expect("Unsupported platform");
+            }
 
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            greet,
             get_state,
             set_timer_duration,
             set_pause_duration,
@@ -43,5 +112,5 @@ fn main() {
             set_preferred_theme
         ])
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .expect("error while building tauri application")
 }

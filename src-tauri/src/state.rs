@@ -7,7 +7,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::{session::SessionState, theme::ThemeState, timer::TimerState};
+use crate::{preferences::PreferencesState, session::SessionState, timer::TimerState};
 use once_cell::sync::Lazy;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use tauri::api::path::app_data_dir;
@@ -21,7 +21,7 @@ pub static SETTINGS_FOLDER_PATH: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new("
 pub struct AppState {
     pub timer: TimerState,
     pub sessions: SessionState,
-    pub theme: ThemeState,
+    pub theme: PreferencesState,
 }
 impl AppState {
     pub fn get_state(&self) -> AppState {
@@ -93,7 +93,7 @@ pub fn init_or_get_state(app_config: &tauri::Config) -> Mutex<AppState> {
     let state = AppState {
         timer: TimerState::get_state_settings_or_init(),
         sessions: SessionState::get_state_settings_or_init(),
-        theme: ThemeState::get_state_settings_or_init(),
+        theme: PreferencesState::get_state_settings_or_init(),
     };
     Mutex::new(state)
 }

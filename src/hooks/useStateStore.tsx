@@ -26,6 +26,7 @@ export interface AppStateData {
 			message_on_timer: string;
 		};
 		preferred_theme: 'dark' | 'light';
+		autoplay: boolean;
 	};
 }
 interface AppState {
@@ -47,6 +48,7 @@ const initialDataState: AppStateData = {
 			message_on_pause: '',
 			message_on_timer: '',
 		},
+		autoplay: false,
 		preferred_theme: 'dark',
 	},
 };

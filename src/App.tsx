@@ -1,14 +1,21 @@
 import { useEffect, useState } from 'react';
-import { invoke } from '@tauri-apps/api';
+import { app, invoke } from '@tauri-apps/api';
 import reactLogo from './assets/react.svg';
 import './App.css';
 import { readBinaryFile, BaseDirectory } from '@tauri-apps/api/fs';
 import useStateStore from './hooks/useStateStore';
 import type { AppStateData } from './hooks/useStateStore';
+import {
+	isPermissionGranted,
+	sendNotification,
+	requestPermission,
+} from '@tauri-apps/api/notification';
+import { appWindow } from '@tauri-apps/api/window';
 
 function App() {
 	const [shouldGetState, setShouldGetState] = useState(true);
 	const store = useStateStore();
+
 	useEffect(() => {
 		if (shouldGetState) {
 			invoke<AppStateData>('get_state').then((res) => {
@@ -97,6 +104,22 @@ function App() {
 		// readB;
 		// let audio = new Audio("")
 	}
+	async function onSendNotification() {
+		let permissionGranted = await isPermissionGranted();
+		if (!permissionGranted) {
+			const permission = await requestPermission();
+			permissionGranted = permission === 'granted';
+		}
+		if (permissionGranted) {
+			sendNotification({
+				title: 'HI!',
+				body: 'Hello world',
+			});
+		}
+	}
+	async function onSendTimerEvent() {
+		appWindow.emit('toggle_timer_app', { message: 'Start TTTimer' });
+	}
 
 	return (
 		<>
@@ -115,6 +138,12 @@ function App() {
 			</div>
 			<div>
 				<button onClick={onPlayTimerAudio}>PLAY TIMER AUDIO</button>
+			</div>
+			<div>
+				<button onClick={onSendNotification}>SEND NOTIFICATION</button>
+			</div>
+			<div>
+				<button onClick={onSendTimerEvent}>SEND TIMER EVENT</button>
 			</div>
 		</>
 	);

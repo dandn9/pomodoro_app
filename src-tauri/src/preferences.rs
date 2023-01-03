@@ -4,16 +4,18 @@ use serde::{Deserialize, Serialize};
 use crate::state::AppStateTrait;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ThemeState {
+pub struct PreferencesState {
     pub preferred_theme: String,
     pub notification: Notification,
+    pub autoplay: bool,
 }
 
-impl Default for ThemeState {
+impl Default for PreferencesState {
     fn default() -> Self {
         Self {
             preferred_theme: "dark".to_string(),
             notification: Notification::default(),
+            autoplay: false,
         }
     }
 }
@@ -36,6 +38,6 @@ impl Default for Notification {
     }
 }
 
-impl AppStateTrait for ThemeState {
-    const FILE_NAME: &'static str = "ThemeSettings.json";
+impl AppStateTrait for PreferencesState {
+    const FILE_NAME: &'static str = "PreferencesSettings.json";
 }
