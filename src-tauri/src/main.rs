@@ -109,7 +109,6 @@ fn main() {
             set_timer_duration,
             set_pause_duration,
             set_timer_sound,
-            set_preferred_theme
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application")

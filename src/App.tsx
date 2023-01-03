@@ -15,6 +15,12 @@ import { appWindow } from '@tauri-apps/api/window';
 function App() {
 	const [shouldGetState, setShouldGetState] = useState(true);
 	const store = useStateStore();
+	appWindow.theme().then((theme) => {
+		console.log('theme', theme);
+	});
+	appWindow.onThemeChanged(({ payload: theme }) => {
+		console.log('new theme', theme);
+	});
 
 	useEffect(() => {
 		if (shouldGetState) {

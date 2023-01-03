@@ -5,17 +5,17 @@ use crate::state::AppStateTrait;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PreferencesState {
-    pub preferred_theme: String,
     pub notification: Notification,
     pub autoplay: bool,
+    pub enable_sessions: bool,
 }
 
 impl Default for PreferencesState {
     fn default() -> Self {
         Self {
-            preferred_theme: "dark".to_string(),
             notification: Notification::default(),
             autoplay: false,
+            enable_sessions: true,
         }
     }
 }
