@@ -53,14 +53,7 @@ impl SessionState {
         self.save_state();
     }
     pub fn remove_session(&mut self, id: u32) {
-        // self.sessions = self.sessions.drain(..).filter(|x| x.id != id).collect();
-        let session = self.sessions.iter().find(|s| s.id == id);
-        match session {
-            Some(s) => {
-                std::mem::drop(*s);
-            }
-            None => {}
-        }
+        self.sessions = self.sessions.drain(..).filter(|x| x.id != id).collect();
         self.save_state();
     }
     pub fn get_session_mut(&mut self, id: u32) -> Option<&mut Session> {

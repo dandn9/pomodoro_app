@@ -121,7 +121,10 @@ fn main() {
             set_timer_duration,
             set_pause_duration,
             set_timer_sound,
-            create_session
+            create_session,
+            remove_session,
+            update_session,
+            task
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application")

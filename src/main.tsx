@@ -6,7 +6,7 @@ import { invoke } from '@tauri-apps/api';
 import useStateStore, { AppStateData } from './hooks/useStateStore';
 
 invoke<AppStateData>('get_state').then((res) => {
-	console.log(`res get : ${JSON.stringify(res)}`);
+	console.log(`initial - get `, res);
 	useStateStore.getState().setStateData(res);
 });
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(

@@ -1,11 +1,10 @@
+use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::rc::Rc;
 use std::sync::Mutex;
-
-use serde::{Deserialize, Serialize};
 use tauri::api::path::app_data_dir;
 use tauri::{command, State};
 
@@ -55,6 +54,7 @@ pub fn set_timer_sound(
     let mut curr_state = state.lock().unwrap();
     curr_state.theme.notification.audio_on_timer = file_name.to_string();
     curr_state.theme.save_state();
+    println!("new state! {:?}", curr_state);
 
     curr_state.get_state()
 }
@@ -69,6 +69,7 @@ pub fn create_session(
     let latest_id = curr_state.sessions.get_latest_id();
     let session = Session::new(name, color, latest_id + 1);
     curr_state.sessions.add_session(session);
+
     curr_state.get_state()
 }
 
@@ -76,6 +77,7 @@ pub fn create_session(
 pub fn remove_session(id: u32, state: State<'_, Mutex<AppState>>) -> AppState {
     let mut curr_state = state.lock().unwrap();
     curr_state.sessions.remove_session(id);
+    println!("NEW STATE REMOVED {:?}", curr_state);
     curr_state.get_state()
 }
 
@@ -83,10 +85,51 @@ pub fn remove_session(id: u32, state: State<'_, Mutex<AppState>>) -> AppState {
 pub fn update_session(
     name: Option<String>,
     color: Option<String>,
+    id: u32,
     state: State<'_, Mutex<AppState>>,
-) -> AppState {
+) -> Result<AppState, String> {
     let mut curr_state = state.lock().unwrap();
-    let latest_id = curr_state.sessions.get_latest_id();
-    curr_state.sessions.add_session(session);
-    curr_state.get_state()
+    let session = curr_state.sessions.get_session_mut(id);
+    match session {
+        Some(session_ref) => {
+            match name {
+                Some(new_name) => session_ref.name = new_name,
+                None => {}
+            };
+            match color {
+                Some(new_color) => session_ref.color = new_color,
+                None => {}
+            }
+        }
+        None => return Err("No session".to_string()),
+    }
+    curr_state.sessions.save_state();
+    println!("NEW STATE {:?}", curr_state);
+    Ok(curr_state.get_state())
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub enum TaskActions {
+    SetIsDone,
+    Create,
+    Delete,
+    Update,
+}
+#[tauri::command]
+pub fn task(
+    id: Option<u32>,
+    action: TaskActions,
+    state: State<'_, Mutex<AppState>>,
+) -> Result<AppState, String> {
+    match action {
+        TaskActions::SetIsDone => {
+            println!("set is done");
+        }
+        TaskActions::Create => {
+            println!("create");
+        }
+        _ => {}
+    }
+    let curr_state = state.lock().unwrap();
+    Ok(curr_state.get_state())
 }
