@@ -20,8 +20,8 @@ use commands::*;
 use once_cell::sync::Lazy;
 use state::init_or_get_state;
 use tauri::{
-    generate_context, CustomMenuItem, SystemTray, SystemTrayHandle, SystemTrayMenu,
-    SystemTrayMenuItem, WindowBuilder, WindowEvent, WindowUrl,
+    generate_context, CustomMenuItem, GlobalWindowEvent, SystemTray, SystemTrayHandle,
+    SystemTrayMenu, SystemTrayMenuItem, WindowBuilder, WindowEvent, WindowUrl,
 };
 use tauri::{Manager, SystemTrayEvent};
 use timer::TimerState;
@@ -41,7 +41,7 @@ fn create_system_tray() -> SystemTray {
 struct Payload {
     message: Option<String>,
 }
-pub static SystemTray: Lazy<Mutex<Option<SystemTrayHandle>>> = Lazy::new(|| Mutex::new(None));
+pub static SYSTEM_TRAY: Lazy<Mutex<Option<SystemTrayHandle>>> = Lazy::new(|| Mutex::new(None));
 
 fn main() {
     tauri::Builder::default()
@@ -50,6 +50,7 @@ fn main() {
             SystemTrayEvent::DoubleClick { .. } => {
                 let window = app.get_window("main").unwrap();
                 window.show().unwrap();
+                window.set_decorations(true).unwrap();
                 window.unminimize().unwrap();
                 window.set_focus().unwrap();
             }
@@ -77,13 +78,13 @@ fn main() {
             app.manage(init_or_get_state(&app.config()));
             let main_window = app.get_window("main").unwrap();
             let tray_handle = app.tray_handle();
-            SystemTray.lock().unwrap().replace(tray_handle);
+            SYSTEM_TRAY.lock().unwrap().replace(tray_handle);
 
             // event for system tray to switch between "start timer" and "stop timer"
             main_window.listen("toggle_timer_app", |event| {
                 println!("got event! {:?}", event.payload());
                 let payload = serde_json::from_str::<Payload>(event.payload().unwrap()).unwrap();
-                let mut tray_handle_ref = SystemTray.lock().unwrap();
+                let mut tray_handle_ref = SYSTEM_TRAY.lock().unwrap();
                 let tray_handgg = tray_handle_ref.as_mut();
                 let tray_handle = tray_handgg.unwrap();
                 let g = tray_handle.get_item("toggle_timer");
@@ -103,6 +104,17 @@ fn main() {
             }
 
             Ok(())
+        })
+        .on_window_event(|event| match event.event() {
+            WindowEvent::CloseRequested { api, .. } => {
+                println!("CLOSE REQUESTED");
+
+                let window = event.window();
+                window.set_decorations(false).unwrap();
+                window.hide().unwrap();
+                api.prevent_close();
+            }
+            _ => {}
         })
         .invoke_handler(tauri::generate_handler![
             get_state,

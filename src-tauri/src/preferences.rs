@@ -8,6 +8,7 @@ pub struct PreferencesState {
     pub notification: Notification,
     pub autoplay: bool,
     pub enable_sessions: bool,
+    pub sessions_for_run: u32,
 }
 
 impl Default for PreferencesState {
@@ -16,6 +17,7 @@ impl Default for PreferencesState {
             notification: Notification::default(),
             autoplay: false,
             enable_sessions: true,
+            sessions_for_run: 4,
         }
     }
 }

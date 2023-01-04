@@ -17,6 +17,7 @@ pub struct Session {
     pub time_spent: u32,
     pub total_sessions: u32,
     pub created_at: DateTime<Local>,
+    pub tasks: Vec<Task>,
 }
 
 impl Session {
@@ -37,10 +38,15 @@ impl Session {
             total_sessions: 0,
             time_spent: 0,
             created_at: Local::now(),
+            tasks: vec![],
         }
     }
     pub fn set_time_spent(&mut self, time_spent: u32) {
         self.time_spent = time_spent;
+    }
+    pub fn add_task(&mut self, task_name: String) {
+        let task = Task::new(task_name);
+        self.tasks.push(task);
     }
 }
 
@@ -65,4 +71,22 @@ impl SessionState {
 }
 impl AppStateTrait for SessionState {
     const FILE_NAME: &'static str = "SessionSettings.json";
+}
+
+// TASK --
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Task {
+    name: String,
+    is_done: bool,
+}
+impl Task {
+    pub fn new(name: String) -> Task {
+        Task {
+            name,
+            is_done: false,
+        }
+    }
+    pub fn set_task_done(&mut self, is_done: bool) {
+        self.is_done = is_done;
+    }
 }

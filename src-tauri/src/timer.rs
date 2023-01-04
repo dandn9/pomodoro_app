@@ -12,6 +12,7 @@ use crate::state::AppStateTrait;
 pub struct TimerState {
     pub timer_duration: u32,
     pub pause_duration: u32,
+    pub long_pause_duration: u32,
     pub is_running: bool,
 }
 
