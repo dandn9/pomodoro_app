@@ -1,5 +1,6 @@
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
+use std::mem::drop;
 
 use crate::state::AppStateTrait;
 
@@ -21,14 +22,10 @@ pub struct Session {
 }
 
 impl Session {
-    pub fn new(name: String, color: Option<String>, id: Option<u32>) -> Session {
+    pub fn new(name: String, color: Option<String>, id: u32) -> Session {
         let color = match color {
             Some(color) => color,
             None => "#000000".to_string(),
-        };
-        let id = match id {
-            Some(id) => id,
-            None => 0,
         };
         Session {
             id,
@@ -56,7 +53,14 @@ impl SessionState {
         self.save_state();
     }
     pub fn remove_session(&mut self, id: u32) {
-        self.sessions = self.sessions.drain(..).filter(|x| x.id != id).collect();
+        // self.sessions = self.sessions.drain(..).filter(|x| x.id != id).collect();
+        let session = self.sessions.iter().find(|s| s.id == id);
+        match session {
+            Some(s) => {
+                std::mem::drop(*s);
+            }
+            None => {}
+        }
         self.save_state();
     }
     pub fn get_session_mut(&mut self, id: u32) -> Option<&mut Session> {
@@ -67,6 +71,16 @@ impl SessionState {
             session.is_selected = session.id == id;
         }
         self.save_state();
+    }
+    // gets the session with the highest sequential id
+    pub fn get_latest_id(&self) -> u32 {
+        let mut highest_id = 0;
+        for session in self.sessions.iter() {
+            if session.id > highest_id {
+                highest_id = session.id;
+            }
+        }
+        highest_id
     }
 }
 impl AppStateTrait for SessionState {

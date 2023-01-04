@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use tauri::api::path::app_data_dir;
 use tauri::{command, State};
 
+use crate::session::Session;
 use crate::state::{AppState, AppStateTrait};
 use crate::timer::TimerState;
 
@@ -58,4 +59,34 @@ pub fn set_timer_sound(
     curr_state.get_state()
 }
 
-// pub fn set_
+#[tauri::command]
+pub fn create_session(
+    name: String,
+    color: Option<String>,
+    state: State<'_, Mutex<AppState>>,
+) -> AppState {
+    let mut curr_state = state.lock().unwrap();
+    let latest_id = curr_state.sessions.get_latest_id();
+    let session = Session::new(name, color, latest_id + 1);
+    curr_state.sessions.add_session(session);
+    curr_state.get_state()
+}
+
+#[tauri::command]
+pub fn remove_session(id: u32, state: State<'_, Mutex<AppState>>) -> AppState {
+    let mut curr_state = state.lock().unwrap();
+    curr_state.sessions.remove_session(id);
+    curr_state.get_state()
+}
+
+#[tauri::command]
+pub fn update_session(
+    name: Option<String>,
+    color: Option<String>,
+    state: State<'_, Mutex<AppState>>,
+) -> AppState {
+    let mut curr_state = state.lock().unwrap();
+    let latest_id = curr_state.sessions.get_latest_id();
+    curr_state.sessions.add_session(session);
+    curr_state.get_state()
+}
