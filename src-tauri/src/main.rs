@@ -14,7 +14,7 @@ mod session;
 mod state;
 mod timer;
 
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use commands::*;
 use once_cell::sync::Lazy;
@@ -75,7 +75,9 @@ fn main() {
                 let window = app.get_window("main").unwrap();
                 window.open_devtools();
             }
-            app.manage(init_or_get_state(&app.config()));
+
+            let app_state = init_or_get_state(&app.config());
+            app.manage(app_state);
             let main_window = app.get_window("main").unwrap();
             let tray_handle = app.tray_handle();
             SYSTEM_TRAY.lock().unwrap().replace(tray_handle);
@@ -124,7 +126,7 @@ fn main() {
             create_session,
             remove_session,
             update_session,
-            task
+            add_task
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application")

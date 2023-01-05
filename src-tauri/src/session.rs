@@ -1,6 +1,6 @@
 use chrono::{DateTime, Local};
-use serde::{Deserialize, Serialize};
-use std::mem::drop;
+use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
+use std::{mem::drop, rc::Weak, sync::Arc};
 
 use crate::state::AppStateTrait;
 
@@ -9,7 +9,7 @@ pub struct SessionState {
     pub sessions: Vec<Session>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Session {
     pub id: u32,
     pub name: String,
@@ -20,6 +20,39 @@ pub struct Session {
     pub created_at: DateTime<Local>,
     pub tasks: Vec<Task>,
 }
+// impl Serialize for Session<'_> {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//     where
+//         S: serde::Serializer,
+//     {
+//         let mut state = serializer.serialize_struct("Session", 8)?;
+//         state.serialize_field("id", &self.id)?;
+//         state.serialize_field("name", &self.name)?;
+//         state.serialize_field("color", &self.color)?;
+//         state.serialize_field("is_selected", &self.is_selected)?;
+//         state.serialize_field("time_spent", &self.time_spent)?;
+//         state.serialize_field("total_sessions", &self.total_sessions)?;
+//         state.serialize_field("created_at", &self.created_at)?;
+//         state.serialize_field("tasks", &self.tasks)?;
+//         state.end()
+//     }
+// }
+// impl<'de> Deserialize<'de> for Session<'_> {
+//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+//         where
+//             D: serde::Deserializer<'de> {
+
+//     }
+
+//     fn deserialize_in_place<D>(deserializer: D, place: &mut Self) -> Result<(), D::Error>
+//     where
+//         D: serde::Deserializer<'de>,
+//     {
+//         // Default implementation just delegates to `deserialize` impl.
+//         *place = try!(Deserialize::deserialize(deserializer));
+//         Ok(())
+//     }
+// }
 
 impl Session {
     pub fn new(name: String, color: Option<String>, id: u32) -> Session {
@@ -42,11 +75,24 @@ impl Session {
         self.time_spent = time_spent;
     }
     pub fn add_task(&mut self, task_name: String) {
-        let task = Task::new(task_name);
+        let task_id = self.get_latest_id() + 1;
+        let task = Task::new(task_name, task_id);
         self.tasks.push(task);
     }
-}
+    pub fn remove_task(&mut self, task_id: u32) {
+        self.tasks = self.tasks.drain(..).filter(|x| x.id != task_id).collect();
+    }
 
+    pub fn get_latest_id(&self) -> u32 {
+        let mut highest_id = 0;
+        for task in self.tasks.iter() {
+            if task.id > highest_id {
+                highest_id = task.id;
+            }
+        }
+        highest_id
+    }
+}
 impl SessionState {
     pub fn add_session(&mut self, session: Session) {
         self.sessions.push(session);
@@ -83,12 +129,15 @@ impl AppStateTrait for SessionState {
 // TASK --
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Task {
+    id: u32,
     name: String,
+
     is_done: bool,
 }
 impl Task {
-    pub fn new(name: String) -> Task {
+    pub fn new(name: String, id: u32) -> Task {
         Task {
+            id,
             name,
             is_done: false,
         }
