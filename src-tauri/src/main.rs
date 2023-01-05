@@ -92,7 +92,6 @@ fn main() {
                 let g = tray_handle.get_item("toggle_timer");
                 g.set_title(payload.message.unwrap()).unwrap();
             });
-            main_window.set_decorations(true).unwrap();
 
             #[cfg(target_os = "macos")]
             apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None)
@@ -100,10 +99,12 @@ fn main() {
 
             #[cfg(target_os = "windows")]
             {
-                apply_mica(&main_window)
-                    .or_else(|_| apply_acrylic(&main_window, None))
-                    .expect("Unsupported platform");
+                apply_mica(&main_window).unwrap_or_else(|_| {
+                    println!("Failed to apply mica effect");
+                });
             }
+
+            main_window.set_decorations(true).unwrap();
 
             Ok(())
         })

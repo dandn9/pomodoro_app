@@ -10,6 +10,7 @@ pub struct PreferencesState {
     pub enable_sessions: bool,
     pub sessions_to_complete: u32,
     pub sessions_for_long_pause: u32,
+    pub available_sounds: Vec<String>,
 }
 
 impl Default for PreferencesState {
@@ -20,6 +21,7 @@ impl Default for PreferencesState {
             enable_sessions: true,
             sessions_to_complete: 4,
             sessions_for_long_pause: 4,
+            available_sounds: vec!["/assets/bonk.mp3".to_string()],
         }
     }
 }
