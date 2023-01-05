@@ -67,8 +67,8 @@ pub fn set_timer_sound(
     file.write_all(&sound_data).unwrap();
 
     let mut curr_state = state.lock().unwrap();
-    curr_state.theme.notification.audio_on_timer = file_name.to_string();
-    curr_state.theme.save_state();
+    curr_state.preferences.notification.audio_on_timer = file_name.to_string();
+    curr_state.preferences.save_state();
     println!("new state! {:?}", curr_state);
 
     curr_state.get_state()

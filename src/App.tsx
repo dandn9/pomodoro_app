@@ -160,7 +160,7 @@ function App() {
 		console.log('new store', res);
 	}
 	async function onAddTask() {
-		const res = await invoke<AppStateData>('task', { action: 'SetIsDone' });
+		const res = await invoke<AppStateData>('add_task', { action: 'SetIsDone' });
 	}
 
 	return (

@@ -11,6 +11,8 @@ pub struct PreferencesState {
     pub sessions_to_complete: u32,
     pub sessions_for_long_pause: u32,
     pub available_sounds: Vec<String>,
+    pub show_percentage: bool,
+    pub resolution: (u32, u32),
 }
 
 impl Default for PreferencesState {
@@ -22,6 +24,8 @@ impl Default for PreferencesState {
             sessions_to_complete: 4,
             sessions_for_long_pause: 4,
             available_sounds: vec!["/assets/bonk.mp3".to_string()],
+            show_percentage: false,
+            resolution: (800, 600),
         }
     }
 }
