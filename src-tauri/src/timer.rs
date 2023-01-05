@@ -29,6 +29,10 @@ impl TimerState {
         self.is_running = is_running;
         TimerState::save_state(self);
     }
+    pub fn set_long_pause_duration(&mut self, timer_duration: u32) {
+        self.long_pause_duration = timer_duration;
+        TimerState::save_state(self);
+    }
 }
 
 impl AppStateTrait for TimerState {

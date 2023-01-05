@@ -83,6 +83,9 @@ impl Session {
         self.tasks = self.tasks.drain(..).filter(|x| x.id != task_id).collect();
     }
 
+    pub fn get_task_mut(&mut self, id: u32) -> Option<&mut Task> {
+        self.tasks.iter_mut().find(|x| x.id == id)
+    }
     pub fn get_latest_id(&self) -> u32 {
         let mut highest_id = 0;
         for task in self.tasks.iter() {
@@ -131,7 +134,6 @@ impl AppStateTrait for SessionState {
 pub struct Task {
     id: u32,
     name: String,
-
     is_done: bool,
 }
 impl Task {
@@ -142,7 +144,12 @@ impl Task {
             is_done: false,
         }
     }
-    pub fn set_task_done(&mut self, is_done: bool) {
-        self.is_done = is_done;
+    pub fn update_task(&mut self, name: Option<String>, is_done: Option<bool>) {
+        if let Some(name) = name {
+            self.name = name
+        }
+        if let Some(is_done) = is_done {
+            self.is_done = is_done
+        }
     }
 }
