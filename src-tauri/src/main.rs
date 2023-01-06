@@ -124,7 +124,6 @@ fn main() {
             set_timer_duration,
             set_pause_duration,
             set_long_pause_duration,
-            set_is_running,
             set_timer_sound,
             create_session,
             remove_session,
