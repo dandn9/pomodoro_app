@@ -13,6 +13,7 @@ pub struct PreferencesState {
     pub available_sounds: Vec<String>,
     pub show_percentage: bool,
     pub resolution: (u32, u32),
+    pub time_to_add: f32,
 }
 
 impl Default for PreferencesState {
@@ -26,6 +27,7 @@ impl Default for PreferencesState {
             available_sounds: vec!["/assets/bonk.mp3".to_string()],
             show_percentage: false,
             resolution: (800, 600),
+            time_to_add: 5.0,
         }
     }
 }

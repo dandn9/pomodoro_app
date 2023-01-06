@@ -41,12 +41,6 @@ pub fn set_long_pause_duration(pause_num: u32, state: State<'_, Mutex<AppState>>
 }
 
 #[tauri::command]
-pub fn set_is_running(is_running: bool, state: State<'_, Mutex<AppState>>) -> AppState {
-    let mut curr_state = state.lock().unwrap();
-    curr_state.timer.set_is_running(is_running);
-    curr_state.get_state()
-}
-#[tauri::command]
 pub fn set_timer_sound(
     sound_data: Vec<u8>,
     file_info: HashMap<String, String>,
