@@ -71,6 +71,10 @@ impl Session {
             tasks: vec![],
         }
     }
+    pub fn on_done(&mut self, time: u32) {
+        self.total_sessions += 1;
+        self.time_spent += time;
+    }
     pub fn set_time_spent(&mut self, time_spent: u32) {
         self.time_spent = time_spent;
     }

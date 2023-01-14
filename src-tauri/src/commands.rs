@@ -117,6 +117,22 @@ pub fn update_session(
     println!("NEW STATE {:?}", curr_state);
     Ok(curr_state.get_state())
 }
+
+#[tauri::command]
+pub fn on_completed_session(id: u32, time: u32, state: State<'_, Mutex<AppState>>) -> AppState {
+    let mut curr_state = state.lock().unwrap();
+    let session = curr_state.sessions.get_session_mut(id);
+    match session {
+        Some(session_ref) => {
+            session_ref.on_done(time);
+        }
+        None => {}
+    }
+    curr_state.sessions.save_state();
+    println!("NEW STATE {:?}", curr_state);
+    curr_state.get_state()
+}
+
 #[tauri::command]
 pub fn add_task(
     name: String,

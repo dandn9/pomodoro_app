@@ -43,6 +43,7 @@ export const useStateStore = create<AppState>()((set, get) => ({
 		set((state) =>
 			produce(state, (draft) => {
 				// draft.data = newStateData;
+				console.log('new state!', newStateData);
 				const new_state = stateDataSchema.parse(newStateData);
 				draft.data = new_state;
 			})

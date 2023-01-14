@@ -1,6 +1,12 @@
 import create from 'zustand';
 import produce from 'immer';
 import useStateStore from './useStateStore';
+import useCommands from './useCommands';
+import type { stateDataSchema } from '../utils/schemas';
+import { z } from 'zod';
+
+type sessions = z.infer<typeof stateDataSchema>['sessions']['sessions'];
+type session = sessions extends Array<infer U> ? U : never;
 
 interface AppTempStore {
 	curr_timer: number;
@@ -10,18 +16,24 @@ interface AppTempStore {
 	curr_page: 'home' | 'sessions' | 'preferences';
 	curr_session_count: number;
 	curr_state: 'timer' | 'pause' | 'long_pause';
+	curr_session: Partial<session>;
+
 	tick: () => void;
 	resetState: () => void;
-	changePage: (curr_page: AppTempStore['curr_page']) => void;
+	setPage: (curr_page: AppTempStore['curr_page']) => void;
+	setIsPlaying: (is_playing: boolean) => void;
+	getTimerWithState: () => { state: AppTempStore['curr_state']; timer: number };
 }
+
 const useAppStore = create<AppTempStore>()((set, get) => ({
 	curr_timer: 0,
 	curr_pause: 0,
 	curr_long_pause: 0,
 	is_playing: false,
-	curr_page: 'home',
+	curr_page: 'preferences',
 	curr_session_count: 0,
 	curr_state: 'timer',
+	curr_session: {},
 
 	tick: () => {
 		set((state) =>
@@ -33,11 +45,15 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 				if (state[`curr_${curr_state}`] <= 0) {
 					const app_state = useStateStore.getState().data;
 					draft.is_playing = app_state.preferences.autoplay;
+
+					if (curr_state === 'timer') {
+						draft.curr_session_count++;
+						// should setup a flag to queue ? useCommands().onSessionDone()
+					}
 					// switches state based on current one
 					if (
 						curr_state === 'timer' &&
-						state.curr_session_count ===
-							app_state.preferences.sessions_for_long_pause
+						draft.curr_session_count % app_state.preferences.sessions_for_long_pause === 0
 					) {
 						draft.curr_state = 'long_pause';
 					} else if (curr_state === 'timer') {
@@ -47,9 +63,7 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 					}
 					// send notification
 					// +1 session
-					draft.curr_session_count += 1;
-					draft[`curr_${curr_state}`] =
-						app_state.timer[`${curr_state}_duration`];
+					draft[`curr_${curr_state}`] = app_state.timer[`${curr_state}_duration`];
 				} else {
 					draft[`curr_${curr_state}`] -= 1;
 				}
@@ -66,12 +80,25 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 			})
 		);
 	},
-	changePage: (page: AppTempStore['curr_page']) => {
+	setPage: (page: AppTempStore['curr_page']) => {
 		set((state) =>
 			produce(state, (draft) => {
 				draft.curr_page = page;
 			})
 		);
+	},
+	setIsPlaying(is_playing: boolean) {
+		set((state) =>
+			produce(state, (draft) => {
+				draft.is_playing = is_playing;
+			})
+		);
+	},
+	// object as {state: state, time:time}
+	getTimerWithState: () => {
+		const state = get().curr_state;
+		const timer = get()[`curr_${state}`];
+		return { state, timer };
 	},
 }));
 export default useAppStore;
