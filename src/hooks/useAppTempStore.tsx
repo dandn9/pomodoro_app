@@ -13,6 +13,7 @@ interface AppTempStore {
 	curr_pause: number;
 	curr_long_pause: number;
 	is_playing: boolean;
+  temp_time_added: number;
 	curr_page: 'home' | 'sessions' | 'preferences';
 	curr_session_count: number;
 	curr_state: 'timer' | 'pause' | 'long_pause';
@@ -34,6 +35,8 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 	curr_session_count: 0,
 	curr_state: 'timer',
 	curr_session: {},
+  temp_time_added: 0,
+  
 
 	tick: () => {
 		set((state) =>
@@ -46,8 +49,10 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 					const app_state = useStateStore.getState().data;
 					draft.is_playing = app_state.preferences.autoplay;
 
-					if (curr_state === 'timer') {
+					if (curr_state === 'timer' && state.curr_session) {
 						draft.curr_session_count++;
+          
+            useCommands().onSessionDone(state.curr_session.id, app_state.timer.timer_duration +  state.temp_time_added);
 						// should setup a flag to queue ? useCommands().onSessionDone()
 					}
 					// switches state based on current one

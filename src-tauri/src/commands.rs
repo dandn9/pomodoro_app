@@ -3,14 +3,12 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::rc::Rc;
-use std::sync::{Mutex, Weak};
+use std::sync::Mutex;
 use tauri::api::path::app_data_dir;
-use tauri::{command, State};
+use tauri::State;
 
 use crate::session::{self, Session, SessionState};
 use crate::state::{AppState, AppStateTrait};
-use crate::timer::TimerState;
 
 #[tauri::command]
 pub fn get_state(state: State<'_, Mutex<AppState>>) -> AppState {

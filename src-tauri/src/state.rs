@@ -56,6 +56,7 @@ where
         let file_path =
             PathBuf::from(SETTINGS_FOLDER_PATH.lock().unwrap().to_string()).join(Self::FILE_NAME);
 
+        println!("SAVED STATE");
         OpenOptions::new()
             .write(true)
             .truncate(true)
