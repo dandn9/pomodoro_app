@@ -17,4 +17,5 @@ const useCommands = () => {
 		},
 	};
 };
+
 export default useCommands;

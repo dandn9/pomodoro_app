@@ -44,7 +44,7 @@
 				"icons/icon.icns",
 				"icons/icon.ico"
 			],
-			"identifier": "pmdr1_settings",
+			"identifier": "pmdr_settings",
 			"longDescription": "",
 			"macOS": {
 				"entitlements": null,
