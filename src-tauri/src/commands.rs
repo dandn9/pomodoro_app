@@ -132,6 +132,13 @@ pub fn on_completed_session(id: u32, time: u32, state: State<'_, Mutex<AppState>
 }
 
 #[tauri::command]
+pub fn on_selected_session(id: u32, state: State<'_, Mutex<AppState>>) -> AppState {
+    let mut curr_state = state.lock().unwrap();
+    curr_state.sessions.select_session(id);
+    curr_state.get_state()
+}
+
+#[tauri::command]
 pub fn add_task(
     name: String,
     session_id: u32,

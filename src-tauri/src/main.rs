@@ -131,7 +131,8 @@ fn main() {
             add_task,
             remove_task,
             update_task,
-            on_completed_session
+            on_completed_session,
+            on_selected_session
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application")

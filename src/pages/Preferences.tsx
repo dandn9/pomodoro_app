@@ -7,7 +7,10 @@ import useAppStore from '../hooks/useAppTempStore';
 import produce from 'immer';
 
 const Preferences = () => {
-	const appStore = useStateStore((state) => ({ ...state.data.timer, setStateData: state.setStateData }));
+	const appStore = useStateStore((state) => ({
+		...state.data.timer,
+		setStateData: state.setStateData,
+	}));
 
 	const [timerPreferences, setPreferences] = React.useState({
 		timerDuration: [appStore.timer_duration],
@@ -34,41 +37,43 @@ const Preferences = () => {
 		});
 	}
 	return (
-		<section>
-			<div>
-				<p>Timer duration</p>
-				<Slider
-					min={1}
-					max={500}
-					value={timerPreferences.timerDuration}
-					onValueChange={(val) => onUpdatePreferences(val, 'timerDuration')}
-					onValueCommit={(val) => onCommitVal(val[0], commands.setTimerDuration)}
-				/>
-				{timerPreferences.timerDuration[0]}
-			</div>
-			<div>
-				<p>Pause duration</p>
-				<Slider
-					min={1}
-					max={500}
-					value={timerPreferences.pauseDuration}
-					onValueChange={(val) => onUpdatePreferences(val, 'pauseDuration')}
-					onValueCommit={(val) => onCommitVal(val[0], commands.setPauseDuration)}
-				/>
-				{timerPreferences.pauseDuration[0]}
-			</div>
-			<div>
-				<p>Long pause duration</p>
-				<Slider
-					min={1}
-					max={500}
-					value={timerPreferences.longPauseDuration}
-					onValueChange={(val) => onUpdatePreferences(val, 'longPauseDuration')}
-					onValueCommit={(val) => onCommitVal(val[0], commands.setLongPauseDuration)}
-				/>
-				{timerPreferences.longPauseDuration[0]}
-			</div>
-		</section>
+		<div className='w-full h-full flex justify-center items-center'>
+			<ul>
+				<li>
+					<p>Timer duration</p>
+					<Slider
+						min={1}
+						max={500}
+						value={timerPreferences.timerDuration}
+						onValueChange={(val) => onUpdatePreferences(val, 'timerDuration')}
+						onValueCommit={(val) => onCommitVal(val[0], commands.setTimerDuration)}
+					/>
+					{timerPreferences.timerDuration[0]}
+				</li>
+				<li>
+					<p>Pause duration</p>
+					<Slider
+						min={1}
+						max={500}
+						value={timerPreferences.pauseDuration}
+						onValueChange={(val) => onUpdatePreferences(val, 'pauseDuration')}
+						onValueCommit={(val) => onCommitVal(val[0], commands.setPauseDuration)}
+					/>
+					{timerPreferences.pauseDuration[0]}
+				</li>
+				<li>
+					<p>Long pause duration</p>
+					<Slider
+						min={1}
+						max={500}
+						value={timerPreferences.longPauseDuration}
+						onValueChange={(val) => onUpdatePreferences(val, 'longPauseDuration')}
+						onValueCommit={(val) => onCommitVal(val[0], commands.setLongPauseDuration)}
+					/>
+					{timerPreferences.longPauseDuration[0]}
+				</li>
+			</ul>
+		</div>
 	);
 };
 export default Preferences;

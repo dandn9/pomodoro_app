@@ -7,30 +7,32 @@ const Home = () => {
 	const appStore = useAppStore();
 	const timerState = appStore.getTimerState();
 	return (
-		<section>
-			timer: {timerState.state} - {secondsToTimeString(timerState.timer)} left
-			<Timer
-				progress={timerState.progress}
-				radius={200}
-				className='stroke-white transition-all'
-			/>
-			<div className='flex flex-col '>
-				<button
-					onClick={() => {
-						appStore.setIsPlaying(true);
-					}}
-				>
-					Play
-				</button>
-				<button
-					onClick={() => {
-						appStore.setIsPlaying(false);
-					}}
-				>
-					Pause
-				</button>
+		<div className='w-full h-full flex justify-center items-center'>
+			<div>
+				timer: {timerState.state} - {secondsToTimeString(timerState.timer)} left
+				<Timer
+					progress={timerState.progress}
+					radius={200}
+					className='dark:stroke-white transition-all'
+				/>
+				<div className='flex flex-col '>
+					<button
+						onClick={() => {
+							appStore.setIsPlaying(true);
+						}}
+					>
+						Play
+					</button>
+					<button
+						onClick={() => {
+							appStore.setIsPlaying(false);
+						}}
+					>
+						Pause
+					</button>
+				</div>
 			</div>
-		</section>
+		</div>
 	);
 };
 export default Home;
