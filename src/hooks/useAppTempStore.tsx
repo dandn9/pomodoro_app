@@ -23,7 +23,11 @@ interface AppTempStore {
 	resetState: () => void;
 	setPage: (curr_page: AppTempStore['curr_page']) => void;
 	setIsPlaying: (is_playing: boolean) => void;
-	getTimerWithState: () => { state: AppTempStore['curr_state']; timer: number };
+	getTimerState: () => {
+		state: AppTempStore['curr_state'];
+		timer: number;
+		progress: number;
+	};
 }
 
 const useAppStore = create<AppTempStore>()((set, get) => ({
@@ -31,7 +35,7 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 	curr_pause: 0,
 	curr_long_pause: 0,
 	is_playing: false,
-	curr_page: 'preferences',
+	curr_page: 'home',
 	curr_session_count: 0,
 	curr_state: 'timer',
 	curr_session: undefined,
@@ -83,7 +87,8 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 		set((state) =>
 			produce(state, (draft) => {
 				const curr_state = useStateStore.getState().data;
-				draft.curr_session = curr_state.sessions.sessions.find((sess) => sess.is_selected) || undefined;
+				draft.curr_session =
+					curr_state.sessions.sessions.find((sess) => sess.is_selected) || undefined;
 				draft.curr_timer = curr_state.timer.timer_duration;
 				draft.curr_pause = curr_state.timer.pause_duration;
 				draft.curr_long_pause = curr_state.timer.long_pause_duration;
@@ -105,10 +110,14 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 		);
 	},
 	// object as {state: state, time:time}
-	getTimerWithState: () => {
+	getTimerState: () => {
 		const state = get().curr_state;
 		const timer = get()[`curr_${state}`];
-		return { state, timer };
+		const timerDuration = useStateStore.getState().data.timer[`${state}_duration`];
+
+		const progress = timer / Math.max(timerDuration, timer); // in case we added some temporary time
+
+		return { state, timer, progress };
 	},
 }));
 export default useAppStore;

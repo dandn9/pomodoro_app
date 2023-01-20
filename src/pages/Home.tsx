@@ -5,11 +5,15 @@ import { secondsToTimeString } from '../utils/displayTime';
 
 const Home = () => {
 	const appStore = useAppStore();
-	const timerWithState = appStore.getTimerWithState();
+	const timerState = appStore.getTimerState();
 	return (
 		<section>
-			timer: {timerWithState.state} - {secondsToTimeString(timerWithState.timer)} left
-			<Timer />
+			timer: {timerState.state} - {secondsToTimeString(timerState.timer)} left
+			<Timer
+				progress={timerState.progress}
+				radius={200}
+				className='stroke-white transition-all'
+			/>
 			<div className='flex flex-col '>
 				<button
 					onClick={() => {

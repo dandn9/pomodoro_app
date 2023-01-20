@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "..",
+			"name": "app"
+		},
+		{
+			"path": "../../../AppData/Roaming/pmdr_settings",
+			"name": "settings"
+		}
+	],
+	"settings": {}
+}

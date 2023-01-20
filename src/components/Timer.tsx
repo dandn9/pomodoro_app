@@ -1,21 +1,39 @@
-import React from 'react';
-const Timer: React.FC<{ className?: string }> = (props) => {
-	// const [totalTimer, currTimer, totalPause, currPause, mode] = useStore((state) => [state.timer, state.currTimer, state.pause, state.currPause, state.mode]);
-	// const circleRadius = 150;
-	// const circumference = circleRadius * 2 * Math.PI;
+import React, { useMemo } from 'react';
 
+interface TimerProps {
+	progress: number; // should be a number between 0 and 1
+	radius: number;
+	className?: string;
+	strokeWidth?: number;
+}
+// progress should be
+const Timer: React.FC<TimerProps> = ({
+	progress,
+	radius,
+	strokeWidth = 10,
+	className,
+}) => {
+	console.log('progress', progress);
+	const circumference = useMemo(() => radius * 2 * Math.PI, [radius]);
 	return (
-		<svg width={400} height={400} className={`circle-svg ${props.className}`}>
+		<svg
+			width={radius * 2 + strokeWidth}
+			height={radius * 2 + strokeWidth}
+			className={className}
+		>
 			<circle
 				cx='50%'
 				cy='50%'
-				r={199}
-				// r={circleRadius}
-				// className='circle'
-				// style={{
-				// 	strokeDasharray: circumference, // circumference
-				// 	strokeDashoffset: circumference * (mode === 'timer' ? 1 - currTimer / totalTimer : 1 - currPause / totalPause),
-				// }}
+				r={radius}
+				className='transition-all'
+				style={{
+					fill: 'none',
+					strokeDasharray: circumference,
+					strokeDashoffset: circumference * (1 - progress),
+					strokeLinejoin: 'round',
+					strokeLinecap: 'round',
+					strokeWidth: strokeWidth,
+				}}
 			></circle>
 		</svg>
 	);
