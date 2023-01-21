@@ -4,10 +4,7 @@ import produce from 'immer';
 import { z } from 'zod';
 import { stateDataSchema } from '../utils/schemas';
 import useCommands from './useCommands';
-
-type k = ReturnType<typeof useCommands>;
-type c = keyof k;
-type p = Parameters<k[c]>;
+import useAppStore from './useAppTempStore';
 
 export type AppStateData = z.infer<typeof stateDataSchema>;
 
@@ -48,8 +45,6 @@ export const useStateStore = create<AppState>()((set, get) => ({
 	setStateData: (newStateData: AppStateData) => {
 		set((state) =>
 			produce(state, (draft) => {
-				// draft.data = newStateData;
-				console.log('new state!', newStateData);
 				const new_state = stateDataSchema.parse(newStateData);
 				draft.data = new_state;
 			})

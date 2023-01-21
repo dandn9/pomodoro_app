@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppStateData, useStateStore } from './useStateStore';
 import { invoke } from '@tauri-apps/api';
+import { TaskType } from '../utils/schemas';
 const useCommands = () => {
 	return {
 		setTimerDuration: async (timerDuration: number) => {
@@ -23,6 +24,9 @@ const useCommands = () => {
 		},
 		onSelectedSession: async (sessionId: number) => {
 			return await invoke<AppStateData>('on_selected_session', { id: sessionId });
+		},
+		createSession: async (name: string, color: string, tasks: string[]) => {
+			return await invoke<AppStateData>('create_session', { name, color, tasks });
 		},
 	};
 };

@@ -23,10 +23,12 @@ interface AppTempStore {
 	resetState: () => void;
 	setPage: (curr_page: AppTempStore['curr_page']) => void;
 	setIsPlaying: (is_playing: boolean) => void;
+	setSession: (session: Session) => void;
 	getTimerState: () => {
 		state: AppTempStore['curr_state'];
 		timer: number;
 		progress: number;
+		session?: Session;
 	};
 }
 
@@ -35,7 +37,7 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 	curr_pause: 0,
 	curr_long_pause: 0,
 	is_playing: false,
-	curr_page: 'home',
+	curr_page: 'sessions',
 	curr_session_count: 0,
 	curr_state: 'timer',
 	curr_session: undefined,
@@ -95,6 +97,13 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 			})
 		);
 	},
+	setSession(session: Session) {
+		set((state) =>
+			produce(state, (draft) => {
+				draft.curr_session = session;
+			})
+		);
+	},
 	setPage: (page: AppTempStore['curr_page']) => {
 		set((state) =>
 			produce(state, (draft) => {
@@ -114,10 +123,11 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 		const state = get().curr_state;
 		const timer = get()[`curr_${state}`];
 		const timerDuration = useStateStore.getState().data.timer[`${state}_duration`];
+		const session = get().curr_session;
 
 		const progress = timer / Math.max(timerDuration, timer); // in case we added some temporary time
 
-		return { state, timer, progress };
+		return { state, timer, progress, session };
 	},
 }));
 export default useAppStore;

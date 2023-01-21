@@ -1,17 +1,23 @@
 
 import { z } from 'zod'
 
-const taskSchema = z.object({
+export const taskSchema = z.object({
     id: z.number(),
     name: z.string(),
     is_done: z.boolean(),
 });
-const notificationSchema = z.object({
+
+export type TaskType = z.infer<typeof taskSchema>
+
+export const notificationSchema = z.object({
     audio_on_pause: z.string(),
     audio_on_timer: z.string(),
     message_on_pause: z.string(),
     message_on_timer: z.string(),
 })
+
+export type NotificationType = z.infer<typeof notificationSchema>
+
 const sessionSchema = z.object({
     id: z.number(),
     name: z.string(),
@@ -22,6 +28,8 @@ const sessionSchema = z.object({
     created_at: z.string().datetime({ offset: true }),
     tasks: z.array(taskSchema),
 });
+
+export type SessionType = z.infer<typeof sessionSchema>
 
 export const stateDataSchema = z.object({
     timer: z.object({
@@ -42,3 +50,5 @@ export const stateDataSchema = z.object({
         resolution: z.tuple([z.number(), z.number()]),
     }),
 });
+
+export type StateDataType = z.infer<typeof stateDataSchema> 

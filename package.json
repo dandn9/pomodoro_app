@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-alert-dialog": "^1.0.2",
+    "@radix-ui/react-dialog": "^1.0.2",
     "@radix-ui/react-slider": "^1.1.0",
     "@radix-ui/react-switch": "^1.0.1",
     "@tauri-apps/api": "^1.2.0",

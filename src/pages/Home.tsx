@@ -9,7 +9,8 @@ const Home = () => {
 	return (
 		<div className='w-full h-full flex justify-center items-center'>
 			<div>
-				timer: {timerState.state} - {secondsToTimeString(timerState.timer)} left
+				timer: {timerState.state} - {secondsToTimeString(timerState.timer)} left -
+				{timerState.session?.name}
 				<Timer
 					progress={timerState.progress}
 					radius={200}
