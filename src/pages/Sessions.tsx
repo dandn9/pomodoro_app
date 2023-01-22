@@ -1,9 +1,10 @@
 import React from 'react';
-import Session from '../components/sessions/SessionItem';
+import SessionItem from '../components/sessions/SessionItem';
 import useAppStore from '../hooks/useAppTempStore';
 import useCommands from '../hooks/useCommands';
 import useStateStore from '../hooks/useStateStore';
-import NewSessionModal from '../components/sessions/NewSession';
+import Modal from '../components/Modal';
+import SessionModalContent from '../components/sessions/SessionModalContent';
 
 const Sessions = () => {
 	const [isModalOpen, setIsModalOpen] = React.useState(true);
@@ -22,15 +23,14 @@ const Sessions = () => {
 			setNewSession(new_session);
 		}
 	}
-	async function onAddNewTerminal() {}
 
 	return (
 		<div className='relative'>
-			<NewSessionModal onOpenChange={setIsModalOpen} />
+			<Modal ModalContent={SessionModalContent} />
 
 			<ul className='flex flex-col w-full gap-2 max-w-xl mx-auto'>
 				{sessionsData.map((session) => (
-					<Session onSelect={onSelect} key={session.id} session={session} />
+					<SessionItem onSelect={onSelect} key={session.id} session={session} />
 				))}
 			</ul>
 		</div>

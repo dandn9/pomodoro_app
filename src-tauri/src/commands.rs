@@ -71,13 +71,18 @@ pub fn set_timer_sound(
 pub fn create_session(
     name: String,
     color: Option<String>,
+    tasks: Vec<String>,
     state: State<'_, Mutex<AppState>>,
 ) -> AppState {
     let mut curr_state = state.lock().unwrap();
     let latest_id = curr_state.sessions.get_latest_id();
-    let session = Session::new(name, color, latest_id + 1);
+    let mut session = Session::new(name, color, latest_id + 1);
+    for task_name in tasks {
+        session.add_task(task_name)
+    }
+    let session_id = session.id;
     curr_state.sessions.add_session(session);
-
+    curr_state.sessions.select_session(session_id);
     curr_state.get_state()
 }
 

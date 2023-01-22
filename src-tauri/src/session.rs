@@ -64,7 +64,7 @@ impl Session {
             id,
             name,
             color,
-            is_selected: true,
+            is_selected: false,
             total_sessions: 0,
             time_spent: 0,
             created_at: Local::now(),
