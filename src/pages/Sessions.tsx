@@ -28,7 +28,11 @@ const Sessions = () => {
 	return (
 		<div className='relative'>
 			<Modal ModalContent={SessionModalContent}>
-				{(open) => <div onClick={() => open(true)}>XXXXXDDDD</div>}
+				{(open) => (
+					<button onClick={() => open(true)} className='w-full '>
+						Create Session
+					</button>
+				)}
 			</Modal>
 			<Modal ModalContent={EditSessionModalContent} />
 
