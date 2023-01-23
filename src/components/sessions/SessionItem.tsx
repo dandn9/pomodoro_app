@@ -1,5 +1,5 @@
-import { produceWithPatches } from 'immer';
-import React from 'react';
+import { current, produceWithPatches } from 'immer';
+import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import useCommands from '../../hooks/useCommands';
 import { SessionType } from '../../utils/schemas';
 
@@ -7,6 +7,21 @@ interface SessionItemProps {
 	session: SessionType;
 	onSelect: (sessionId: number) => void;
 }
+
+type ftype = (p: string, x: string) => ReactElement;
+interface XProps {
+	children: (x: ftype) => ReactElement;
+}
+
+const x: React.FC<XProps> = ({ children }) => {
+	const f = (p: string, x: string) => (
+		<div>
+			1!{p} - 2!{x}
+		</div>
+	);
+
+	return children(f);
+};
 
 const SessionItem: React.FC<SessionItemProps> = ({ session, onSelect }) => {
 	return (
@@ -26,8 +41,13 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onSelect }) => {
 					</p>
 				))}
 			</div>
-			<button className='absolute right-2 top-0'>X</button>
+			{/* <X>{(func) => func('X', 'D')}</X> */}
+			<button className='absolute right-2 top-0'>E</button>
 		</li>
 	);
 };
 export default SessionItem;
+
+// const P = () => {
+// 	return <X>{(f) => <div>{f}</div>}</X>;
+// };

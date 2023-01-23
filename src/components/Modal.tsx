@@ -4,20 +4,18 @@ import { TModalUpdater, TModalContent, TModalContentProps } from '../types/Modal
 
 export const Context = createContext({ open: false });
 
-const Modal: React.FC<
-	PropsWithChildren<{ ModalContent: React.FC<TModalContentProps> }>
-> = (props) => {
+interface ModalProps {
+	children?: (openUpdater: (val: boolean) => void) => ReactElement;
+	ModalContent: React.FC<TModalContentProps>;
+}
+
+const Modal: React.FC<ModalProps> = ({ children, ModalContent }) => {
 	const [open, _setOpen] = React.useState(false);
 
 	function setOpen(val: TModalUpdater) {
 		_setOpen(val);
 	}
 
-	function sayHello(childName: string) {
-		console.log(childName);
-	}
-
-	// const child = React.forwardRef(() => props.children);
 	const modalProps: TModalContentProps = {
 		open,
 		setOpen,
@@ -25,16 +23,12 @@ const Modal: React.FC<
 
 	return (
 		<Dialog.Root>
-			<Dialog.Trigger asChild>
-				<div className='flex justify-end max-w-xl'>
-					<button className='text-white'>+</button>
-				</div>
-			</Dialog.Trigger>
+			<Dialog.Trigger asChild>{children && children(setOpen)}</Dialog.Trigger>
 			<Dialog.Portal>
 				<Dialog.Overlay asChild onClick={() => setOpen(false)}>
 					<div className='fixed inset-0 bg-black/50 z-20 animate-[fade-in_1s_ease]' />
 				</Dialog.Overlay>
-				{props.ModalContent(modalProps, null)}
+				{ModalContent(modalProps, null)}
 			</Dialog.Portal>
 		</Dialog.Root>
 	);

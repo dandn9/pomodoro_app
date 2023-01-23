@@ -4,7 +4,8 @@ import useAppStore from '../hooks/useAppTempStore';
 import useCommands from '../hooks/useCommands';
 import useStateStore from '../hooks/useStateStore';
 import Modal from '../components/Modal';
-import SessionModalContent from '../components/sessions/SessionModalContent';
+import SessionModalContent from '../components/sessions/NewSessionModalContent';
+import EditSessionModalContent from '../components/sessions/EditSessionModalContent';
 
 const Sessions = () => {
 	const [isModalOpen, setIsModalOpen] = React.useState(true);
@@ -26,7 +27,10 @@ const Sessions = () => {
 
 	return (
 		<div className='relative'>
-			<Modal ModalContent={SessionModalContent} />
+			<Modal ModalContent={SessionModalContent}>
+				{(open) => <div onClick={() => open(true)}>XXXXXDDDD</div>}
+			</Modal>
+			<Modal ModalContent={EditSessionModalContent} />
 
 			<ul className='flex flex-col w-full gap-2 max-w-xl mx-auto'>
 				{sessionsData.map((session) => (
