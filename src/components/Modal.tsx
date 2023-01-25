@@ -5,30 +5,19 @@ import { TModalUpdater, TModalContent, TModalContentProps } from '../types/Modal
 export const Context = createContext({ open: false });
 
 interface ModalProps {
-	children?: (openUpdater: (val: boolean) => void) => ReactElement;
-	ModalContent: React.FC<TModalContentProps>;
+	children?: ReactElement;
+	open: boolean;
+	setOpen: React.Dispatch<React.SetStateAction<boolean>> | ((v: boolean) => void);
 }
 
-const Modal: React.FC<ModalProps> = ({ children, ModalContent }) => {
-	const [open, _setOpen] = React.useState(false);
-
-	function setOpen(val: TModalUpdater) {
-		_setOpen(val);
-	}
-
-	const modalProps: TModalContentProps = {
-		open,
-		setOpen,
-	};
-
+const Modal = ({ children, open, setOpen }: ModalProps): JSX.Element => {
 	return (
-		<Dialog.Root>
-			<Dialog.Trigger asChild>{children && children(setOpen)}</Dialog.Trigger>
+		<Dialog.Root open={open} modal>
 			<Dialog.Portal>
 				<Dialog.Overlay asChild onClick={() => setOpen(false)}>
 					<div className='fixed inset-0 bg-black/50 z-20 animate-[fade-in_1s_ease]' />
 				</Dialog.Overlay>
-				{ModalContent(modalProps, null)}
+				{children}
 			</Dialog.Portal>
 		</Dialog.Root>
 	);

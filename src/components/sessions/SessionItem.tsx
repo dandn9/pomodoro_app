@@ -6,6 +6,7 @@ import { SessionType } from '../../utils/schemas';
 interface SessionItemProps {
 	session: SessionType;
 	onSelect: (sessionId: number) => void;
+	onEdit: (sessionId: number) => void;
 }
 
 type ftype = (p: string, x: string) => ReactElement;
@@ -23,7 +24,7 @@ const x: React.FC<XProps> = ({ children }) => {
 	return children(f);
 };
 
-const SessionItem: React.FC<SessionItemProps> = ({ session, onSelect }) => {
+const SessionItem: React.FC<SessionItemProps> = ({ session, onSelect, onEdit }) => {
 	return (
 		<li
 			onClick={onSelect.bind(null, session.id)}
@@ -42,7 +43,9 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onSelect }) => {
 				))}
 			</div>
 			{/* <X>{(func) => func('X', 'D')}</X> */}
-			<button className='absolute right-2 top-0'>E</button>
+			<button className='absolute right-2 top-0' onClick={onEdit.bind(null, session.id)}>
+				E
+			</button>
 		</li>
 	);
 };
