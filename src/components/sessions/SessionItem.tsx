@@ -1,5 +1,6 @@
 import { current, produceWithPatches } from 'immer';
 import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
+import ReactDOM from 'react-dom';
 import useCommands from '../../hooks/useCommands';
 import { SessionType } from '../../utils/schemas';
 
@@ -14,17 +15,12 @@ interface XProps {
 	children: (x: ftype) => ReactElement;
 }
 
-const x: React.FC<XProps> = ({ children }) => {
-	const f = (p: string, x: string) => (
-		<div>
-			1!{p} - 2!{x}
-		</div>
-	);
-
-	return children(f);
-};
-
 const SessionItem: React.FC<SessionItemProps> = ({ session, onSelect, onEdit }) => {
+	function onEditClick(ev: React.MouseEvent) {
+		ev.stopPropagation();
+		onEdit(session.id);
+	}
+
 	return (
 		<li
 			onClick={onSelect.bind(null, session.id)}
@@ -43,7 +39,7 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onSelect, onEdit }) 
 				))}
 			</div>
 			{/* <X>{(func) => func('X', 'D')}</X> */}
-			<button className='absolute right-2 top-0' onClick={onEdit.bind(null, session.id)}>
+			<button className='absolute right-2 top-0' onClick={onEditClick}>
 				E
 			</button>
 		</li>
