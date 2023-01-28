@@ -87,9 +87,9 @@ pub fn create_session(
 }
 
 #[tauri::command]
-pub fn remove_session(id: u32, state: State<'_, Mutex<AppState>>) -> AppState {
+pub fn delete_session(id: u32, state: State<'_, Mutex<AppState>>) -> AppState {
     let mut curr_state = state.lock().unwrap();
-    curr_state.sessions.remove_session(id);
+    curr_state.sessions.delete_session(id);
     println!("NEW STATE REMOVED {:?}", curr_state);
     curr_state.get_state()
 }
@@ -159,14 +159,14 @@ pub fn add_task(
     Ok(curr_state.get_state())
 }
 #[tauri::command]
-pub fn remove_task(
+pub fn delete_task(
     task_id: u32,
     session_id: u32,
     state: State<'_, Mutex<AppState>>,
 ) -> Result<AppState, String> {
     let mut curr_state = state.lock().unwrap();
     if let Some(session) = curr_state.sessions.get_session_mut(session_id) {
-        session.remove_task(task_id);
+        session.delete_task(task_id);
         curr_state.sessions.save_state();
     } else {
         return Err("No session found".to_string());

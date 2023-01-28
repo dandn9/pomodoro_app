@@ -17,12 +17,19 @@ const Sessions = () => {
 			setEditOpen(true);
 		});
 	}
+	function onEditClose() {
+		startTransition(() => {
+			setEditSession(-1);
+			setEditOpen(false);
+		});
+	}
 
 	return (
 		<div className='relative'>
 			<CreateSessionModal />
 			<SessionEditModal
 				isOpen={editOpen}
+				onEditClose={onEditClose}
 				setIsOpen={setEditOpen}
 				sessionId={editSession}
 			/>
@@ -40,11 +47,16 @@ export default Sessions;
 const SessionEditModal: React.FC<{
 	isOpen: boolean;
 	setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+	onEditClose: () => void;
 	sessionId: number;
-}> = ({ isOpen, setIsOpen, sessionId }) => {
+}> = ({ isOpen, setIsOpen, sessionId, onEditClose }) => {
 	return (
 		<Modal setOpen={setIsOpen} open={isOpen}>
-			<EditSessionModalContent sessionId={sessionId} setOpen={setIsOpen} />
+			<EditSessionModalContent
+				onEditClose={onEditClose}
+				sessionId={sessionId}
+				setOpen={setIsOpen}
+			/>
 		</Modal>
 	);
 };

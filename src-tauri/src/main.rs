@@ -126,10 +126,10 @@ fn main() {
             set_long_pause_duration,
             set_timer_sound,
             create_session,
-            remove_session,
+            delete_session,
             update_session,
             add_task,
-            remove_task,
+            delete_task,
             update_task,
             on_completed_session,
             on_selected_session

@@ -83,7 +83,7 @@ impl Session {
         let task = Task::new(task_name, task_id);
         self.tasks.push(task);
     }
-    pub fn remove_task(&mut self, task_id: u32) {
+    pub fn delete_task(&mut self, task_id: u32) {
         self.tasks = self.tasks.drain(..).filter(|x| x.id != task_id).collect();
     }
 
@@ -105,7 +105,7 @@ impl SessionState {
         self.sessions.push(session);
         self.save_state();
     }
-    pub fn remove_session(&mut self, id: u32) {
+    pub fn delete_session(&mut self, id: u32) {
         self.sessions = self.sessions.drain(..).filter(|x| x.id != id).collect();
         self.save_state();
     }

@@ -37,6 +37,11 @@ export class Session extends SessionCommands {
             throw new Error('No session selected')
         }
     }
+    public async delete() {
+        const newState = await Session.deleteSession(this.id)
+        console.log('new state received!', newState)
+        useStateStore.getState().setStateData(newState);
+    }
 }
 export class Timer extends TimerCommands {
     constructor(

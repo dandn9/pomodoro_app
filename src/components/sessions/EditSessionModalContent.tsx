@@ -6,23 +6,32 @@ import useStateStore from '../../hooks/useStateStore';
 import Input from '../UI/TextInput';
 import Switch from '../UI/Switch';
 import Task from '../tasks/Task';
+import Popover from '../UI/Popover';
 
-const EditSessionModalContent: TModalContent<{ sessionId: number }> = (props) => {
+const EditSessionModalContent: TModalContent<{
+	sessionId: number;
+	onEditClose: () => void;
+}> = ({ onEditClose, sessionId, setOpen, open }) => {
 	const allSessions = useStateStore((state) => state.getSessions());
 	const session = useMemo(() => {
-		return allSessions.find((session) => session.id === props.sessionId);
+		return allSessions.find((session) => session.id === sessionId);
 	}, [allSessions]);
+	const [tasks, setTasks] = useState(session?.tasks);
+	const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
 	if (!session) {
 		return <div>Couldn't load the session</div>;
 	}
 
-	const [tasks, setTasks] = useState(session.tasks);
-
 	function onFormSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		const formData = new FormData(e.currentTarget as HTMLFormElement);
 		console.log(...formData.keys());
+	}
+	async function onDeleteSession() {
+		// this is hoisted up so it needs
+		await session?.delete();
+		onEditClose();
 	}
 
 	return (
@@ -31,6 +40,18 @@ const EditSessionModalContent: TModalContent<{ sessionId: number }> = (props) =>
 				<Dialog.Title>Edit session</Dialog.Title>
 				<Dialog.Close>X</Dialog.Close>
 			</div>
+			<Popover
+				open={isPopoverOpen}
+				openSetter={setIsPopoverOpen}
+				content={
+					<PopOverContent onDelete={onDeleteSession} setPopover={setIsPopoverOpen} />
+				}>
+				<div
+					className='text-red-500 inline-block'
+					onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
+					DELETE
+				</div>
+			</Popover>
 			<form onSubmit={onFormSubmit}>
 				<div>
 					Name: <Input defaultValue={session.name} type='text' name='name' />
@@ -48,7 +69,7 @@ const EditSessionModalContent: TModalContent<{ sessionId: number }> = (props) =>
 					Tasks:
 					<div className='w-full bg-gray-600/20'>
 						<ul>
-							{tasks.map((task) => {
+							{tasks?.map((task) => {
 								return <Task task={task} key={task.id} />;
 							})}
 							<li>Add new task +</li>
@@ -63,3 +84,16 @@ const EditSessionModalContent: TModalContent<{ sessionId: number }> = (props) =>
 	);
 };
 export default EditSessionModalContent;
+
+const PopOverContent: React.FC<{
+	onDelete: () => void;
+	setPopover: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({ onDelete, setPopover }) => {
+	return (
+		<div>
+			<div>Are you sure you want to delete this session?</div>
+			<button onClick={onDelete}>YES</button>
+			<button onClick={() => setPopover(false)}>NO</button>
+		</div>
+	);
+};

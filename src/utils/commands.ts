@@ -24,10 +24,13 @@ export class SessionCommands {
 	static async onSessionDone(id: number, time: number) {
 		return await invoke<AppStateData>('on_completed_session', { id, time });
 	}
-	static async onSelectedSession(sessionId: number) {
-		return await invoke<AppStateData>('on_selected_session', { id: sessionId });
+	static async onSelectedSession(id: number) {
+		return await invoke<AppStateData>('on_selected_session', { id });
 	}
 	static async createSession(name: string, color: string, tasks: string[]) {
 		return await invoke<AppStateData>('create_session', { name, color, tasks });
+	}
+	static async deleteSession(id: number) {
+		return await invoke<AppStateData>('delete_session', { id });
 	}
 }
