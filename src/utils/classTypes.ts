@@ -1,9 +1,16 @@
 import useAppStore from "../hooks/useAppTempStore";
 import { SessionCommands, TimerCommands } from "./commands";
 import useStateStore from "../hooks/useStateStore";
+import type { editFormType } from "../components/sessions/EditSessionModalContent";
 
 export class Task {
-    constructor(public name: string, public id: number, public is_done: boolean) { }
+    constructor(
+        public name: string,
+        public readonly id: number,
+        public is_done: boolean,
+        public order: number,
+        public is_draft: boolean) { }
+
     public setIsDone(is_done: boolean) {
         this.is_done = is_done
         return this
@@ -18,18 +25,21 @@ export class Task {
 export class Session extends SessionCommands {
     constructor(
         public name: string,
-        public id: number,
+        public readonly id: number,
         public color: string,
         public is_selected: boolean,
-        public time_spent: number,
-        public total_sessions: number,
-        public created_at: Date,
+        public readonly time_spent: number,
+        public readonly total_sessions: number,
+        public readonly created_at: Date,
         public tasks: Task[]) {
         super();
     }
     public async selected() {
         const newState = await Session.onSelectedSession(this.id)
         useStateStore.getState().setStateData(newState);
+
+
+
         const selectedSession = newState.sessions.sessions.find((session) => session.is_selected);
         if (selectedSession) {
             useAppStore.getState().setSession(selectedSession);
@@ -40,6 +50,15 @@ export class Session extends SessionCommands {
     public async delete() {
         const newState = await Session.deleteSession(this.id)
         console.log('new state received!', newState)
+        useStateStore.getState().setStateData(newState);
+    }
+    public async update(formData: editFormType) {
+        const tasks = formData.tasks.map((task) => new Task(task.name, task.id, task.is_done, task.order, false))
+        this.name = formData.name;
+        this.color = formData.color;
+        this.is_selected = formData.is_selected === 'on' ? true : false;
+        this.tasks = tasks;
+        const newState = await Session.updateSession(this);
         useStateStore.getState().setStateData(newState);
     }
 }

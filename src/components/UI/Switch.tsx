@@ -5,8 +5,7 @@ const Switch = forwardRef<HTMLButtonElement, SwitchR.SwitchProps>((props, ref) =
 		<SwitchR.Root
 			ref={ref}
 			{...props}
-			className={` w-8 h-4 bg-gray-500 ${props.className}`}
-		>
+			className={` w-8 h-4 bg-gray-500 ${props.className}`}>
 			<SwitchR.Thumb className='w-2 h-2 bg-gray-100 block data-[state=checked]:translate-x-6 transition-all' />
 		</SwitchR.Root>
 	);

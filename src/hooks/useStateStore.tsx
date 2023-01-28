@@ -48,6 +48,7 @@ export const useStateStore = create<AppState>()((set, get) => ({
 				draft.data = new_state;
 			})
 		);
+		useAppStore.getState().resetState();
 	},
 	getSessions: () => {
 		return get().data.sessions.sessions;

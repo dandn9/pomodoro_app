@@ -118,6 +118,21 @@ impl SessionState {
         }
         self.save_state();
     }
+    pub fn update_session(&mut self, session: Session) {
+        let index = self
+            .sessions
+            .iter()
+            .position(|x| x.id == session.id)
+            .unwrap();
+        self.sessions[index] = session;
+        let session_read = &self.sessions[index];
+
+        if session_read.is_selected {
+            self.select_session(session_read.id);
+            return;
+        };
+        self.save_state();
+    }
     // gets the session with the highest sequential id
     pub fn get_latest_id(&self) -> u32 {
         let mut highest_id = 0;
@@ -139,6 +154,7 @@ pub struct Task {
     id: u32,
     name: String,
     is_done: bool,
+    order: u32,
 }
 impl Task {
     pub fn new(name: String, id: u32) -> Task {
@@ -146,6 +162,7 @@ impl Task {
             id,
             name,
             is_done: false,
+            order: 0,
         }
     }
     pub fn update_task(&mut self, name: Option<String>, is_done: Option<bool>) {

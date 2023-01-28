@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppStateData, useStateStore } from '../hooks/useStateStore';
 import { invoke } from '@tauri-apps/api';
+import { Session } from './classTypes';
 
 export class TimerCommands {
 	static async setTimerDuration(timerDuration: number) {
@@ -32,5 +33,8 @@ export class SessionCommands {
 	}
 	static async deleteSession(id: number) {
 		return await invoke<AppStateData>('delete_session', { id });
+	}
+	static async updateSession(session: Session) {
+		return await invoke<AppStateData>('update_session', { session });
 	}
 }

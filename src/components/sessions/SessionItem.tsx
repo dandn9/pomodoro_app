@@ -6,7 +6,7 @@ import { Session } from '../../utils/classTypes';
 
 interface SessionItemProps {
 	session: Session;
-	onEdit: (sessionId: number) => void;
+	onEdit: (session: Session) => void;
 }
 
 type ftype = (p: string, x: string) => ReactElement;
@@ -17,7 +17,7 @@ interface XProps {
 const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
 	function onEditClick(ev: React.MouseEvent) {
 		ev.stopPropagation();
-		onEdit(session.id);
+		onEdit(session);
 	}
 
 	return (
@@ -30,7 +30,7 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
 				{session.name} - {session.id}
 			</p>
 			<div>
-				{session.tasks.map((task) => (
+				{session.tasks.map((task, index) => (
 					<p key={task.id}>
 						{task.name} - {task.is_done ? 'done' : 'not done'}
 					</p>

@@ -96,28 +96,12 @@ pub fn delete_session(id: u32, state: State<'_, Mutex<AppState>>) -> AppState {
 
 #[tauri::command]
 pub fn update_session(
-    name: Option<String>,
-    color: Option<String>,
-    id: u32,
+    session: Session,
     state: State<'_, Mutex<AppState>>,
 ) -> Result<AppState, String> {
     let mut curr_state = state.lock().unwrap();
-    let session = curr_state.sessions.get_session_mut(id);
-    match session {
-        Some(session_ref) => {
-            match name {
-                Some(new_name) => session_ref.name = new_name,
-                None => {}
-            };
-            match color {
-                Some(new_color) => session_ref.color = new_color,
-                None => {}
-            }
-        }
-        None => return Err("No session".to_string()),
-    }
-    curr_state.sessions.save_state();
-    println!("NEW STATE {:?}", curr_state);
+    println!("updating session");
+    curr_state.sessions.update_session(session);
     Ok(curr_state.get_state())
 }
 

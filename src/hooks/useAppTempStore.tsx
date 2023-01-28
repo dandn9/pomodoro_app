@@ -90,6 +90,7 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 		set((state) =>
 			produce(state, (draft) => {
 				const curr_state = useStateStore.getState().data;
+				console.log('resetting state to', curr_state);
 				draft.curr_session =
 					curr_state.sessions.sessions.find((sess) => sess.is_selected) || undefined;
 				draft.curr_timer = curr_state.timer.timer_duration;

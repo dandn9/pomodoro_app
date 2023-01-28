@@ -5,21 +5,22 @@ import useStateStore from '../hooks/useStateStore';
 import Modal from '../components/Modal';
 import SessionModalContent from '../components/sessions/NewSessionModalContent';
 import EditSessionModalContent from '../components/sessions/EditSessionModalContent';
+import { Session } from '../utils/classTypes';
 
 const Sessions = () => {
 	const [editOpen, setEditOpen] = React.useState(false);
-	const [editSession, setEditSession] = React.useState(-1);
+	const [editSession, setEditSession] = React.useState<Session | undefined>(undefined);
 	const sessionsData = useStateStore((state) => state.data.sessions.sessions);
 
-	function onEdit(sessionId: number) {
+	function onEdit(session: Session) {
 		startTransition(() => {
-			setEditSession(sessionId);
+			setEditSession(session);
 			setEditOpen(true);
 		});
 	}
 	function onEditClose() {
 		startTransition(() => {
-			setEditSession(-1);
+			setEditSession(undefined);
 			setEditOpen(false);
 		});
 	}
@@ -31,7 +32,7 @@ const Sessions = () => {
 				isOpen={editOpen}
 				onEditClose={onEditClose}
 				setIsOpen={setEditOpen}
-				sessionId={editSession}
+				session={editSession}
 			/>
 
 			<ul className='flex flex-col w-full gap-2 max-w-xl mx-auto'>
@@ -48,13 +49,13 @@ const SessionEditModal: React.FC<{
 	isOpen: boolean;
 	setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 	onEditClose: () => void;
-	sessionId: number;
-}> = ({ isOpen, setIsOpen, sessionId, onEditClose }) => {
+	session: Session | undefined;
+}> = ({ isOpen, setIsOpen, session, onEditClose }) => {
 	return (
 		<Modal setOpen={setIsOpen} open={isOpen}>
 			<EditSessionModalContent
 				onEditClose={onEditClose}
-				sessionId={sessionId}
+				session={session}
 				setOpen={setIsOpen}
 			/>
 		</Modal>
