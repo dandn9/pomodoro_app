@@ -18,7 +18,7 @@ const Modal = ({ children, open, setOpen }: ModalProps): JSX.Element => {
 		}
 	}, [open]);
 	return (
-		<Dialog.Root open={open}>
+		<Dialog.Root modal open={open}>
 			<Dialog.Portal>
 				<Dialog.Overlay asChild onClick={() => setOpen(false)}>
 					<div className='fixed inset-0 bg-black/50 z-20 animate-[fade-in_1s_ease]' />

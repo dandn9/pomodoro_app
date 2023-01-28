@@ -1,7 +1,6 @@
 import React, { startTransition } from 'react';
 import SessionItem from '../components/sessions/SessionItem';
 import useAppStore from '../hooks/useAppTempStore';
-import useCommands from '../hooks/useCommands';
 import useStateStore from '../hooks/useStateStore';
 import Modal from '../components/Modal';
 import SessionModalContent from '../components/sessions/NewSessionModalContent';
@@ -10,21 +9,8 @@ import EditSessionModalContent from '../components/sessions/EditSessionModalCont
 const Sessions = () => {
 	const [editOpen, setEditOpen] = React.useState(false);
 	const [editSession, setEditSession] = React.useState(-1);
-
 	const sessionsData = useStateStore((state) => state.data.sessions.sessions);
-	const setState = useStateStore((state) => state.setStateData);
-	const setNewSession = useAppStore((state) => state.setSession);
 
-	const commands = useCommands();
-
-	async function onSelect(sessionId: number) {
-		const newState = await commands.onSelectedSession(sessionId);
-		setState(newState);
-		const new_session = newState.sessions.sessions.find((s) => s.id === sessionId);
-		if (new_session) {
-			setNewSession(new_session);
-		}
-	}
 	function onEdit(sessionId: number) {
 		startTransition(() => {
 			setEditSession(sessionId);
@@ -43,12 +29,7 @@ const Sessions = () => {
 
 			<ul className='flex flex-col w-full gap-2 max-w-xl mx-auto'>
 				{sessionsData.map((session) => (
-					<SessionItem
-						onSelect={onSelect}
-						key={session.id}
-						session={session}
-						onEdit={onEdit}
-					/>
+					<SessionItem key={session.id} session={session} onEdit={onEdit} />
 				))}
 			</ul>
 		</div>

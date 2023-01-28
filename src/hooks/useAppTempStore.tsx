@@ -1,9 +1,9 @@
 import create from 'zustand';
 import produce from 'immer';
 import useStateStore from './useStateStore';
-import useCommands from './useCommands';
 import type { stateDataSchema } from '../utils/schemas';
 import { object, z } from 'zod';
+import { SessionCommands } from '../utils/commands';
 
 type Sessions = z.infer<typeof stateDataSchema>['sessions']['sessions'];
 type Session = Sessions extends Array<infer U> ? U : never;
@@ -58,29 +58,30 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 					if (curr_state === 'timer') {
 						draft.curr_session_count++;
 
-						useCommands().onSessionDone(
+						SessionCommands.onSessionDone(
 							state.curr_session.id!,
 							app_state.timer.timer_duration + state.temp_time_added
 						);
-						// should setup a flag to queue ? useCommands().onSessionDone()
-					}
-					// switches state based on current one
-					if (
-						curr_state === 'timer' &&
-						draft.curr_session_count % app_state.preferences.sessions_for_long_pause === 0
-					) {
-						draft.curr_state = 'long_pause';
-					} else if (curr_state === 'timer') {
-						draft.curr_state = 'pause';
+						// should setup a flag to queue ? 					}
+						// switches state based on current one
+						if (
+							curr_state === 'timer' &&
+							draft.curr_session_count % app_state.preferences.sessions_for_long_pause ===
+								0
+						) {
+							draft.curr_state = 'long_pause';
+						} else if (curr_state === 'timer') {
+							draft.curr_state = 'pause';
+						} else {
+							draft.curr_state = 'timer';
+						}
+						draft.temp_time_added = 0;
+						// send notification
+						// +1 session
+						draft[`curr_${curr_state}`] = app_state.timer[`${curr_state}_duration`];
 					} else {
-						draft.curr_state = 'timer';
+						draft[`curr_${curr_state}`] -= 1;
 					}
-					draft.temp_time_added = 0;
-					// send notification
-					// +1 session
-					draft[`curr_${curr_state}`] = app_state.timer[`${curr_state}_duration`];
-				} else {
-					draft[`curr_${curr_state}`] -= 1;
 				}
 			})
 		);

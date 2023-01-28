@@ -1,5 +1,5 @@
 import React from 'react';
-import Timer from '../components/Timer';
+import Timer from '../components/UI/Timer';
 import useAppStore from '../hooks/useAppTempStore';
 import { secondsToTimeString } from '../utils/displayTime';
 

@@ -3,7 +3,6 @@ import create from 'zustand';
 import produce from 'immer';
 import { z } from 'zod';
 import { stateDataSchema } from '../utils/schemas';
-import useCommands from './useCommands';
 import useAppStore from './useAppTempStore';
 
 export type AppStateData = z.infer<typeof stateDataSchema>;

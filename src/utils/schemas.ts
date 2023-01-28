@@ -1,5 +1,7 @@
-
+import produce from 'immer'
 import { z } from 'zod'
+import { Task, Session, Timer, Preferences, Notification } from './classTypes';
+import { o } from '@tauri-apps/api/dialog-15855a2f';
 
 export const taskSchema = z.object({
     id: z.number(),
@@ -31,6 +33,16 @@ const sessionSchema = z.object({
 
 export type SessionType = z.infer<typeof sessionSchema>
 
+
+type StateType = {
+    timer: Timer,
+    sessions: {
+        sessions: Session[]
+    }
+    preferences: Preferences
+}
+
+
 export const stateDataSchema = z.object({
     timer: z.object({
         pause_duration: z.number(),
@@ -49,6 +61,23 @@ export const stateDataSchema = z.object({
         show_percentage: z.boolean(),
         resolution: z.tuple([z.number(), z.number()]),
     }),
-});
+}).transform<StateType>((data) => {
+    const sessions = data.sessions.sessions.map((session: SessionType) => {
+        const tasks = session.tasks.map((task) => new Task(task.name, task.id, task.is_done));
+        return new Session(session.name, session.id, session.color, session.is_selected, session.time_spent, session.total_sessions, new Date(session.created_at), tasks);
+    });
+
+    const notification = new Notification(data.preferences.notification.audio_on_pause, data.preferences.notification.audio_on_timer, data.preferences.notification.message_on_pause, data.preferences.notification.message_on_timer)
+    const transformedState: StateType = {
+        preferences: new Preferences(notification, data.preferences.autoplay, data.preferences.enable_sessions, data.preferences.sessions_to_complete, data.preferences.sessions_for_long_pause, data.preferences.available_sounds, data.preferences.show_percentage, data.preferences.resolution),
+        sessions: { sessions: sessions },
+        timer: new Timer(data.timer.pause_duration, data.timer.long_pause_duration, data.timer.timer_duration)
+    }
+    return transformedState
+
+})
+
+
+
 
 export type StateDataType = z.infer<typeof stateDataSchema> 

@@ -36,7 +36,7 @@ function App() {
 		<main className='dark:text-white relative w-screen h-screen'>
 			<section>
 				<button
-					className='absolute top-0 left-0 z-10'
+					className='absolute top-0 left-0 z-20'
 					onClick={() => setSidebarOpen((open) => !open)}
 				>
 					Open

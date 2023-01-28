@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Slider from '../components/Slider';
-import useCommands from '../hooks/useCommands';
+import Slider from '../components/UI/Slider';
+import { TimerCommands } from '../utils/commands';
 import useStateStore from '../hooks/useStateStore';
 import type { AppStateData } from '../hooks/useStateStore';
 import useAppStore from '../hooks/useAppTempStore';
@@ -29,7 +29,6 @@ const Preferences = () => {
 		);
 	}
 
-	const commands = useCommands();
 	function onCommitVal(newVal: number, updater: (val: number) => Promise<AppStateData>) {
 		updater(newVal).then((newState) => {
 			appStore.setStateData(newState);
@@ -46,7 +45,7 @@ const Preferences = () => {
 						max={500}
 						value={timerPreferences.timerDuration}
 						onValueChange={(val) => onUpdatePreferences(val, 'timerDuration')}
-						onValueCommit={(val) => onCommitVal(val[0], commands.setTimerDuration)}
+						onValueCommit={(val) => onCommitVal(val[0], TimerCommands.setTimerDuration)}
 					/>
 					{timerPreferences.timerDuration[0]}
 				</li>
@@ -57,7 +56,7 @@ const Preferences = () => {
 						max={500}
 						value={timerPreferences.pauseDuration}
 						onValueChange={(val) => onUpdatePreferences(val, 'pauseDuration')}
-						onValueCommit={(val) => onCommitVal(val[0], commands.setPauseDuration)}
+						onValueCommit={(val) => onCommitVal(val[0], TimerCommands.setPauseDuration)}
 					/>
 					{timerPreferences.pauseDuration[0]}
 				</li>
@@ -68,7 +67,9 @@ const Preferences = () => {
 						max={500}
 						value={timerPreferences.longPauseDuration}
 						onValueChange={(val) => onUpdatePreferences(val, 'longPauseDuration')}
-						onValueCommit={(val) => onCommitVal(val[0], commands.setLongPauseDuration)}
+						onValueCommit={(val) =>
+							onCommitVal(val[0], TimerCommands.setLongPauseDuration)
+						}
 					/>
 					{timerPreferences.longPauseDuration[0]}
 				</li>

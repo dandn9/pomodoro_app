@@ -1,12 +1,11 @@
 import { current, produceWithPatches } from 'immer';
 import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import ReactDOM from 'react-dom';
-import useCommands from '../../hooks/useCommands';
 import { SessionType } from '../../utils/schemas';
+import { Session } from '../../utils/classTypes';
 
 interface SessionItemProps {
-	session: SessionType;
-	onSelect: (sessionId: number) => void;
+	session: Session;
 	onEdit: (sessionId: number) => void;
 }
 
@@ -15,7 +14,7 @@ interface XProps {
 	children: (x: ftype) => ReactElement;
 }
 
-const SessionItem: React.FC<SessionItemProps> = ({ session, onSelect, onEdit }) => {
+const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
 	function onEditClick(ev: React.MouseEvent) {
 		ev.stopPropagation();
 		onEdit(session.id);
@@ -23,11 +22,10 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onSelect, onEdit }) 
 
 	return (
 		<li
-			onClick={onSelect.bind(null, session.id)}
+			onClick={() => session.selected()}
 			className={`w-full relative max-h-32 border 
                 ${session.is_selected ? 'border-white' : 'border-gray-400'}
-                `}
-		>
+                `}>
 			<p>
 				{session.name} - {session.id}
 			</p>

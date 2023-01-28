@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { z } from 'zod';
-import useCommands from '../../hooks/useCommands';
+import { SessionCommands } from '../../utils/commands';
 import useStateStore from '../../hooks/useStateStore';
 import { TModalContentProps, TModalContent } from '../../types/ModalContent';
 
@@ -18,7 +18,6 @@ const SessionModalContent: TModalContent = ({ open, setOpen }) => {
 	const [errors, setErrors] = React.useState<
 		z.ZodFormattedError<z.infer<typeof formSchema>>
 	>({ _errors: [] });
-	const commands = useCommands();
 
 	function resetErrors() {
 		setErrors({ _errors: [] });
@@ -27,7 +26,6 @@ const SessionModalContent: TModalContent = ({ open, setOpen }) => {
 		ev.preventDefault();
 		const formData = new FormData(ev.currentTarget);
 
-		console.log(formData.getAll('task'));
 		const result = formSchema.safeParse({
 			sessionName: formData.get('sessionName'),
 			tasks: formData.getAll('task'),
@@ -36,7 +34,7 @@ const SessionModalContent: TModalContent = ({ open, setOpen }) => {
 		if (!result.success) {
 			setErrors(result.error.format());
 		} else {
-			const newState = await commands.createSession(
+			const newState = await SessionCommands.createSession(
 				result.data.sessionName,
 				'#000',
 				result.data.tasks

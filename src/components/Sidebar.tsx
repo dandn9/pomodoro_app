@@ -10,17 +10,26 @@ const Sidebar: React.FC<{ isOpen: boolean }> = (props) => {
 	}
 	return (
 		<aside
-			className={`h-full absolute left-0 bg-gray-800 transition-all 
+			className={`h-full absolute left-0 bg-gray-800 transition-all z-10
 				${props.isOpen ? `` : `-translate-x-full`}`}
 		>
-			<ul className='flex flex-col justify-center h-full '>
-				<li onClick={() => onMenuClick('home')} className='cursor-pointer hover:bg-white/25 '>
+			<ul className='flex flex-col justify-center h-full z-10 '>
+				<li
+					onClick={() => onMenuClick('home')}
+					className='cursor-pointer hover:bg-white/25 '
+				>
 					home
 				</li>
-				<li onClick={() => onMenuClick('sessions')} className='cursor-pointer hover:bg-white/25 '>
+				<li
+					onClick={() => onMenuClick('sessions')}
+					className='cursor-pointer hover:bg-white/25 '
+				>
 					sessions
 				</li>
-				<li onClick={() => onMenuClick('preferences')} className='cursor-pointer hover:bg-white/25 '>
+				<li
+					onClick={() => onMenuClick('preferences')}
+					className='cursor-pointer hover:bg-white/25 '
+				>
 					preferences
 				</li>
 			</ul>
