@@ -18,6 +18,7 @@ interface AppTempStore {
 	curr_session_count: number;
 	curr_state: 'timer' | 'pause' | 'long_pause';
 	curr_session?: Session;
+	queue: ((...args: any) => any)[];
 
 	tick: () => void;
 	resetState: () => void;
@@ -42,6 +43,7 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 	curr_state: 'timer',
 	curr_session: undefined,
 	temp_time_added: 0,
+	queue: [],
 
 	tick: () => {
 		set((state) =>
@@ -50,38 +52,49 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
 				if (!state.curr_session) return;
 
 				const curr_state = state.curr_state;
+				console.log('ticking!', curr_state);
+				console.log(state.curr_timer);
 
 				if (state[`curr_${curr_state}`] <= 0) {
+					console.log('timed out');
 					const app_state = useStateStore.getState().data;
 					draft.is_playing = app_state.preferences.autoplay;
 
 					if (curr_state === 'timer') {
 						draft.curr_session_count++;
 
-						SessionCommands.onSessionDone(
-							state.curr_session.id!,
-							app_state.timer.timer_duration + state.temp_time_added
-						);
-						// should setup a flag to queue ? 					}
-						// switches state based on current one
-						if (
-							curr_state === 'timer' &&
-							draft.curr_session_count % app_state.preferences.sessions_for_long_pause ===
-								0
-						) {
-							draft.curr_state = 'long_pause';
-						} else if (curr_state === 'timer') {
-							draft.curr_state = 'pause';
-						} else {
-							draft.curr_state = 'timer';
-						}
-						draft.temp_time_added = 0;
-						// send notification
-						// +1 session
-						draft[`curr_${curr_state}`] = app_state.timer[`${curr_state}_duration`];
-					} else {
-						draft[`curr_${curr_state}`] -= 1;
+						draft.queue.push(async () => {
+							const newState = await SessionCommands.onSessionDone(
+								state.curr_session!.id!,
+								app_state.timer.timer_duration + state.temp_time_added
+							);
+							useStateStore.getState().setStateData(newState);
+						});
 					}
+					if (
+						curr_state === 'timer' &&
+						draft.curr_session_count % app_state.preferences.sessions_for_long_pause === 0
+					) {
+						draft.curr_state = 'long_pause';
+					} else if (curr_state === 'timer') {
+						draft.curr_state = 'pause';
+					} else {
+						draft.curr_state = 'timer';
+					}
+					draft.temp_time_added = 0;
+					// send notification
+					// +1 session
+					draft[`curr_${curr_state}`] = app_state.timer[`${curr_state}_duration`];
+
+					while (draft.queue.length > 0) {
+						console.log('clearing queue');
+						const fn = draft.queue.shift();
+						if (fn) {
+							fn();
+						}
+					}
+				} else {
+					draft[`curr_${curr_state}`] -= 1;
 				}
 			})
 		);

@@ -37,4 +37,7 @@ export class SessionCommands {
 	static async updateSession(session: Session) {
 		return await invoke<AppStateData>('update_session', { session });
 	}
+	static async updateDoneTask(taskId: number, sessionId: number, isDone: boolean) {
+		return await invoke<AppStateData | string>('update_done_task', { sessionId, taskId, isDone });
+	}
 }

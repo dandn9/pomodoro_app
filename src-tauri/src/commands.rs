@@ -159,9 +159,8 @@ pub fn delete_task(
 }
 
 #[tauri::command]
-pub fn update_task(
-    name: Option<String>,
-    is_done: Option<bool>,
+pub fn update_done_task(
+    is_done: bool,
     session_id: u32,
     task_id: u32,
     state: State<'_, Mutex<AppState>>,
@@ -169,12 +168,13 @@ pub fn update_task(
     let mut curr_state = state.lock().unwrap();
     if let Some(session) = curr_state.sessions.get_session_mut(session_id) {
         if let Some(task) = session.get_task_mut(task_id) {
-            task.update_task(name, is_done)
+            task.update_task_done(is_done);
         } else {
             return Err("No task found".to_string());
         }
     } else {
         return Err("No session found".to_string());
     }
+    curr_state.sessions.save_state();
     Ok(curr_state.get_state())
 }

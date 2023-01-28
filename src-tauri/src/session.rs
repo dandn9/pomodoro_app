@@ -165,12 +165,7 @@ impl Task {
             order: 0,
         }
     }
-    pub fn update_task(&mut self, name: Option<String>, is_done: Option<bool>) {
-        if let Some(name) = name {
-            self.name = name
-        }
-        if let Some(is_done) = is_done {
-            self.is_done = is_done
-        }
+    pub fn update_task_done(&mut self, is_done: bool) {
+        self.is_done = is_done
     }
 }

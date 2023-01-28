@@ -11,14 +11,6 @@ export class Task {
         public order: number,
         public is_draft: boolean) { }
 
-    public setIsDone(is_done: boolean) {
-        this.is_done = is_done
-        return this
-    }
-    public setName(name: string) {
-        this.name = name;
-        return this
-    }
 }
 
 
@@ -60,6 +52,16 @@ export class Session extends SessionCommands {
         this.tasks = tasks;
         const newState = await Session.updateSession(this);
         useStateStore.getState().setStateData(newState);
+    }
+    public async updateTask(taskId: number, checked: boolean) {
+        const result = await Session.updateDoneTask(taskId, this.id, checked);
+        if (typeof result === 'string') {
+            throw new Error(result);
+        } else {
+            useStateStore.getState().setStateData(result)
+        }
+
+
     }
 }
 export class Timer extends TimerCommands {

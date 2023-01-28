@@ -130,7 +130,7 @@ fn main() {
             update_session,
             add_task,
             delete_task,
-            update_task,
+            update_done_task,
             on_completed_session,
             on_selected_session
         ])

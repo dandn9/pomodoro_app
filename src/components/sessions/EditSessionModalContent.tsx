@@ -127,6 +127,9 @@ const EditSessionModalContent: TModalContent<{
 					Is Selected: <Switch defaultChecked={session.is_selected} name='is_selected' />
 				</div>
 				<div>
+					time spent {session.time_spent} - total sessions: {session.total_sessions}
+				</div>
+				<div>
 					Tasks:
 					<div className='w-full bg-gray-600/20'>
 						<ul>

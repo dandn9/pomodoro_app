@@ -6,6 +6,7 @@ import Modal from '../components/Modal';
 import SessionModalContent from '../components/sessions/NewSessionModalContent';
 import EditSessionModalContent from '../components/sessions/EditSessionModalContent';
 import { Session } from '../utils/classTypes';
+import SessionList from '../components/sessions/SessionList';
 
 const Sessions = () => {
 	const [editOpen, setEditOpen] = React.useState(false);
@@ -35,11 +36,12 @@ const Sessions = () => {
 				session={editSession}
 			/>
 
-			<ul className='flex flex-col w-full gap-2 max-w-xl mx-auto'>
+			<SessionList sessions={sessionsData} onEdit={onEdit} />
+			{/* <ul className='flex flex-col w-full gap-2 max-w-xl mx-auto'>
 				{sessionsData.map((session) => (
 					<SessionItem key={session.id} session={session} onEdit={onEdit} />
 				))}
-			</ul>
+			</ul> */}
 		</div>
 	);
 };
