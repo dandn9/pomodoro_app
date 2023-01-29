@@ -16,6 +16,8 @@ use tauri::api::path::app_data_dir;
 pub static PREF_FOLDER_NAME: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new("".to_string()));
 // Appdata settings folder
 pub static SETTINGS_FOLDER_PATH: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new("".to_string()));
+// Clone of config
+pub static CONFIG: Lazy<Mutex<tauri::Config>> = Lazy::new(|| Mutex::new(tauri::Config::default()));
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AppState {
@@ -81,11 +83,13 @@ where
 
 // pub static STATE: Mutex<AppState> = Mutex::new(AppState { timer: None });
 
-pub fn init_or_get_state(app_config: &tauri::Config) -> Mutex<AppState> {
-    SETTINGS_FOLDER_PATH
-        .lock()
+pub fn init_or_get_state(app_config: &tauri::Config) -> AppState {
+    *SETTINGS_FOLDER_PATH.lock().unwrap() = app_data_dir(app_config)
         .unwrap()
-        .push_str(app_data_dir(app_config).unwrap().to_str().unwrap());
+        .to_str()
+        .unwrap()
+        .to_string();
+    CONFIG.lock().unwrap().clone_from(app_config);
 
     setup_state_folder();
     println!("PREF_FOLDER_NAME: {}", PREF_FOLDER_NAME.lock().unwrap());
@@ -96,13 +100,15 @@ pub fn init_or_get_state(app_config: &tauri::Config) -> Mutex<AppState> {
         sessions: SessionState::get_state_settings_or_init(),
         preferences: PreferencesState::get_state_settings_or_init(),
     };
-    Mutex::new(state)
+    state
 }
 
 pub fn setup_state_folder() {
+    println!("Settings folder path!");
     // let config_dir = dirs::config_dir().unwrap().join(PREF_FOLDER_NAME);
     let base_path = PathBuf::from(SETTINGS_FOLDER_PATH.lock().unwrap().to_string());
 
+    println!("Got folder path {:?}", base_path);
     match fs::create_dir(&base_path) {
         Ok(_) => println!("Created config directory"),
         Err(e) => {

@@ -37,11 +37,6 @@ const Sessions = () => {
 			/>
 
 			<SessionList sessions={sessionsData} onEdit={onEdit} />
-			{/* <ul className='flex flex-col w-full gap-2 max-w-xl mx-auto'>
-				{sessionsData.map((session) => (
-					<SessionItem key={session.id} session={session} onEdit={onEdit} />
-				))}
-			</ul> */}
 		</div>
 	);
 };

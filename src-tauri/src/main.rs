@@ -76,7 +76,7 @@ fn main() {
                 window.open_devtools();
             }
 
-            let app_state = init_or_get_state(&app.config());
+            let app_state = Mutex::new(init_or_get_state(&app.config()));
             app.manage(app_state);
             let main_window = app.get_window("main").unwrap();
             let tray_handle = app.tray_handle();
@@ -132,7 +132,8 @@ fn main() {
             delete_task,
             update_done_task,
             on_completed_session,
-            on_selected_session
+            on_selected_session,
+            reload_state
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application")

@@ -11,11 +11,6 @@ interface SessionItemProps {
 	onEdit: (session: Session) => void;
 }
 
-type ftype = (p: string, x: string) => ReactElement;
-interface XProps {
-	children: (x: ftype) => ReactElement;
-}
-
 const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
 	function onEditClick(ev: React.MouseEvent) {
 		ev.stopPropagation();
@@ -24,6 +19,23 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
 	function onTaskCheck(taskId: number, checked: boolean) {
 		session.updateTask(taskId, checked);
 	}
+
+	function onDragStart(ev: React.DragEvent<HTMLLIElement>) {
+		draggingElement.current = ev.target as HTMLLIElement;
+		setisDragging(true);
+	}
+	function onDragEnd(ev: React.DragEvent<HTMLLIElement>) {
+		// console.log('drag end!', ev);
+		setisDragging(false);
+	}
+
+	function onDrag(ev: React.DragEvent<HTMLLIElement>) {
+		console.log('drag !', ev);
+	}
+
+	const [tasksDraft, setTasksDraft] = React.useState(session.tasks);
+	const draggingElement = React.useRef<HTMLLIElement | null>(null);
+	const [isDragging, setisDragging] = React.useState(false);
 
 	return (
 		<Accordion.Item value={`${session.id}`}>
@@ -34,33 +46,21 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
 				</div>
 			</AccordionTrigger>
 			<AccordionContent>
-				{session.tasks.map((task) => (
-					<TaskItemSession task={task} key={task.id} onTaskChecked={onTaskCheck} />
-				))}
+				{tasksDraft.map((task, index) => {
+					return (
+						<TaskItemSession
+							task={task}
+							key={task.id}
+							onDragStart={onDragStart}
+							onDragEnd={onDragEnd}
+							onDrag={onDrag}
+							onTaskChecked={onTaskCheck}
+						/>
+					);
+				})}
 			</AccordionContent>
 		</Accordion.Item>
 	);
-
-	// return (
-	// 	<li
-	// 		onClick={() => session.selected()}
-	// 		className={`w-full relative max-h-32 border
-	//             ${session.is_selected ? 'border-white' : 'border-gray-400'}
-	//             `}>
-	// 		<p>
-	// 			{session.name} - {session.id}
-	// 		</p>
-	// 		<ul>
-	// 			{session.tasks.map((task, index) => (
-	// 				<TaskItemSession task={task} key={task.id} />
-	// 			))}
-	// 		</ul>
-	// 		{/* <X>{(func) => func('X', 'D')}</X> */}
-	// 		<button className='absolute right-2 top-0' onClick={onEditClick}>
-	// 			E
-	// 		</button>
-	// 	</li>
-	// );
 };
 
 const AccordionTrigger = React.forwardRef<
@@ -84,7 +84,7 @@ const AccordionContent = React.forwardRef<
 		className={`bg-blue-400 ${className}`}
 		{...props}
 		ref={forwardedRef}>
-		<ul className='AccordionContentText'>{children}</ul>
+		<ul className='tasks-container'>{children}</ul>
 	</Accordion.Content>
 ));
 

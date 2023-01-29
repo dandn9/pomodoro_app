@@ -99,6 +99,9 @@ impl Session {
         }
         highest_id
     }
+    pub fn sort_tasks(&mut self) {
+        self.tasks.sort_by(|a, b| a.order.cmp(&b.order))
+    }
 }
 impl SessionState {
     pub fn add_session(&mut self, session: Session) {

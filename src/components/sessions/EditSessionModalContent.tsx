@@ -86,7 +86,7 @@ const EditSessionModalContent: TModalContent<{
 				if (task.order > highestOrder) highestOrder = task.order;
 			}
 		}
-		const newTask = new Task('', highestId + 1, false, highestOrder, true);
+		const newTask = new Task('', highestId + 1, false, highestOrder + 1, true);
 		setSessionDraft((prev) =>
 			produce(prev, (draft) => {
 				draft.tasks.push(newTask);

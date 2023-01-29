@@ -3,12 +3,12 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::sync::Mutex;
+use std::sync::{Mutex, MutexGuard, PoisonError};
 use tauri::api::path::app_data_dir;
-use tauri::State;
+use tauri::{Manager, State};
 
 use crate::session::{self, Session, SessionState};
-use crate::state::{AppState, AppStateTrait};
+use crate::state::{init_or_get_state, AppState, AppStateTrait};
 
 #[tauri::command]
 pub fn get_state(state: State<'_, Mutex<AppState>>) -> AppState {
@@ -177,4 +177,14 @@ pub fn update_done_task(
     }
     curr_state.sessions.save_state();
     Ok(curr_state.get_state())
+}
+
+// UTILITIES
+#[tauri::command]
+pub fn reload_state(state: State<Mutex<AppState>>, app_handle: tauri::AppHandle) -> AppState {
+    let mut x = state.lock().unwrap();
+    let new_state = init_or_get_state(&app_handle.config());
+    *x = new_state;
+
+    x.get_state()
 }
