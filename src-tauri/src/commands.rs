@@ -3,6 +3,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::rc::Rc;
 use std::sync::{Mutex, MutexGuard, PoisonError};
 use tauri::api::path::app_data_dir;
 use tauri::{Manager, State};
@@ -78,7 +79,7 @@ pub fn create_session(
     let latest_id = curr_state.sessions.get_latest_id();
     let mut session = Session::new(name, color, latest_id + 1);
     for task_name in tasks {
-        session.add_task(task_name)
+        session.add_task_string(task_name)
     }
     let session_id = session.id;
     curr_state.sessions.add_session(session);
@@ -135,7 +136,7 @@ pub fn add_task(
 ) -> Result<AppState, String> {
     let mut curr_state = state.lock().unwrap();
     if let Some(session) = curr_state.sessions.get_session_mut(session_id) {
-        session.add_task(name);
+        session.add_task_string(name);
         curr_state.sessions.save_state();
     } else {
         return Err("No session found".to_string());
@@ -179,6 +180,56 @@ pub fn update_done_task(
     Ok(curr_state.get_state())
 }
 
+#[tauri::command]
+pub fn update_order_task(
+    target_order: u32,
+    from_order: u32,
+    session_id_target: u32,
+    session_id_from: u32,
+    state: State<'_, Mutex<AppState>>,
+) -> Result<AppState, String> {
+    let mut curr_state = state.lock().unwrap();
+
+    // code looks a bit weird bcs of borrowing rules
+    let task = if session_id_target != session_id_from {
+        println!("not same");
+        let session_from = curr_state
+            .sessions
+            .get_session_mut(session_id_from)
+            .unwrap();
+        let task = session_from.remove_task_on_index(from_order).unwrap();
+        println!(
+            "removed task : {:?} from session {:?}",
+            task, session_from.name
+        );
+        Some(task)
+    } else {
+        let session = curr_state
+            .sessions
+            .get_session_mut(session_id_target)
+            .unwrap();
+
+        println!("changing {:?} to {:?}", from_order, target_order);
+        session.update_task_index(from_order, target_order);
+        None
+    };
+
+    match task {
+        Some(task) => {
+            let session = curr_state
+                .sessions
+                .get_session_mut(session_id_target)
+                .unwrap();
+            session.add_task(task);
+            session.update_task_index((session.tasks.len() - 1) as u32, target_order)
+        }
+        None => {}
+    }
+    println!("CHANGED ORDERA");
+
+    curr_state.sessions.save_state();
+    Ok(curr_state.get_state())
+}
 // UTILITIES
 #[tauri::command]
 pub fn reload_state(state: State<Mutex<AppState>>, app_handle: tauri::AppHandle) -> AppState {

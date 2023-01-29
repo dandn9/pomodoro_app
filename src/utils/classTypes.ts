@@ -8,7 +8,6 @@ export class Task {
         public name: string,
         public readonly id: number,
         public is_done: boolean,
-        public order: number,
         public is_draft: boolean) { }
 
 }
@@ -29,9 +28,6 @@ export class Session extends SessionCommands {
     public async selected() {
         const newState = await Session.onSelectedSession(this.id)
         useStateStore.getState().setStateData(newState);
-
-
-
         const selectedSession = newState.sessions.sessions.find((session) => session.is_selected);
         if (selectedSession) {
             useAppStore.getState().setSession(selectedSession);
@@ -45,7 +41,7 @@ export class Session extends SessionCommands {
         useStateStore.getState().setStateData(newState);
     }
     public async update(formData: editFormType) {
-        const tasks = formData.tasks.map((task) => new Task(task.name, task.id, task.is_done, task.order, false))
+        const tasks = formData.tasks.map((task) => new Task(task.name, task.id, task.is_done, false))
         this.name = formData.name;
         this.color = formData.color;
         this.is_selected = formData.is_selected === 'on' ? true : false;
@@ -53,15 +49,13 @@ export class Session extends SessionCommands {
         const newState = await Session.updateSession(this);
         useStateStore.getState().setStateData(newState);
     }
-    public async updateTask(taskId: number, checked: boolean) {
+    public async updateTaskDone(taskId: number, checked: boolean) {
         const result = await Session.updateDoneTask(taskId, this.id, checked);
         if (typeof result === 'string') {
             throw new Error(result);
         } else {
             useStateStore.getState().setStateData(result)
         }
-
-
     }
 }
 export class Timer extends TimerCommands {

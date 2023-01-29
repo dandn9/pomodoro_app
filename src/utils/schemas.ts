@@ -7,7 +7,6 @@ export const taskSchema = z.object({
     id: z.number(),
     name: z.string(),
     is_done: z.boolean(),
-    order: z.number()
 });
 
 export type TaskType = z.infer<typeof taskSchema>
@@ -64,7 +63,7 @@ export const stateDataSchema = z.object({
     }),
 }).transform<StateType>((data) => {
     const sessions = data.sessions.sessions.map((session: SessionType) => {
-        const tasks = session.tasks.map((task) => new Task(task.name, task.id, task.is_done, task.order, false));
+        const tasks = session.tasks.map((task) => new Task(task.name, task.id, task.is_done, false));
         return new Session(session.name, session.id, session.color, session.is_selected, session.time_spent, session.total_sessions, new Date(session.created_at), tasks);
     });
 

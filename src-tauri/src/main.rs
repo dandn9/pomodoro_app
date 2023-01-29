@@ -131,6 +131,7 @@ fn main() {
             add_task,
             delete_task,
             update_done_task,
+            update_order_task,
             on_completed_session,
             on_selected_session,
             reload_state

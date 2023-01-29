@@ -1,10 +1,11 @@
 import { current, produceWithPatches } from 'immer';
-import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
+import React, { PropsWithChildren, ReactElement, ReactNode, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { SessionType } from '../../utils/schemas';
-import { Session } from '../../utils/classTypes';
+import { Session, Task } from '../../utils/classTypes';
 import TaskItemSession from '../tasks/TaskItemSession';
 import * as Accordion from '@radix-ui/react-accordion';
+import { z } from 'zod';
 
 interface SessionItemProps {
 	session: Session;
@@ -17,25 +18,8 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
 		onEdit(session);
 	}
 	function onTaskCheck(taskId: number, checked: boolean) {
-		session.updateTask(taskId, checked);
+		session.updateTaskDone(taskId, checked);
 	}
-
-	function onDragStart(ev: React.DragEvent<HTMLLIElement>) {
-		draggingElement.current = ev.target as HTMLLIElement;
-		setisDragging(true);
-	}
-	function onDragEnd(ev: React.DragEvent<HTMLLIElement>) {
-		// console.log('drag end!', ev);
-		setisDragging(false);
-	}
-
-	function onDrag(ev: React.DragEvent<HTMLLIElement>) {
-		console.log('drag !', ev);
-	}
-
-	const [tasksDraft, setTasksDraft] = React.useState(session.tasks);
-	const draggingElement = React.useRef<HTMLLIElement | null>(null);
-	const [isDragging, setisDragging] = React.useState(false);
 
 	return (
 		<Accordion.Item value={`${session.id}`}>
@@ -46,14 +30,13 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
 				</div>
 			</AccordionTrigger>
 			<AccordionContent>
-				{tasksDraft.map((task, index) => {
+				{session.tasks.map((task, index) => {
 					return (
 						<TaskItemSession
+							sessionId={session.id}
+							index={index}
 							task={task}
 							key={task.id}
-							onDragStart={onDragStart}
-							onDragEnd={onDragEnd}
-							onDrag={onDrag}
 							onTaskChecked={onTaskCheck}
 						/>
 					);

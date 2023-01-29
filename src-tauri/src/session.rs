@@ -78,13 +78,34 @@ impl Session {
     pub fn set_time_spent(&mut self, time_spent: u32) {
         self.time_spent = time_spent;
     }
-    pub fn add_task(&mut self, task_name: String) {
+    pub fn add_task_string(&mut self, task_name: String) {
         let task_id = self.get_latest_id() + 1;
         let task = Task::new(task_name, task_id);
         self.tasks.push(task);
     }
+    pub fn add_task(&mut self, task: Task) -> &mut Session {
+        self.tasks.push(task);
+        self
+    }
     pub fn delete_task(&mut self, task_id: u32) {
         self.tasks = self.tasks.drain(..).filter(|x| x.id != task_id).collect();
+    }
+    pub fn update_task_index(&mut self, curr_index: u32, to_index: u32) {
+        // if order == 0
+
+        if to_index == (self.tasks.len() - 1) as u32 {
+            let task = self.tasks.remove(curr_index as usize);
+            self.tasks.push(task);
+        } else if to_index == 0 {
+            let task = self.tasks.remove(curr_index as usize);
+            self.tasks.insert(0, task);
+        } else {
+            let task = self.tasks.remove(curr_index as usize);
+            self.tasks.insert((to_index - 1) as usize, task);
+        }
+    }
+    pub fn remove_task_on_index(&mut self, task_index: u32) -> Option<Task> {
+        Some(self.tasks.remove(task_index as usize))
     }
 
     pub fn get_task_mut(&mut self, id: u32) -> Option<&mut Task> {
@@ -98,9 +119,6 @@ impl Session {
             }
         }
         highest_id
-    }
-    pub fn sort_tasks(&mut self) {
-        self.tasks.sort_by(|a, b| a.order.cmp(&b.order))
     }
 }
 impl SessionState {
@@ -154,10 +172,9 @@ impl AppStateTrait for SessionState {
 // TASK --
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Task {
-    id: u32,
-    name: String,
-    is_done: bool,
-    order: u32,
+    pub id: u32,
+    pub name: String,
+    pub is_done: bool,
 }
 impl Task {
     pub fn new(name: String, id: u32) -> Task {
@@ -165,7 +182,6 @@ impl Task {
             id,
             name,
             is_done: false,
-            order: 0,
         }
     }
     pub fn update_task_done(&mut self, is_done: bool) {

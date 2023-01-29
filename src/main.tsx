@@ -10,7 +10,6 @@ invoke<AppStateData>('get_state').then((res) => {
 	console.log(`initial - get `, res);
 	console.log('hihi!');
 	useStateStore.getState().setStateData(res);
-	useAppStore.getState().resetState();
 
 	// debug infos
 	window.addEventListener('keydown', async (ev) => {
@@ -21,7 +20,7 @@ invoke<AppStateData>('get_state').then((res) => {
 		if (ev.key === 'X') {
 			console.log('reloading state');
 			const res = await invoke<AppStateData>('reload_state');
-			console.log('response frmo realod', res);
+			useStateStore.getState().setStateData(res);
 		}
 	});
 });

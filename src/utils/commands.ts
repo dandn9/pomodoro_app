@@ -40,4 +40,8 @@ export class SessionCommands {
 	static async updateDoneTask(taskId: number, sessionId: number, isDone: boolean) {
 		return await invoke<AppStateData | string>('update_done_task', { sessionId, taskId, isDone });
 	}
+	static async updateTaskOrder(targetOrder: number, fromOrder: number, sessionIdTarget: number, sessionIdFrom: number) {
+		const result = await invoke<AppStateData>('update_order_task', { targetOrder, fromOrder, sessionIdTarget, sessionIdFrom, })
+		useStateStore.getState().setStateData(result);
+	}
 }

@@ -4,7 +4,6 @@ import produce from 'immer';
 import { z } from 'zod';
 import { stateDataSchema } from '../utils/schemas';
 import useAppStore from './useAppTempStore';
-import { sortSessionsTasks } from '../utils/sort';
 
 export type AppStateData = z.infer<typeof stateDataSchema>;
 
@@ -46,7 +45,6 @@ export const useStateStore = create<AppState>()((set, get) => ({
 		set((state) =>
 			produce(state, (draft) => {
 				const new_state = stateDataSchema.parse(newStateData);
-				new_state.sessions.sessions = sortSessionsTasks(new_state.sessions.sessions);
 				draft.data = new_state;
 			})
 		);
