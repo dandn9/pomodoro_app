@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 
 import { TModalContent } from '../../types/ModalContent';
@@ -12,19 +12,30 @@ import { Session, Task } from '../../utils/classTypes';
 import { Writable } from '../../utils/utilityTypes';
 import { z } from 'zod';
 
-export const formSchema = z.object({
-	name: z.string(),
-	color: z.string(),
-	is_selected: z.literal('on').optional(),
-	tasks: z
-		.object({
-			name: z.string().min(1).max(30),
-			is_done: z.boolean(),
-			id: z.coerce.number(),
-			order: z.coerce.number(),
-		})
-		.array(),
-});
+export const formSchema = z
+	.object({
+		name: z.string(),
+		color: z.string(),
+		is_selected: z.literal('on').optional(),
+		tasks: z
+			.object({
+				name: z.string().min(1).max(30),
+				is_done: z.boolean(),
+				id: z.coerce.number(),
+			})
+			.array(),
+	})
+	.superRefine((val, ctx) => {
+		let tasks_name = val.tasks.map((task) => task.name);
+
+		if (val.tasks.length !== new Set(tasks_name).size) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: 'No duplicate names allowed',
+			});
+		}
+	});
+
 export type editFormType = z.infer<typeof formSchema>;
 
 const EditSessionModalContent: TModalContent<{
@@ -34,28 +45,33 @@ const EditSessionModalContent: TModalContent<{
 	if (!session) {
 		return <div>Couldn't load the session</div>;
 	}
-	const allSessions = useStateStore((state) => state.getSessions());
 	const [errors, setErrors] = React.useState<
 		z.ZodFormattedError<z.infer<typeof formSchema>>
 	>({ _errors: [] });
+
+	console.log('errors', errors);
 	const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 	const [sessionDraft, setSessionDraft] = useState(structuredClone(session));
 
 	function onFormSubmit(e: React.FormEvent) {
 		e.preventDefault();
+		setErrors({ _errors: [] });
 		const formData = new FormData(e.currentTarget as HTMLFormElement);
 		// const tasks: { taskName: string; isDone: boolean } = [];
 		const formPayload: any = { tasks: [] };
 		for (const [key, value] of formData) {
-			if (key.endsWith('-done') || key.endsWith('-id') || key.endsWith('-order'))
+			if (key.endsWith('-done') || key.endsWith('-id') || key.endsWith('-delete'))
 				continue;
 			if (key.startsWith('task-')) {
 				const taskIndex = key[key.length - 1];
+
+				if (formData.get(`task-${taskIndex}-delete`) === 'true') {
+					continue;
+				}
 				formPayload['tasks'].push({
 					name: value,
 					is_done: formData.get(`task-${taskIndex}-done`) === 'on',
 					id: formData.get(`task-${taskIndex}-id`),
-					order: formData.get(`task-${taskIndex}-order`),
 				});
 			} else {
 				formPayload[key] = value;
@@ -63,11 +79,11 @@ const EditSessionModalContent: TModalContent<{
 		}
 
 		const result = formSchema.safeParse(formPayload);
+
 		console.log(formPayload);
 		if (!result.success) {
 			setErrors(result.error.format());
 		} else {
-			console.log(result.data);
 			session?.update(result.data);
 			onEditClose();
 		}
@@ -79,14 +95,12 @@ const EditSessionModalContent: TModalContent<{
 	}
 	async function onAddTask() {
 		let highestId = 0;
-		let highestOrder = 0;
 		if (sessionDraft.tasks.length) {
 			for (const task of sessionDraft.tasks) {
 				if (task.id > highestId) highestId = task.id;
-				if (task.order > highestOrder) highestOrder = task.order;
 			}
 		}
-		const newTask = new Task('', highestId + 1, false, highestOrder + 1, true);
+		const newTask = new Task('', highestId + 1, false, true);
 		setSessionDraft((prev) =>
 			produce(prev, (draft) => {
 				draft.tasks.push(newTask);
@@ -105,7 +119,10 @@ const EditSessionModalContent: TModalContent<{
 				open={isPopoverOpen}
 				openSetter={setIsPopoverOpen}
 				content={
-					<PopOverContent onDelete={onDeleteSession} setPopover={setIsPopoverOpen} />
+					<PopOverContent
+						onDelete={onDeleteSession}
+						setPopover={setIsPopoverOpen}
+					/>
 				}>
 				<div
 					className='text-red-500 inline-block'
@@ -114,6 +131,9 @@ const EditSessionModalContent: TModalContent<{
 				</div>
 			</Popover>
 			<form onSubmit={onFormSubmit}>
+				{errors._errors.map((error) => (
+					<p className='text-red-500'>{error}</p>
+				))}
 				<div>
 					Name: <Input defaultValue={session.name} type='text' name='name' />
 				</div>
@@ -124,10 +144,12 @@ const EditSessionModalContent: TModalContent<{
 					Id: <Input defaultValue={session.id} type='text' name='id' disabled />
 				</div>
 				<div>
-					Is Selected: <Switch defaultChecked={session.is_selected} name='is_selected' />
+					Is Selected:{' '}
+					<Switch defaultChecked={session.is_selected} name='is_selected' />
 				</div>
 				<div>
-					time spent {session.time_spent} - total sessions: {session.total_sessions}
+					time spent {session.time_spent} - total sessions:{' '}
+					{session.total_sessions}
 				</div>
 				<div>
 					Tasks:
@@ -136,15 +158,23 @@ const EditSessionModalContent: TModalContent<{
 							{sessionDraft?.tasks.map((task, index) => {
 								return (
 									<React.Fragment key={task.id}>
-										<TaskItemEdit task={task} key={task.id} index={index} />
+										<TaskItemEdit
+											task={task}
+											key={task.id}
+											index={index}
+										/>
 										{errors.tasks &&
-											errors.tasks[index]?.name?._errors.map((error, err_index) => {
-												return (
-													<p className='text-red-400' key={`${task.id}-${err_index}`}>
-														{error}
-													</p>
-												);
-											})}
+											errors.tasks[index]?.name?._errors.map(
+												(error, err_index) => {
+													return (
+														<p
+															className='text-red-400'
+															key={`${task.id}-${err_index}`}>
+															{error}
+														</p>
+													);
+												}
+											)}
 									</React.Fragment>
 								);
 							})}

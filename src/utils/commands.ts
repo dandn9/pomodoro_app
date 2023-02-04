@@ -21,6 +21,12 @@ export class TimerCommands {
 	}
 }
 
+export class SessionsCommands {
+
+	static async updateTaskOrder(targetOrder: number, fromOrder: number, sessionIdTarget: number, sessionIdFrom: number) {
+		return await invoke<AppStateData>('update_order_task', { targetOrder, fromOrder, sessionIdTarget, sessionIdFrom, })
+	}
+}
 export class SessionCommands {
 	static async onSessionDone(id: number, time: number) {
 		return await invoke<AppStateData>('on_completed_session', { id, time });
@@ -29,7 +35,11 @@ export class SessionCommands {
 		return await invoke<AppStateData>('on_selected_session', { id });
 	}
 	static async createSession(name: string, color: string, tasks: string[]) {
-		return await invoke<AppStateData>('create_session', { name, color, tasks });
+		try {
+			return await invoke<AppStateData | string>('create_session', { name, color, tasks });
+		} catch (e) {
+			console.log('error', e)
+		}
 	}
 	static async deleteSession(id: number) {
 		return await invoke<AppStateData>('delete_session', { id });
@@ -38,10 +48,6 @@ export class SessionCommands {
 		return await invoke<AppStateData>('update_session', { session });
 	}
 	static async updateDoneTask(taskId: number, sessionId: number, isDone: boolean) {
-		return await invoke<AppStateData | string>('update_done_task', { sessionId, taskId, isDone });
-	}
-	static async updateTaskOrder(targetOrder: number, fromOrder: number, sessionIdTarget: number, sessionIdFrom: number) {
-		const result = await invoke<AppStateData>('update_order_task', { targetOrder, fromOrder, sessionIdTarget, sessionIdFrom, })
-		useStateStore.getState().setStateData(result);
+		return await invoke<AppStateData>('update_done_task', { sessionId, taskId, isDone });
 	}
 }

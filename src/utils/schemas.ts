@@ -1,6 +1,6 @@
 import produce from 'immer'
 import { z } from 'zod'
-import { Task, Session, Timer, Preferences, Notification } from './classTypes';
+import { Task, Session, Timer, Preferences, Notification, Sessions } from './classTypes';
 import { o } from '@tauri-apps/api/dialog-15855a2f';
 
 export const taskSchema = z.object({
@@ -36,9 +36,7 @@ export type SessionType = z.infer<typeof sessionSchema>
 
 type StateType = {
     timer: Timer,
-    sessions: {
-        sessions: Session[]
-    }
+    sessions: Sessions
     preferences: Preferences
 }
 
@@ -67,10 +65,11 @@ export const stateDataSchema = z.object({
         return new Session(session.name, session.id, session.color, session.is_selected, session.time_spent, session.total_sessions, new Date(session.created_at), tasks);
     });
 
+
     const notification = new Notification(data.preferences.notification.audio_on_pause, data.preferences.notification.audio_on_timer, data.preferences.notification.message_on_pause, data.preferences.notification.message_on_timer)
     const transformedState: StateType = {
         preferences: new Preferences(notification, data.preferences.autoplay, data.preferences.enable_sessions, data.preferences.sessions_to_complete, data.preferences.sessions_for_long_pause, data.preferences.available_sounds, data.preferences.show_percentage, data.preferences.resolution),
-        sessions: { sessions: sessions },
+        sessions: new Sessions(sessions),
         timer: new Timer(data.timer.pause_duration, data.timer.long_pause_duration, data.timer.timer_duration)
     }
     return transformedState

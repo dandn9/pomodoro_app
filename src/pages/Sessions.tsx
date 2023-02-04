@@ -11,7 +11,7 @@ import SessionList from '../components/sessions/SessionList';
 const Sessions = () => {
 	const [editOpen, setEditOpen] = React.useState(false);
 	const [editSession, setEditSession] = React.useState<Session | undefined>(undefined);
-	const sessionsData = useStateStore((state) => state.data.sessions.sessions);
+	const sessionsData = useStateStore((state) => state.data.sessions);
 
 	function onEdit(session: Session) {
 		startTransition(() => {

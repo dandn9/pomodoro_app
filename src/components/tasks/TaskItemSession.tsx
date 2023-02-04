@@ -35,7 +35,7 @@ const TaskItemSession: React.FC<{
 			className={` flex justify-between px-20 ${
 				isDraggedOver ? 'bg-slate-500' : 'bg-slate-800'
 			}`}
-			draggable='true'
+			draggable
 			ref={liRef}
 			onDragStart={(ev) => dragContext?.onDragStart(ev)}
 			onDragEnd={dragContext?.onDragEnd}

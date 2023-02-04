@@ -1,5 +1,5 @@
 import useAppStore from "../hooks/useAppTempStore";
-import { SessionCommands, TimerCommands } from "./commands";
+import { SessionCommands, SessionsCommands, TimerCommands } from "./commands";
 import useStateStore from "../hooks/useStateStore";
 import type { editFormType } from "../components/sessions/EditSessionModalContent";
 
@@ -12,6 +12,21 @@ export class Task {
 
 }
 
+export class Sessions extends SessionsCommands {
+    constructor(
+        public sessions: Session[]
+    ) { super() }
+
+    public async onUpdateTaskOrder(targetOrder: number, fromOrder: number, sessionIdTarget: number, sessionIdFrom: number) {
+        try {
+            const result = await Sessions.updateTaskOrder(targetOrder, fromOrder, sessionIdTarget, sessionIdFrom)
+            useStateStore.getState().setStateData(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
+
+}
 
 export class Session extends SessionCommands {
     constructor(
@@ -50,11 +65,12 @@ export class Session extends SessionCommands {
         useStateStore.getState().setStateData(newState);
     }
     public async updateTaskDone(taskId: number, checked: boolean) {
-        const result = await Session.updateDoneTask(taskId, this.id, checked);
-        if (typeof result === 'string') {
-            throw new Error(result);
-        } else {
+        try {
+
+            const result = await Session.updateDoneTask(taskId, this.id, checked);
             useStateStore.getState().setStateData(result)
+        } catch (e) {
+            console.log('error', e)
         }
     }
 }

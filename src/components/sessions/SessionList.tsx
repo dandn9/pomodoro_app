@@ -1,6 +1,6 @@
 import React from 'react';
 import * as Accordion from '@radix-ui/react-accordion';
-import { Session } from '../../utils/classTypes';
+import { Session, Sessions } from '../../utils/classTypes';
 import SessionItem from './SessionItem';
 import { z } from 'zod';
 import { SessionCommands } from '../../utils/commands';
@@ -16,7 +16,7 @@ export const DragContext = React.createContext<
 >(undefined);
 
 const SessionList: React.FC<{
-	sessions: Session[];
+	sessions: Sessions;
 	onEdit: (session: Session) => void;
 }> = ({ sessions, onEdit }) => {
 	const draggedElement = React.useRef<HTMLLIElement | null>(null);
@@ -33,11 +33,15 @@ const SessionList: React.FC<{
 			const fromSessionId = z.coerce
 				.number()
 				.parse(draggedElement.current.dataset.sessionId);
-			const fromOrder = z.coerce.number().parse(draggedElement.current.dataset.order);
+			const fromOrder = z.coerce
+				.number()
+				.parse(draggedElement.current.dataset.order);
 			const targetOrder = z.coerce.number().parse(droppedTarget.dataset.order);
-			const targetSessionId = z.coerce.number().parse(droppedTarget.dataset.sessionId);
+			const targetSessionId = z.coerce
+				.number()
+				.parse(droppedTarget.dataset.sessionId);
 			if (draggedElement.current !== null) {
-				SessionCommands.updateTaskOrder(
+				sessions.onUpdateTaskOrder(
 					targetOrder,
 					fromOrder,
 					targetSessionId,
@@ -57,7 +61,7 @@ const SessionList: React.FC<{
 	return (
 		<Accordion.Root type='multiple'>
 			<DragContext.Provider value={{ onDrag, onDrop, onDragStart, onDragEnd }}>
-				{sessions.map((session) => (
+				{sessions.sessions.map((session) => (
 					<SessionItem session={session} key={session.id} onEdit={onEdit} />
 				))}
 			</DragContext.Provider>

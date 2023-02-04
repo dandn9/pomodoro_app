@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::rc::Rc;
-use std::sync::{Mutex, MutexGuard, PoisonError};
+use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use tauri::api::path::app_data_dir;
 use tauri::{Manager, State};
 
@@ -74,17 +74,17 @@ pub fn create_session(
     color: Option<String>,
     tasks: Vec<String>,
     state: State<'_, Mutex<AppState>>,
-) -> AppState {
+) -> Result<AppState, String> {
     let mut curr_state = state.lock().unwrap();
     let latest_id = curr_state.sessions.get_latest_id();
     let mut session = Session::new(name, color, latest_id + 1);
     for task_name in tasks {
-        session.add_task_string(task_name)
+        session.add_task_string(task_name)?;
     }
     let session_id = session.id;
     curr_state.sessions.add_session(session);
     curr_state.sessions.select_session(session_id);
-    curr_state.get_state()
+    Ok(curr_state.get_state())
 }
 
 #[tauri::command]
@@ -136,7 +136,7 @@ pub fn add_task(
 ) -> Result<AppState, String> {
     let mut curr_state = state.lock().unwrap();
     if let Some(session) = curr_state.sessions.get_session_mut(session_id) {
-        session.add_task_string(name);
+        session.add_task_string(name)?;
         curr_state.sessions.save_state();
     } else {
         return Err("No session found".to_string());
@@ -182,15 +182,35 @@ pub fn update_done_task(
 
 #[tauri::command]
 pub fn update_order_task(
-    target_order: u32,
     from_order: u32,
-    session_id_target: u32,
+    target_order: u32,
     session_id_from: u32,
+    session_id_target: u32,
     state: State<'_, Mutex<AppState>>,
 ) -> Result<AppState, String> {
+    println!(
+        "updating order on {} to {} and sess id from {} to {}",
+        from_order, target_order, session_id_from, session_id_target
+    );
     let mut curr_state = state.lock().unwrap();
 
-    // code looks a bit weird bcs of borrowing rules
+    // check if a task with same name already exists
+    if session_id_target != session_id_from {
+        let session_to = curr_state.sessions.get_session(session_id_target).unwrap();
+        let session_from = curr_state.sessions.get_session(session_id_from).unwrap();
+
+        if session_to.check_if_task_exists(
+            session_from
+                .tasks
+                .get(from_order as usize)
+                .unwrap()
+                .name
+                .as_str(),
+        ) {
+            return Err("String already exists!".to_string());
+        }
+    }
+
     let task = if session_id_target != session_id_from {
         println!("not same");
         let session_from = curr_state

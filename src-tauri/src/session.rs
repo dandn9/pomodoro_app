@@ -78,12 +78,21 @@ impl Session {
     pub fn set_time_spent(&mut self, time_spent: u32) {
         self.time_spent = time_spent;
     }
-    pub fn add_task_string(&mut self, task_name: String) {
+    pub fn add_task_string(&mut self, task_name: String) -> Result<String, String> {
         let task_id = self.get_latest_id() + 1;
         let task = Task::new(task_name, task_id);
-        self.tasks.push(task);
+        if self.check_if_task_exists(&task.name) {
+            // it already exists
+            Err("Task with same name already exists".to_string())
+        } else {
+            self.tasks.push(task);
+            Ok("ok!".to_string())
+        }
     }
-    pub fn add_task(&mut self, task: Task) -> &mut Session {
+    pub fn add_task(&mut self, mut task: Task) -> &mut Session {
+        let task_id = self.get_latest_id();
+        println!("latest id: {:?}", task_id);
+        task.id = task_id + 1;
         self.tasks.push(task);
         self
     }
@@ -101,7 +110,7 @@ impl Session {
             self.tasks.insert(0, task);
         } else {
             let task = self.tasks.remove(curr_index as usize);
-            self.tasks.insert((to_index - 1) as usize, task);
+            self.tasks.insert((to_index) as usize, task);
         }
     }
     pub fn remove_task_on_index(&mut self, task_index: u32) -> Option<Task> {
@@ -110,6 +119,12 @@ impl Session {
 
     pub fn get_task_mut(&mut self, id: u32) -> Option<&mut Task> {
         self.tasks.iter_mut().find(|x| x.id == id)
+    }
+    pub fn get_task(&self, id: u32) -> Option<&Task> {
+        self.tasks.iter().find(|x| x.id == id)
+    }
+    pub fn check_if_task_exists(&self, name: &str) -> bool {
+        self.tasks.iter().any(|task| task.name == name)
     }
     pub fn get_latest_id(&self) -> u32 {
         let mut highest_id = 0;
@@ -132,6 +147,9 @@ impl SessionState {
     }
     pub fn get_session_mut(&mut self, id: u32) -> Option<&mut Session> {
         self.sessions.iter_mut().find(|x| x.id == id)
+    }
+    pub fn get_session(&self, id: u32) -> Option<&Session> {
+        self.sessions.iter().find(|x| x.id == id)
     }
     pub fn select_session(&mut self, id: u32) {
         for session in self.sessions.iter_mut() {
