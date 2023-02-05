@@ -13,28 +13,30 @@ import TaskItemSession from '../tasks/TaskItemSession';
 import * as Accordion from '@radix-ui/react-accordion';
 import { z } from 'zod';
 import useDragHandler from '../../hooks/useDragHandler';
+import { DragSessionTypeData } from './SessionList';
 
 interface SessionItemProps {
     session: Session;
     onEdit: (session: Session) => void;
+    setDroppable: (
+        el: HTMLLIElement | null,
+        key: number,
+        data: DragSessionTypeData
+    ) => void;
+    setDraggable: (
+        el: HTMLLIElement | null,
+        key: number,
+        data: DragSessionTypeData
+    ) => void;
 }
 
-const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
-    const { dropProxy, dragProxy, draggableRefs, droppableRefs, currentDrag } =
-        useDragHandler<HTMLLIElement, HTMLLIElement>({
-            onDragOver(el, dragged) {
-                if (el === dragged) {
-                    // do nothing
-                } else {
-                    el.classList.add('text-red-500');
-                }
-            },
-            onDragLeave(el, _dragged) {
-                el.classList.remove('text-red-500');
-            },
-        });
-
-    const [isDraggedOver, setIsDraggedOver] = React.useState(false);
+const SessionItem: React.FC<SessionItemProps> = ({
+    session,
+    onEdit,
+    setDraggable,
+    setDroppable,
+}) => {
+    // const [isDraggedOver, setIsDraggedOver] = React.useState(false);
     function onEditClick(ev: React.MouseEvent) {
         ev.stopPropagation();
         onEdit(session);
@@ -42,22 +44,18 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
     function onTaskCheck(taskId: number, checked: boolean) {
         session.updateTaskDone(taskId, checked);
     }
-    function onDragOver(ev: React.DragEvent) {
-        ev.preventDefault();
-        setIsDraggedOver(true);
-    }
-    function onDragLeave(ev: React.DragEvent) {
-        setIsDraggedOver(false);
-    }
+    // function onDragOver(ev: React.DragEvent) {
+    //     ev.preventDefault();
+    //     setIsDraggedOver(true);
+    // }
+    // function onDragLeave(ev: React.DragEvent) {
+    //     setIsDraggedOver(false);
+    // }
+
     return (
         <Accordion.Item value={`${session.id}`}>
             <AccordionTrigger asChild>
-                <div
-                    className={`flex justify-between ${
-                        isDraggedOver ? 'bg-slate-300' : 'bg-slate-500'
-                    }`}
-                    onDragOver={onDragOver}
-                    onDragLeave={onDragLeave}>
+                <div className={`flex justify-between `}>
                     <h3>{session.name}</h3>
                     <div onClick={onEditClick}>EDIT</div>
                 </div>
@@ -67,8 +65,16 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
                     return (
                         <TaskItemSession
                             ref={(el) => {
-                                dropProxy.current = el;
-                                dragProxy.current = el;
+                                setDroppable(el, task.id, {
+                                    id: task.id,
+                                    sessionId: session.id,
+                                    order: index,
+                                });
+                                setDraggable(el, task.id, {
+                                    id: task.id,
+                                    sessionId: session.id,
+                                    order: index,
+                                });
                             }}
                             sessionId={session.id}
                             index={index}

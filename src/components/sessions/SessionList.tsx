@@ -4,82 +4,55 @@ import { Session, Sessions } from '../../utils/classTypes';
 import SessionItem from './SessionItem';
 import { z } from 'zod';
 import { SessionCommands } from '../../utils/commands';
+import useDragHandler from '../../hooks/useDragHandler';
 
-export const DragContext = React.createContext<
-    | {
-          onDragStart: (ev: React.DragEvent<HTMLLIElement>) => void;
-          onDragEnd: (ev: React.DragEvent<HTMLLIElement>) => void;
-          onDrag: (ev: React.DragEvent<HTMLLIElement>) => void;
-          onDrop: (
-              ev: React.DragEvent<HTMLLIElement>,
-              ref: HTMLLIElement
-          ) => void;
-      }
-    | undefined
->(undefined);
+export type DragSessionTypeData = {
+    id: number;
+    sessionId: number;
+    order: number;
+};
 
 const SessionList: React.FC<{
     sessions: Sessions;
     onEdit: (session: Session) => void;
 }> = ({ sessions, onEdit }) => {
-    const droppableItems = React.useRef(null);
-    const draggedElement = React.useRef<HTMLLIElement | null>(null);
-
-    function onDragStart(ev: React.DragEvent<HTMLLIElement>) {
-        draggedElement.current = ev.currentTarget;
-    }
-    function onDrop(ev: React.DragEvent<HTMLLIElement>) {
-        ev.preventDefault();
-        ev.stopPropagation();
-
-        const droppedTarget = ev.currentTarget as HTMLLIElement;
-        if (
-            droppedTarget &&
-            droppedTarget.tagName === 'LI' &&
-            draggedElement.current
-        ) {
-            const fromSessionId = z.coerce
-                .number()
-                .parse(draggedElement.current.dataset.sessionId);
-            const fromOrder = z.coerce
-                .number()
-                .parse(draggedElement.current.dataset.order);
-            const targetOrder = z.coerce
-                .number()
-                .parse(droppedTarget.dataset.order);
-            const targetSessionId = z.coerce
-                .number()
-                .parse(droppedTarget.dataset.sessionId);
-            if (draggedElement.current !== null) {
-                sessions.onUpdateTaskOrder(
-                    targetOrder,
-                    fromOrder,
-                    targetSessionId,
-                    fromSessionId
-                );
+    const { setDraggable, setDroppable } = useDragHandler<
+        HTMLLIElement,
+        DragSessionTypeData
+    >({
+        onDragOver(el, dragged, droppableData, draggableData) {
+            if (el === dragged) {
+                // do nothing
+            } else {
+                el.classList.add('text-red-500');
             }
-        }
-
-        draggedElement.current = null;
-    }
-    function onDragEnd(ev: React.DragEvent<HTMLLIElement>) {}
-
-    function onDrag(ev: React.DragEvent<HTMLLIElement>) {
-        // console.log('drag !', ev);
-    }
+        },
+        onDragLeave(el, _dragged, dropData, dragData) {
+            console.log('drop data', dropData);
+            el.classList.remove('text-red-500');
+        },
+        onDropElement(el, dragged, dropData, dragData) {
+            console.log('on drop!', el, dragged, dropData, dragData);
+            sessions.onUpdateTaskOrder(
+                dropData.order,
+                dragData.order,
+                dropData.sessionId,
+                dragData.sessionId
+            );
+        },
+    });
 
     return (
         <Accordion.Root type="multiple">
-            <DragContext.Provider
-                value={{ onDrag, onDrop, onDragStart, onDragEnd }}>
-                {sessions.sessions.map((session) => (
-                    <SessionItem
-                        session={session}
-                        key={session.id}
-                        onEdit={onEdit}
-                    />
-                ))}
-            </DragContext.Provider>
+            {sessions.sessions.map((session) => (
+                <SessionItem
+                    setDraggable={setDraggable}
+                    setDroppable={setDroppable}
+                    session={session}
+                    key={session.id}
+                    onEdit={onEdit}
+                />
+            ))}
         </Accordion.Root>
     );
 };
