@@ -20,24 +20,24 @@ const SessionList: React.FC<{
         HTMLLIElement,
         DragSessionTypeData
     >({
-        onDragOver(el, dragged, droppableData, draggableData) {
-            if (el === dragged) {
+        onDragOver({ target, draggedEl }) {
+            if (target === draggedEl) {
                 // do nothing
             } else {
-                el.classList.add('text-red-500');
+                target.classList.add('text-red-500');
             }
         },
-        onDragLeave(el, _dragged, dropData, dragData) {
-            console.log('drop data', dropData);
-            el.classList.remove('text-red-500');
+        onDragLeave({ target, droppableData }) {
+            console.log('drop data', droppableData);
+            target.classList.remove('text-red-500');
         },
-        onDropElement(el, dragged, dropData, dragData) {
-            console.log('on drop!', el, dragged, dropData, dragData);
+        onDropElement({ draggableData, droppableData }) {
+            // console.log('on drop!', el, dragged, dropData, dragData);
             sessions.onUpdateTaskOrder(
-                dropData.order,
-                dragData.order,
-                dropData.sessionId,
-                dragData.sessionId
+                droppableData.order,
+                draggableData.order,
+                droppableData.sessionId,
+                draggableData.sessionId
             );
         },
     });

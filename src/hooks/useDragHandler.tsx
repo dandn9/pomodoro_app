@@ -3,39 +3,25 @@ import produce from 'immer';
 
 type OptionalDragging = { is_dragging?: boolean };
 
+type DroppableEvent<D, T, G, P> = {
+    target: D;
+    draggedEl: T;
+    droppableData: G;
+    draggableData: P & OptionalDragging & { el: T; listeners: {} }; // cba typing these
+    event: DragEvent;
+};
+
 interface useDragHandlerArgs<
     D extends HTMLElement,
     T extends HTMLElement,
     G extends {} = any,
     P extends {} = any
 > {
-    onDropElement?: (
-        target: D,
-        draggedEl: T,
-        droppableData: G,
-        draggableData: P
-    ) => void;
-    onDragOver?: (
-        target: D,
-        draggedEl: T,
-        droppableData: G,
-        draggableData: P & OptionalDragging
-    ) => void;
-    onDragLeave?: (
-        target: D,
-        draggedEl: T,
-        droppableData: G,
-        draggableData: P
-    ) => void;
-    // draggedProp: () => void;
-    // droppedProp: () => void;
+    onDropElement?: (data: DroppableEvent<D, T, G, P>) => void;
+    onDragOver?: (data: DroppableEvent<D, T, G, P>) => void;
+    onDragLeave?: (data: DroppableEvent<D, T, G, P>) => void;
 }
 
-// interface DragState<D, T> {
-//     draggedEl?: T;
-//     droppableEls: D[];
-//     isDragging: boolean;
-// }
 /**
  *
  * @param D typeof the draggable Element
@@ -44,7 +30,6 @@ interface useDragHandlerArgs<
  * @param P typeof meta-data for Draggable
  * @returns
  */
-
 const useDragHandler = <
     D extends HTMLElement,
     G extends {} = any,
@@ -55,7 +40,6 @@ const useDragHandler = <
     onDragOver,
     onDragLeave,
 }: useDragHandlerArgs<D, T, G, P>) => {
-    console.log('use drag handler render');
     const currentDrag = React.useRef<{ el: T; key: number } | null>(null);
 
     const droppableMap = React.useRef(
@@ -78,36 +62,45 @@ const useDragHandler = <
                 e.stopPropagation();
                 if (onDragLeave && el) {
                     console.log('on drag leave');
-                    onDragLeave(
-                        el,
-                        currentDrag.current!.el,
-                        droppableMap.current.get(key)!,
-                        draggableMap.current.get(currentDrag!.current!.key)!
-                    );
+                    onDragLeave({
+                        target: el,
+                        draggedEl: currentDrag.current!.el,
+                        droppableData: droppableMap.current.get(key)!,
+                        draggableData: draggableMap.current.get(
+                            currentDrag!.current!.key
+                        )!,
+                        event: e,
+                    });
                 }
             };
             const dragOverHandler = (e: DragEvent) => {
                 e.preventDefault();
                 e.stopPropagation();
                 if (onDragOver) {
-                    onDragOver(
-                        el,
-                        currentDrag.current!.el,
-                        droppableMap.current.get(key)!,
-                        draggableMap.current.get(currentDrag!.current!.key)!
-                    );
+                    onDragOver({
+                        target: el,
+                        draggedEl: currentDrag.current!.el,
+                        droppableData: droppableMap.current.get(key)!,
+                        draggableData: draggableMap.current.get(
+                            currentDrag!.current!.key
+                        )!,
+                        event: e,
+                    });
                 }
             };
             const dropHandler = (e: DragEvent) => {
                 e.preventDefault();
                 e.stopPropagation();
                 if (onDropElement) {
-                    onDropElement(
-                        el,
-                        currentDrag.current!.el,
-                        droppableMap.current.get(key)!,
-                        draggableMap.current.get(currentDrag!.current!.key)!
-                    );
+                    onDropElement({
+                        target: el,
+                        draggedEl: currentDrag.current!.el,
+                        droppableData: droppableMap.current.get(key)!,
+                        draggableData: draggableMap.current.get(
+                            currentDrag!.current!.key
+                        )!,
+                        event: e,
+                    });
                 }
             };
             // is mounting
@@ -194,42 +187,7 @@ const useDragHandler = <
         }
     }, []);
 
-    // const droppableRefs = React.useRef<D | null>();
-    // const dropProxy = new Proxy(droppableRefs, {
-    //     set(target, prop, val: D) {
-    //         console.log('setting!', target, prop, val);
-    //         if (prop in target && prop == 'current') {
-    //             if (val) {
-    //                 // is mounting
-    //                 val.addEventListener('dragover', () => {
-    //                     if (onDragOver) {
-    //                         onDragOver(val, currentDrag.current!);
-    //                     }
-    //                 });
-    //                 val.addEventListener('dragleave', () => {
-    //                     if (onDragLeave) {
-    //                         onDragLeave(val, currentDrag.current!);
-    //                     }
-    //                 });
-    //                 val.addEventListener('drop', () => {
-    //                     if (onDropElement) {
-    //                         onDropElement(val, currentDrag.current!);
-    //                     }
-    //                 });
-    //             } else {
-    //                 // is unmounting
-    //                 droppableRefs.current = null;
-    //             }
-    //         }
-    //         return true;
-    //     },
-    // }) as any as React.MutableRefObject<D | null>;
-    React.useEffect(() => {
-        console.log('use Drag handler');
-        return () => {
-            console.log('clean up Drag Handler');
-        };
-    }, []);
+    // cleanup effect
     React.useEffect(() => {
         const x = (e: KeyboardEvent) => {
             if (e.key === 'F') {
@@ -243,11 +201,32 @@ const useDragHandler = <
         window.addEventListener('keyup', x);
         return () => {
             window.removeEventListener('keyup', x);
+
+            draggableMap.current.forEach((entry) => {
+                entry.el.removeEventListener(
+                    'dragstart',
+                    entry.listeners.dragStart
+                );
+                entry.el.removeEventListener(
+                    'dragend',
+                    entry.listeners.dragEnd
+                );
+            });
+            droppableMap.current.forEach((entry) => {
+                entry.el.removeEventListener(
+                    'dragleave',
+                    entry.listeners.dragLeave
+                );
+                entry.el.removeEventListener(
+                    'dragover',
+                    entry.listeners.dragOver
+                );
+                entry.el.removeEventListener('drop', entry.listeners.drop);
+            });
         };
     }, []);
 
     return {
-        // dropProxy,
         setDroppable,
         setDraggable,
     };
