@@ -4,6 +4,7 @@ import React, {
     ReactElement,
     ReactNode,
     useEffect,
+    useRef,
 } from 'react';
 import ReactDOM from 'react-dom';
 import { SessionType } from '../../utils/schemas';
@@ -11,6 +12,7 @@ import { Session, Task } from '../../utils/classTypes';
 import TaskItemSession from '../tasks/TaskItemSession';
 import * as Accordion from '@radix-ui/react-accordion';
 import { z } from 'zod';
+import useDragHandler from '../../hooks/useDragHandler';
 
 interface SessionItemProps {
     session: Session;
@@ -18,6 +20,20 @@ interface SessionItemProps {
 }
 
 const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
+    const { dropProxy, dragProxy, draggableRefs, droppableRefs, currentDrag } =
+        useDragHandler<HTMLLIElement, HTMLLIElement>({
+            onDragOver(el, dragged) {
+                if (el === dragged) {
+                    // do nothing
+                } else {
+                    el.classList.add('text-red-500');
+                }
+            },
+            onDragLeave(el, _dragged) {
+                el.classList.remove('text-red-500');
+            },
+        });
+
     const [isDraggedOver, setIsDraggedOver] = React.useState(false);
     function onEditClick(ev: React.MouseEvent) {
         ev.stopPropagation();
@@ -33,7 +49,6 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
     function onDragLeave(ev: React.DragEvent) {
         setIsDraggedOver(false);
     }
-
     return (
         <Accordion.Item value={`${session.id}`}>
             <AccordionTrigger asChild>
@@ -51,6 +66,10 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onEdit }) => {
                 {session.tasks.map((task, index) => {
                     return (
                         <TaskItemSession
+                            ref={(el) => {
+                                dropProxy.current = el;
+                                dragProxy.current = el;
+                            }}
                             sessionId={session.id}
                             index={index}
                             task={task}
