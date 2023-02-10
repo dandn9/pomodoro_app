@@ -16,16 +16,17 @@ import useDragHandler from '../../hooks/useDragHandler';
 import { DragSessionTypeData } from './SessionList';
 
 interface SessionItemProps {
+    index: number;
     session: Session;
     onEdit: (session: Session) => void;
     setDroppable: (
-        el: HTMLLIElement | null,
-        key: number,
+        el: HTMLLIElement | HTMLDivElement | null,
+        key: any,
         data: DragSessionTypeData
     ) => void;
     setDraggable: (
-        el: HTMLLIElement | null,
-        key: number,
+        el: HTMLLIElement | HTMLDivElement | null,
+        key: any,
         data: DragSessionTypeData
     ) => void;
 }
@@ -35,8 +36,8 @@ const SessionItem: React.FC<SessionItemProps> = ({
     onEdit,
     setDraggable,
     setDroppable,
+    index,
 }) => {
-    // const [isDraggedOver, setIsDraggedOver] = React.useState(false);
     function onEditClick(ev: React.MouseEvent) {
         ev.stopPropagation();
         onEdit(session);
@@ -44,18 +45,20 @@ const SessionItem: React.FC<SessionItemProps> = ({
     function onTaskCheck(taskId: number, checked: boolean) {
         session.updateTaskDone(taskId, checked);
     }
-    // function onDragOver(ev: React.DragEvent) {
-    //     ev.preventDefault();
-    //     setIsDraggedOver(true);
-    // }
-    // function onDragLeave(ev: React.DragEvent) {
-    //     setIsDraggedOver(false);
-    // }
 
     return (
         <Accordion.Item value={`${session.id}`}>
             <AccordionTrigger asChild>
-                <div className={`flex justify-between `}>
+                <div
+                    className={`flex justify-between `}
+                    ref={(el) => {
+                        setDroppable(el, session.id, {
+                            id: session.id,
+                            sessionId: session.id,
+                            order: index,
+                            type: 'session',
+                        });
+                    }}>
                     <h3>{session.name}</h3>
                     <div onClick={onEditClick}>EDIT</div>
                 </div>
@@ -65,18 +68,19 @@ const SessionItem: React.FC<SessionItemProps> = ({
                     return (
                         <TaskItemSession
                             ref={(el) => {
-                                setDroppable(el, task.id, {
+                                setDroppable(el, `${session.id}-${task.id}`, {
                                     id: task.id,
                                     sessionId: session.id,
                                     order: index,
+                                    type: 'task',
                                 });
-                                setDraggable(el, task.id, {
+                                setDraggable(el, `${session.id}-${task.id}`, {
                                     id: task.id,
                                     sessionId: session.id,
                                     order: index,
+                                    type: 'task',
                                 });
                             }}
-                            sessionId={session.id}
                             index={index}
                             task={task}
                             key={task.id}

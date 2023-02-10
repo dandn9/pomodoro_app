@@ -40,11 +40,12 @@ const useDragHandler = <
     onDragOver,
     onDragLeave,
 }: useDragHandlerArgs<D, T, G, P>) => {
-    const currentDrag = React.useRef<{ el: T; key: number } | null>(null);
+    const currentDrag = React.useRef<{ el: T; key: any } | null>(null);
+    console.log('use drag render');
 
     const droppableMap = React.useRef(
         new Map<
-            number,
+            any,
             G & {
                 el: D;
                 listeners: {
@@ -55,7 +56,7 @@ const useDragHandler = <
             }
         >()
     );
-    const setDroppable = useCallback((el: D | null, key: number, data: G) => {
+    const setDroppable = useCallback((el: D | null, key: any, data: G) => {
         if (el) {
             const dragLeaveHandler = (e: DragEvent) => {
                 e.preventDefault();
@@ -132,7 +133,7 @@ const useDragHandler = <
 
     const draggableMap = React.useRef(
         new Map<
-            number,
+            any,
             P &
                 OptionalDragging & {
                     el: T;
@@ -144,7 +145,8 @@ const useDragHandler = <
         >()
     );
 
-    const setDraggable = useCallback((el: T | null, key: number, data: P) => {
+    const setDraggable = useCallback((el: T | null, key: any, data: P) => {
+        console.log('set draggable!');
         if (el) {
             const dragStartHandler = (e: DragEvent) => {
                 currentDrag.current = { el, key };
@@ -200,6 +202,7 @@ const useDragHandler = <
         };
         window.addEventListener('keyup', x);
         return () => {
+            console.log('cleanup ');
             window.removeEventListener('keyup', x);
 
             draggableMap.current.forEach((entry) => {

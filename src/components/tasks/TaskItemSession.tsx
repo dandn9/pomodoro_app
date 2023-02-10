@@ -4,21 +4,17 @@ import Checkbox from '../UI/Checkbox';
 
 interface TaskItemSessionProps {
     task: Task;
-    sessionId: number;
     index: number;
     onTaskChecked: (taskId: number, checked: boolean) => void;
 }
 
 const TaskItemSession = React.forwardRef<HTMLLIElement, TaskItemSessionProps>(
-    ({ index, task, onTaskChecked, sessionId }, ref) => {
-        // use a ref here to pass the element to the sessionItem component in order to drag it
-
+    ({ index, task, onTaskChecked }, ref) => {
         return (
             <li
                 className={`flex justify-between bg-slate-500 px-20
                 `}
-                ref={ref}
-                data-session-id={sessionId}>
+                ref={ref}>
                 <div className="select-none">
                     {index} - {task.name}
                 </div>

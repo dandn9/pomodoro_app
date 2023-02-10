@@ -10,6 +10,7 @@ export type DragSessionTypeData = {
     id: number;
     sessionId: number;
     order: number;
+    type: 'task' | 'session';
 };
 
 const SessionList: React.FC<{
@@ -17,7 +18,7 @@ const SessionList: React.FC<{
     onEdit: (session: Session) => void;
 }> = ({ sessions, onEdit }) => {
     const { setDraggable, setDroppable } = useDragHandler<
-        HTMLLIElement,
+        HTMLLIElement | HTMLDivElement,
         DragSessionTypeData
     >({
         onDragOver({ target, draggedEl }) {
@@ -31,26 +32,46 @@ const SessionList: React.FC<{
             console.log('drop data', droppableData);
             target.classList.remove('text-red-500');
         },
-        onDropElement({ draggableData, droppableData }) {
+        onDropElement({ draggableData, droppableData, draggedEl, target }) {
             // console.log('on drop!', el, dragged, dropData, dragData);
-            sessions.onUpdateTaskOrder(
-                droppableData.order,
-                draggableData.order,
-                droppableData.sessionId,
-                draggableData.sessionId
-            );
+            console.log('sessions!', sessions);
+            if (
+                droppableData.type === 'session' &&
+                draggableData.type === 'task'
+            ) {
+                // we're dropping a task on a session
+                sessions.onUpdateTaskOrder(
+                    sessions.sessions[droppableData.order].tasks.length - 1,
+                    draggableData.order,
+                    droppableData.sessionId,
+                    draggableData.sessionId
+                );
+            }
+            if (
+                droppableData.type === 'task' &&
+                draggableData.type === 'task'
+            ) {
+                // we're dropping a task on another task
+                sessions.onUpdateTaskOrder(
+                    droppableData.order,
+                    draggableData.order,
+                    droppableData.sessionId,
+                    draggableData.sessionId
+                );
+            }
         },
     });
 
     return (
         <Accordion.Root type="multiple">
-            {sessions.sessions.map((session) => (
+            {sessions.sessions.map((session, index) => (
                 <SessionItem
+                    session={session}
                     setDraggable={setDraggable}
                     setDroppable={setDroppable}
-                    session={session}
                     key={session.id}
                     onEdit={onEdit}
+                    index={index}
                 />
             ))}
         </Accordion.Root>
