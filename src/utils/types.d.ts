@@ -1,0 +1,2 @@
+export type ChangeTaskOrderArgs = { targetOrder: number, fromOrder: number, sessionIdTarget: number, sessionIdFrom: number }
+export type ChangeSessionOrderArgs = { targetOrder: number, fromOrder: number }

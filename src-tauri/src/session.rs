@@ -20,39 +20,6 @@ pub struct Session {
     pub created_at: DateTime<Local>,
     pub tasks: Vec<Task>,
 }
-// impl Serialize for Session<'_> {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//     where
-//         S: serde::Serializer,
-//     {
-//         let mut state = serializer.serialize_struct("Session", 8)?;
-//         state.serialize_field("id", &self.id)?;
-//         state.serialize_field("name", &self.name)?;
-//         state.serialize_field("color", &self.color)?;
-//         state.serialize_field("is_selected", &self.is_selected)?;
-//         state.serialize_field("time_spent", &self.time_spent)?;
-//         state.serialize_field("total_sessions", &self.total_sessions)?;
-//         state.serialize_field("created_at", &self.created_at)?;
-//         state.serialize_field("tasks", &self.tasks)?;
-//         state.end()
-//     }
-// }
-// impl<'de> Deserialize<'de> for Session<'_> {
-//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-//         where
-//             D: serde::Deserializer<'de> {
-
-//     }
-
-//     fn deserialize_in_place<D>(deserializer: D, place: &mut Self) -> Result<(), D::Error>
-//     where
-//         D: serde::Deserializer<'de>,
-//     {
-//         // Default implementation just delegates to `deserialize` impl.
-//         *place = try!(Deserialize::deserialize(deserializer));
-//         Ok(())
-//     }
-// }
 
 impl Session {
     pub fn new(name: String, color: Option<String>, id: u32) -> Session {
@@ -184,6 +151,19 @@ impl SessionState {
             }
         }
         highest_id
+    }
+    pub fn update_session_order(
+        &mut self,
+        from_order: u32,
+        to_order: u32,
+    ) -> Result<String, String> {
+        if to_order as usize > self.sessions.len() {
+            Err("Cannot set this index".to_string())
+        } else {
+            let session = self.sessions.remove(from_order as usize);
+            self.sessions.insert(to_order as usize, session);
+            Ok("Changed order".to_string())
+        }
     }
 }
 impl AppStateTrait for SessionState {

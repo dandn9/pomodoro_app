@@ -33,32 +33,54 @@ const SessionList: React.FC<{
             console.log('drop data', droppableData);
             target.classList.remove('text-red-500');
         },
-        onDropElement({ draggableData, droppableData, draggedEl, target }) {
-            // console.log('on drop!', el, dragged, dropData, dragData);
-            console.log('sessions!', sessions);
+        onDropElement({
+            draggableData,
+            droppableData,
+            draggedEl,
+            target,
+            event,
+        }) {
+            console.log('event', event);
+            console.log(
+                'on drop!',
+                draggableData,
+                droppableData,
+                draggedEl,
+                target
+            );
+            if (
+                droppableData.type === 'session' &&
+                draggableData.type === 'session'
+            ) {
+                sessions.onUpdateSessionOrder({
+                    fromOrder: draggableData.order,
+                    targetOrder: droppableData.order,
+                });
+            }
             if (
                 droppableData.type === 'session' &&
                 draggableData.type === 'task'
             ) {
                 // we're dropping a task on a session
-                sessions.onUpdateTaskOrder(
-                    sessions.sessions[droppableData.order].tasks.length,
-                    draggableData.order,
-                    droppableData.sessionId,
-                    draggableData.sessionId
-                );
+                sessions.onUpdateTaskOrder({
+                    fromOrder: draggableData.order,
+                    targetOrder:
+                        sessions.sessions[droppableData.order].tasks.length,
+                    sessionIdFrom: draggableData.sessionId,
+                    sessionIdTarget: droppableData.sessionId,
+                });
             }
             if (
                 droppableData.type === 'task' &&
                 draggableData.type === 'task'
             ) {
                 // we're dropping a task on another task
-                sessions.onUpdateTaskOrder(
-                    droppableData.order,
-                    draggableData.order,
-                    droppableData.sessionId,
-                    draggableData.sessionId
-                );
+                sessions.onUpdateTaskOrder({
+                    targetOrder: droppableData.order,
+                    fromOrder: draggableData.order,
+                    sessionIdTarget: droppableData.sessionId,
+                    sessionIdFrom: draggableData.sessionId,
+                });
             }
         },
     });
@@ -73,6 +95,21 @@ const SessionList: React.FC<{
                     key={session.id}
                     onEdit={onEdit}
                     index={index}
+                    ref={(el) => {
+                        console.log('ref from session', el);
+                        setDroppable(el, session.id, {
+                            id: session.id,
+                            sessionId: session.id,
+                            order: index,
+                            type: 'session',
+                        });
+                        setDraggable(el, session.id, {
+                            id: session.id,
+                            sessionId: session.id,
+                            order: index,
+                            type: 'session',
+                        });
+                    }}
                 />
             ))}
         </Accordion.Root>

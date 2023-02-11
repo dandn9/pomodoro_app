@@ -181,6 +181,21 @@ pub fn update_done_task(
 }
 
 #[tauri::command]
+pub fn update_order_session(
+    from_order: u32,
+    target_order: u32,
+    state: State<'_, Mutex<AppState>>,
+) -> Result<AppState, String> {
+    println!("updating order on {} to {} ", from_order, target_order);
+    let mut curr_state = state.lock().unwrap();
+    curr_state
+        .sessions
+        .update_session_order(from_order, target_order)?;
+
+    curr_state.sessions.save_state();
+    Ok(curr_state.get_state())
+}
+#[tauri::command]
 pub fn update_order_task(
     from_order: u32,
     target_order: u32,

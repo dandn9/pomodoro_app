@@ -31,67 +31,62 @@ interface SessionItemProps {
     ) => void;
 }
 
-const SessionItem: React.FC<SessionItemProps> = ({
-    session,
-    onEdit,
-    setDraggable,
-    setDroppable,
-    index,
-}) => {
-    function onEditClick(ev: React.MouseEvent) {
-        ev.stopPropagation();
-        onEdit(session);
-    }
-    function onTaskCheck(taskId: number, checked: boolean) {
-        session.updateTaskDone(taskId, checked);
-    }
+const SessionItem = React.forwardRef<HTMLDivElement, SessionItemProps>(
+    ({ index, session, onEdit, setDroppable, setDraggable }, ref) => {
+        function onEditClick(ev: React.MouseEvent) {
+            ev.stopPropagation();
+            onEdit(session);
+        }
+        function onTaskCheck(taskId: number, checked: boolean) {
+            session.updateTaskDone(taskId, checked);
+        }
 
-    return (
-        <Accordion.Item value={`${session.id}`}>
-            <AccordionTrigger asChild>
-                <div
-                    className={`flex justify-between `}
-                    ref={(el) => {
-                        setDroppable(el, session.id, {
-                            id: session.id,
-                            sessionId: session.id,
-                            order: index,
-                            type: 'session',
-                        });
-                    }}>
-                    <h3>{session.name}</h3>
-                    <div onClick={onEditClick}>EDIT</div>
-                </div>
-            </AccordionTrigger>
-            <AccordionContent>
-                {session.tasks.map((task, index) => {
-                    return (
-                        <TaskItemSession
-                            ref={(el) => {
-                                setDroppable(el, `${session.id}-${task.id}`, {
-                                    id: task.id,
-                                    sessionId: session.id,
-                                    order: index,
-                                    type: 'task',
-                                });
-                                setDraggable(el, `${session.id}-${task.id}`, {
-                                    id: task.id,
-                                    sessionId: session.id,
-                                    order: index,
-                                    type: 'task',
-                                });
-                            }}
-                            index={index}
-                            task={task}
-                            key={task.id}
-                            onTaskChecked={onTaskCheck}
-                        />
-                    );
-                })}
-            </AccordionContent>
-        </Accordion.Item>
-    );
-};
+        return (
+            <Accordion.Item value={`${session.id}`} ref={ref}>
+                <AccordionTrigger asChild>
+                    <div className={`flex justify-between `}>
+                        <h3>{session.name}</h3>
+                        <div onClick={onEditClick}>EDIT</div>
+                    </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                    {session.tasks.map((task, index) => {
+                        return (
+                            <TaskItemSession
+                                ref={(el) => {
+                                    setDroppable(
+                                        el,
+                                        `${session.id}-${task.id}`,
+                                        {
+                                            id: task.id,
+                                            sessionId: session.id,
+                                            order: index,
+                                            type: 'task',
+                                        }
+                                    );
+                                    setDraggable(
+                                        el,
+                                        `${session.id}-${task.id}`,
+                                        {
+                                            id: task.id,
+                                            sessionId: session.id,
+                                            order: index,
+                                            type: 'task',
+                                        }
+                                    );
+                                }}
+                                index={index}
+                                task={task}
+                                key={task.id}
+                                onTaskChecked={onTaskCheck}
+                            />
+                        );
+                    })}
+                </AccordionContent>
+            </Accordion.Item>
+        );
+    }
+);
 
 const AccordionTrigger = React.forwardRef<
     HTMLButtonElement,

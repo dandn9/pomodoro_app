@@ -78,6 +78,7 @@ const useDragHandler = <
             const dragOverHandler = (e: DragEvent) => {
                 e.preventDefault();
                 e.stopPropagation();
+
                 if (onDragOver) {
                     onDragOver({
                         target: el,
@@ -149,6 +150,7 @@ const useDragHandler = <
     const setDraggable = (el: T | null, key: any, data: P) => {
         if (el) {
             const dragStartHandler = (e: DragEvent) => {
+                e.stopPropagation();
                 currentDrag.current = { el, key };
                 const currData = draggableMap.current.get(key)!;
                 draggableMap.current.set(key, {
@@ -157,6 +159,7 @@ const useDragHandler = <
                 });
             };
             const dragEndHandler = (e: DragEvent) => {
+                e.stopPropagation();
                 const currData = draggableMap.current.get(key)!;
                 draggableMap.current.set(key, {
                     ...currData,

@@ -2,6 +2,7 @@ import React from 'react';
 import { AppStateData, useStateStore } from '../hooks/useStateStore';
 import { invoke } from '@tauri-apps/api';
 import { Session } from './classTypes';
+import { ChangeSessionOrderArgs, ChangeTaskOrderArgs } from './types';
 
 export class TimerCommands {
 	static async setTimerDuration(timerDuration: number) {
@@ -23,9 +24,14 @@ export class TimerCommands {
 
 export class SessionsCommands {
 
-	static async updateTaskOrder(targetOrder: number, fromOrder: number, sessionIdTarget: number, sessionIdFrom: number) {
-		return await invoke<AppStateData>('update_order_task', { targetOrder, fromOrder, sessionIdTarget, sessionIdFrom, })
+	static async updateTaskOrder(data: ChangeTaskOrderArgs) {
+		return await invoke<AppStateData>('update_order_task', data)
 	}
+
+	static async updateSessionOrder(data: ChangeSessionOrderArgs) {
+		return await invoke<AppStateData>('update_order_session', data)
+	}
+
 }
 export class SessionCommands {
 	static async onSessionDone(id: number, time: number) {

@@ -128,6 +128,7 @@ fn main() {
             create_session,
             delete_session,
             update_session,
+            update_order_session,
             add_task,
             delete_task,
             update_done_task,
