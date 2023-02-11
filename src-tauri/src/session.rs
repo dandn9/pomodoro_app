@@ -99,19 +99,22 @@ impl Session {
     pub fn delete_task(&mut self, task_id: u32) {
         self.tasks = self.tasks.drain(..).filter(|x| x.id != task_id).collect();
     }
-    pub fn update_task_index(&mut self, curr_index: u32, to_index: u32) {
-        // if order == 0
+    pub fn update_task_index(&mut self, curr_index: u32, to_index: u32) -> Result<String, String> {
+        println!(
+            "curr: {} , to: {}, tasks len: {}",
+            curr_index,
+            to_index,
+            self.tasks.len()
+        );
 
-        if to_index == (self.tasks.len() - 1) as u32 {
-            let task = self.tasks.remove(curr_index as usize);
-            self.tasks.push(task);
-        } else if to_index == 0 {
-            let task = self.tasks.remove(curr_index as usize);
-            self.tasks.insert(0, task);
-        } else {
-            let task = self.tasks.remove(curr_index as usize);
-            self.tasks.insert((to_index) as usize, task);
+        if to_index > self.tasks.len() as u32 {
+            return Err("Cannot insert a larger index than the last one".to_string());
         }
+
+        let task = self.tasks.remove(curr_index as usize);
+        self.tasks.insert(to_index as usize, task);
+
+        Ok("Success".to_string())
     }
     pub fn remove_task_on_index(&mut self, task_index: u32) -> Option<Task> {
         Some(self.tasks.remove(task_index as usize))

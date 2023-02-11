@@ -209,7 +209,7 @@ pub fn update_order_task(
         ) {
             return Err("String already exists!".to_string());
         }
-    }
+    };
 
     let task = if session_id_target != session_id_from {
         println!("not same");
@@ -224,13 +224,6 @@ pub fn update_order_task(
         );
         Some(task)
     } else {
-        let session = curr_state
-            .sessions
-            .get_session_mut(session_id_target)
-            .unwrap();
-
-        println!("changing {:?} to {:?}", from_order, target_order);
-        session.update_task_index(from_order, target_order);
         None
     };
 
@@ -240,12 +233,22 @@ pub fn update_order_task(
                 .sessions
                 .get_session_mut(session_id_target)
                 .unwrap();
+            println!("session length before adding task {}", session.tasks.len());
             session.add_task(task);
-            session.update_task_index((session.tasks.len() - 1) as u32, target_order)
+            println!("session length after adding task {}", session.tasks.len());
+            session.update_task_index((session.tasks.len() - 1) as u32, target_order)?
         }
-        None => {}
-    }
-    println!("CHANGED ORDERA");
+        None => {
+            let session = curr_state
+                .sessions
+                .get_session_mut(session_id_target)
+                .unwrap();
+
+            println!("changing {:?} to {:?}", from_order, target_order);
+            session.update_task_index(from_order, target_order)?
+        }
+    };
+    println!("CHANGED ORDER");
 
     curr_state.sessions.save_state();
     Ok(curr_state.get_state())

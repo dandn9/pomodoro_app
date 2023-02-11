@@ -17,6 +17,7 @@ const SessionList: React.FC<{
     sessions: Sessions;
     onEdit: (session: Session) => void;
 }> = ({ sessions, onEdit }) => {
+    console.log('session list render');
     const { setDraggable, setDroppable } = useDragHandler<
         HTMLLIElement | HTMLDivElement,
         DragSessionTypeData
@@ -41,7 +42,7 @@ const SessionList: React.FC<{
             ) {
                 // we're dropping a task on a session
                 sessions.onUpdateTaskOrder(
-                    sessions.sessions[droppableData.order].tasks.length - 1,
+                    sessions.sessions[droppableData.order].tasks.length,
                     draggableData.order,
                     droppableData.sessionId,
                     draggableData.sessionId

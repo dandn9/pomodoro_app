@@ -41,7 +41,7 @@ const useDragHandler = <
     onDragLeave,
 }: useDragHandlerArgs<D, T, G, P>) => {
     const currentDrag = React.useRef<{ el: T; key: any } | null>(null);
-    console.log('use drag render');
+    console.log('use drag render', onDropElement);
 
     const droppableMap = React.useRef(
         new Map<
@@ -56,7 +56,8 @@ const useDragHandler = <
             }
         >()
     );
-    const setDroppable = useCallback((el: D | null, key: any, data: G) => {
+    const setDroppable = (el: D | null, key: any, data: G) => {
+        console.log('setting droppable on', el);
         if (el) {
             const dragLeaveHandler = (e: DragEvent) => {
                 e.preventDefault();
@@ -129,7 +130,7 @@ const useDragHandler = <
 
             droppableMap.current.delete(key);
         }
-    }, []);
+    };
 
     const draggableMap = React.useRef(
         new Map<
@@ -145,8 +146,7 @@ const useDragHandler = <
         >()
     );
 
-    const setDraggable = useCallback((el: T | null, key: any, data: P) => {
-        console.log('set draggable!');
+    const setDraggable = (el: T | null, key: any, data: P) => {
         if (el) {
             const dragStartHandler = (e: DragEvent) => {
                 currentDrag.current = { el, key };
@@ -187,7 +187,7 @@ const useDragHandler = <
 
             draggableMap.current.delete(key);
         }
-    }, []);
+    };
 
     // cleanup effect
     React.useEffect(() => {
@@ -205,27 +205,27 @@ const useDragHandler = <
             console.log('cleanup ');
             window.removeEventListener('keyup', x);
 
-            draggableMap.current.forEach((entry) => {
-                entry.el.removeEventListener(
-                    'dragstart',
-                    entry.listeners.dragStart
-                );
-                entry.el.removeEventListener(
-                    'dragend',
-                    entry.listeners.dragEnd
-                );
-            });
-            droppableMap.current.forEach((entry) => {
-                entry.el.removeEventListener(
-                    'dragleave',
-                    entry.listeners.dragLeave
-                );
-                entry.el.removeEventListener(
-                    'dragover',
-                    entry.listeners.dragOver
-                );
-                entry.el.removeEventListener('drop', entry.listeners.drop);
-            });
+            // draggableMap.current.forEach((entry) => {
+            //     entry.el.removeEventListener(
+            //         'dragstart',
+            //         entry.listeners.dragStart
+            //     );
+            //     entry.el.removeEventListener(
+            //         'dragend',
+            //         entry.listeners.dragEnd
+            //     );
+            // });
+            // droppableMap.current.forEach((entry) => {
+            //     entry.el.removeEventListener(
+            //         'dragleave',
+            //         entry.listeners.dragLeave
+            //     );
+            //     entry.el.removeEventListener(
+            //         'dragover',
+            //         entry.listeners.dragOver
+            //     );
+            //     entry.el.removeEventListener('drop', entry.listeners.drop);
+            // });
         };
     }, []);
 
