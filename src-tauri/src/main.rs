@@ -9,6 +9,7 @@
 )]
 
 mod commands;
+mod hash;
 mod preferences;
 mod session;
 mod state;
@@ -124,7 +125,7 @@ fn main() {
             set_timer_duration,
             set_pause_duration,
             set_long_pause_duration,
-            set_timer_sound,
+            set_timer_sound_id,
             create_session,
             delete_session,
             update_session,

@@ -4,7 +4,7 @@ import produce from 'immer';
 import { z } from 'zod';
 import { stateDataSchema } from '../utils/schemas';
 import useAppStore from './useAppTempStore';
-import { Sessions } from '../utils/classTypes';
+import { Sessions, Timer } from '../utils/classTypes';
 
 export type AppStateData = z.infer<typeof stateDataSchema>;
 
@@ -15,11 +15,7 @@ interface AppState {
 }
 
 const initialDataState: AppStateData = {
-    timer: {
-        long_pause_duration: 0,
-        pause_duration: 0,
-        timer_duration: 0,
-    },
+    timer: new Timer(0, 0, 0),
     sessions: new Sessions([]),
     preferences: {
         notification: {

@@ -1,8 +1,9 @@
 import useAppStore from "../hooks/useAppTempStore";
-import { SessionCommands, SessionsCommands, TimerCommands } from "./commands";
+import { PreferencesCommands, SessionCommands, SessionsCommands, TimerCommands } from "./commands";
 import useStateStore from "../hooks/useStateStore";
 import type { editFormType } from "../components/sessions/EditSessionModalContent";
 import { ChangeSessionOrderArgs, ChangeTaskOrderArgs, } from "./types";
+import { updateState } from "./utils";
 
 export class Task {
     constructor(
@@ -23,7 +24,7 @@ export class Sessions extends SessionsCommands {
     public async onUpdateTaskOrder(data: ChangeTaskOrderArgs) {
         try {
             const result = await Sessions.updateTaskOrder(data)
-            useStateStore.getState().setStateData(result)
+            updateState(result)
         } catch (e) {
             console.log('error', e)
         }
@@ -31,7 +32,7 @@ export class Sessions extends SessionsCommands {
     public async onUpdateSessionOrder(data: ChangeSessionOrderArgs) {
         try {
             const result = await Sessions.updateSessionOrder(data)
-            useStateStore.getState().setStateData(result)
+            updateState(result)
         } catch (e) {
             console.log('error', e)
         }
@@ -54,7 +55,7 @@ export class Session extends SessionCommands {
     }
     public async selected() {
         const newState = await Session.onSelectedSession(this.id)
-        useStateStore.getState().setStateData(newState);
+        updateState(newState)
         const selectedSession = newState.sessions.sessions.find((session) => session.is_selected);
         if (selectedSession) {
             useAppStore.getState().setSession(selectedSession);
@@ -65,7 +66,7 @@ export class Session extends SessionCommands {
     public async delete() {
         const newState = await Session.deleteSession(this.id)
         console.log('new state received!', newState)
-        useStateStore.getState().setStateData(newState);
+        updateState(newState)
     }
     public async update(formData: editFormType) {
         const tasks = formData.tasks.map((task) => new Task(task.name, task.id, task.is_done, false))
@@ -74,13 +75,13 @@ export class Session extends SessionCommands {
         this.is_selected = formData.is_selected === 'on' ? true : false;
         this.tasks = tasks;
         const newState = await Session.updateSession(this);
-        useStateStore.getState().setStateData(newState);
+        updateState(newState)
     }
     public async updateTaskDone(taskId: number, checked: boolean) {
         try {
 
             const result = await Session.updateDoneTask(taskId, this.id, checked);
-            useStateStore.getState().setStateData(result)
+            updateState(result)
         } catch (e) {
             console.log('error', e)
         }
@@ -93,22 +94,57 @@ export class Timer extends TimerCommands {
         public timer_duration: number) {
         super();
     }
+    public async onTimerDuration(timerDuration: number) {
+        try {
+            const result = await Timer.setTimerDuration(timerDuration)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
+    public async onPauseDuration(pauseDuration: number) {
+        try {
+            const result = await Timer.setPauseDuration(pauseDuration)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
+    public async onLongPauseDuration(longPauseDuration: number) {
+        try {
+            const result = await Timer.setLongPauseDuration(longPauseDuration)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
 }
 export class Notification {
     constructor(
-        public audio_on_pause: string,
-        public audio_on_timer: string,
+        public audio_on_pause_id: number,
+        public audio_on_timer_id: number,
         public message_on_pause: string,
         public message_on_timer: string) { }
 }
-export class Preferences {
+export class Preferences extends PreferencesCommands {
     constructor(
         public notification: Notification,
         public autoplay: boolean,
         public enable_sessions: boolean,
         public sessions_to_complete: number,
         public sessions_for_long_pause: number,
-        public available_sounds: string[],
+        public available_sounds: { name: string, file_path: string, id: number }[],
         public show_percentage: boolean,
-        public resolution: [number, number]) { }
+        public resolution: [number, number]) { super(); }
+
+
+    public async setAudioSound(id: number) {
+        try {
+            const result = await Preferences.setAudioSoundById(id)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
+
 }

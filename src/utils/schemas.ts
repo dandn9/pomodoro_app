@@ -12,8 +12,8 @@ export const taskSchema = z.object({
 export type TaskType = z.infer<typeof taskSchema>
 
 export const notificationSchema = z.object({
-    audio_on_pause: z.string(),
-    audio_on_timer: z.string(),
+    audio_on_pause_id: z.number(),
+    audio_on_timer_id: z.number(),
     message_on_pause: z.string(),
     message_on_timer: z.string(),
 })
@@ -55,7 +55,7 @@ export const stateDataSchema = z.object({
         enable_sessions: z.boolean(),
         sessions_to_complete: z.number(),
         sessions_for_long_pause: z.number(),
-        available_sounds: z.array(z.string()),
+        available_sounds: z.array(z.object({ name: z.string(), file_path: z.string(), id: z.number() })),
         show_percentage: z.boolean(),
         resolution: z.tuple([z.number(), z.number()]),
     }),
@@ -66,7 +66,7 @@ export const stateDataSchema = z.object({
     });
 
 
-    const notification = new Notification(data.preferences.notification.audio_on_pause, data.preferences.notification.audio_on_timer, data.preferences.notification.message_on_pause, data.preferences.notification.message_on_timer)
+    const notification = new Notification(data.preferences.notification.audio_on_pause_id, data.preferences.notification.audio_on_timer_id, data.preferences.notification.message_on_pause, data.preferences.notification.message_on_timer)
     const transformedState: StateType = {
         preferences: new Preferences(notification, data.preferences.autoplay, data.preferences.enable_sessions, data.preferences.sessions_to_complete, data.preferences.sessions_for_long_pause, data.preferences.available_sounds, data.preferences.show_percentage, data.preferences.resolution),
         sessions: new Sessions(sessions),

@@ -1,14 +1,17 @@
-import react, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import useAppStore from './hooks/useAppTempStore';
 import useStateStore from './hooks/useStateStore';
-import Home from './pages/Home';
-import Preferences from './pages/Preferences';
-import Sessions from './pages/Sessions';
 import Sidebar from './components/Sidebar';
+import Toast from './components/UI/Toast';
+const Home = React.lazy(() => import('./pages/Home'));
+const Sessions = React.lazy(() => import('./pages/Sessions'));
+const Preferences = React.lazy(() => import('./pages/Preferences'));
+const NotFound = React.lazy(() => import('./pages/404'));
 
 // this component is used for routing
 function App() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const toastSaved = useAppStore((state) => state.toast_saved);
     const currPage = useAppStore((state) => state.curr_page);
     const isPlaying = useAppStore((state) => state.is_playing);
 
@@ -26,10 +29,11 @@ function App() {
         };
     }, [isPlaying]);
 
-    const currComponent = useMemo(() => {
-        if (currPage === 'home') return <Home />;
-        if (currPage === 'sessions') return <Sessions />;
-        if (currPage === 'preferences') return <Preferences />;
+    const CurrComponent = useMemo(() => {
+        if (currPage === 'home') return Home;
+        if (currPage === 'sessions') return Sessions;
+        if (currPage === 'preferences') return Preferences;
+        return NotFound;
     }, [currPage]);
 
     return (
@@ -43,7 +47,12 @@ function App() {
                 <Sidebar isOpen={sidebarOpen} />
             </section>
 
-            <section className="h-full w-full">{currComponent}</section>
+            <section className="h-full w-full">
+                <Suspense fallback={<div>Loading page</div>}>
+                    <CurrComponent />
+                </Suspense>
+            </section>
+            <Toast open={toastSaved.open} />
         </main>
     );
 }

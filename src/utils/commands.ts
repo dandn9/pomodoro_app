@@ -57,3 +57,10 @@ export class SessionCommands {
 		return await invoke<AppStateData>('update_done_task', { sessionId, taskId, isDone });
 	}
 }
+
+export class PreferencesCommands {
+
+	static async setAudioSoundById(id: number) {
+		return await invoke<AppStateData>('set_timer_sound_id', { id });
+	}
+}
