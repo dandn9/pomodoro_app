@@ -6,6 +6,14 @@ import { invoke } from '@tauri-apps/api';
 import useStateStore, { AppStateData } from './hooks/useStateStore';
 import useAppStore from './hooks/useAppTempStore';
 
+// TODO BLOCK
+/**
+ *
+ * TODO: Optimize renders on playable sound and not re-render everything on state changes
+ * TODO: Look into start up time (looks like it's rust side of things)
+ *
+ */
+
 const App = React.lazy(() => {
     return new Promise<typeof import('./App')>((resolve) => {
         invoke<AppStateData>('get_state').then((res) => {
@@ -25,6 +33,7 @@ const App = React.lazy(() => {
                     useStateStore.getState().setStateData(res);
                 }
             });
+            console.log('finished');
             resolve(import('./App'));
         });
     });

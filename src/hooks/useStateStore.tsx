@@ -4,7 +4,7 @@ import produce from 'immer';
 import { z } from 'zod';
 import { stateDataSchema } from '../utils/schemas';
 import useAppStore from './useAppTempStore';
-import { Sessions, Timer } from '../utils/classTypes';
+import { Notification, Preferences, Sessions, Timer } from '../utils/classes';
 
 export type AppStateData = z.infer<typeof stateDataSchema>;
 
@@ -17,21 +17,16 @@ interface AppState {
 const initialDataState: AppStateData = {
     timer: new Timer(0, 0, 0),
     sessions: new Sessions([]),
-    preferences: {
-        notification: {
-            audio_on_pause: '',
-            audio_on_timer: '',
-            message_on_pause: '',
-            message_on_timer: '',
-        },
-        autoplay: false,
-        enable_sessions: false,
-        sessions_to_complete: 0,
-        sessions_for_long_pause: 0,
-        available_sounds: [],
-        show_percentage: false,
-        resolution: [0, 0],
-    },
+    preferences: new Preferences(
+        new Notification(0, 0, '', ''),
+        false,
+        false,
+        0,
+        0,
+        [],
+        false,
+        [0, 0]
+    ),
 };
 
 export const useStateStore = create<AppState>()((set, get) => ({

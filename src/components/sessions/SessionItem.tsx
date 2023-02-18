@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import ReactDOM from 'react-dom';
 import { SessionType } from '../../utils/schemas';
-import { Session, Task } from '../../utils/classTypes';
+import { Session, Task } from '../../utils/classes';
 import TaskItemSession from '../tasks/TaskItemSession';
 import * as Accordion from '@radix-ui/react-accordion';
 import { z } from 'zod';

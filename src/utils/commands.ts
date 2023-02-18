@@ -1,7 +1,7 @@
 import React from 'react';
 import { AppStateData, useStateStore } from '../hooks/useStateStore';
 import { invoke } from '@tauri-apps/api';
-import { Session } from './classTypes';
+import { Session } from './classes/Sessions';
 import { ChangeSessionOrderArgs, ChangeTaskOrderArgs } from './types';
 
 export class TimerCommands {
@@ -32,6 +32,9 @@ export class SessionsCommands {
 		return await invoke<AppStateData>('update_order_session', data)
 	}
 
+	static async createSession(name: string, color: string, tasks: string[]) {
+		return await invoke<AppStateData>('create_session', { name, color, tasks });
+	}
 }
 export class SessionCommands {
 	static async onSessionDone(id: number, time: number) {
@@ -39,13 +42,6 @@ export class SessionCommands {
 	}
 	static async onSelectedSession(id: number) {
 		return await invoke<AppStateData>('on_selected_session', { id });
-	}
-	static async createSession(name: string, color: string, tasks: string[]) {
-		try {
-			return await invoke<AppStateData | string>('create_session', { name, color, tasks });
-		} catch (e) {
-			console.log('error', e)
-		}
 	}
 	static async deleteSession(id: number) {
 		return await invoke<AppStateData>('delete_session', { id });
@@ -62,5 +58,9 @@ export class PreferencesCommands {
 
 	static async setAudioSoundById(id: number) {
 		return await invoke<AppStateData>('set_timer_sound_id', { id });
+	}
+
+	static async setPauseSoundById(id: number) {
+		return await invoke<AppStateData>('set_pause_sound_id', { id });
 	}
 }

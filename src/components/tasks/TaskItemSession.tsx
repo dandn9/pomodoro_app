@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Task } from '../../utils/classTypes';
+import { Task } from '../../utils/classes';
 import Checkbox from '../UI/Checkbox';
 
 interface TaskItemSessionProps {

@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import useAppStore from './hooks/useAppTempStore';
 import useStateStore from './hooks/useStateStore';
-import Sidebar from './components/Sidebar';
+import Sidebar from './components/UI/Sidebar';
 import Toast from './components/UI/Toast';
 const Home = React.lazy(() => import('./pages/Home'));
 const Sessions = React.lazy(() => import('./pages/Sessions'));
@@ -37,7 +37,7 @@ function App() {
     }, [currPage]);
 
     return (
-        <main className="relative h-screen w-screen dark:text-white">
+        <main className="relative h-screen w-screen dark:bg-zinc-800 dark:text-white">
             <section>
                 <button
                     className="absolute top-0 left-0 z-20"

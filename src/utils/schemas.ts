@@ -1,6 +1,7 @@
 import produce from 'immer'
 import { z } from 'zod'
-import { Task, Session, Timer, Preferences, Notification, Sessions } from './classTypes';
+import type { AddSoundPayload as addSoundSchema } from '../components/preferences/AddSound';
+import { Task, Session, Timer, Preferences, Notification, Sessions } from './classes';
 import { o } from '@tauri-apps/api/dialog-15855a2f';
 
 export const taskSchema = z.object({
@@ -79,4 +80,8 @@ export const stateDataSchema = z.object({
 
 
 
-export type StateDataType = z.infer<typeof stateDataSchema> 
+export type StateDataType = z.infer<typeof stateDataSchema>
+
+
+// export the type of add Sound Payload
+export type AddSoundPayload = addSoundSchema;

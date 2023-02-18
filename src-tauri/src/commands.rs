@@ -68,6 +68,14 @@ pub fn set_timer_sound_id(id: u64, state: State<'_, Mutex<AppState>>) -> AppStat
     curr_state.get_state()
 }
 
+#[tauri::command]
+pub fn set_pause_sound_id(id: u64, state: State<'_, Mutex<AppState>>) -> AppState {
+    let mut curr_state = state.lock().unwrap();
+
+    curr_state.preferences.notification.audio_on_pause_id = id;
+    curr_state.preferences.save_state();
+    curr_state.get_state()
+}
 // SESSION API
 #[tauri::command]
 pub fn create_session(

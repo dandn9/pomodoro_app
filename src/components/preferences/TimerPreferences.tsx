@@ -3,7 +3,7 @@ import produce from 'immer';
 import useAppStore from '../../hooks/useAppTempStore';
 import Slider from '../UI/Slider';
 import { TimerCommands } from '../../utils/commands';
-import { Timer } from '../../utils/classTypes';
+import { Timer } from '../../utils/classes';
 import React from 'react';
 const TimerPreferences: React.FC<{ timer: Timer }> = ({ timer }) => {
     const appStore = useStateStore((state) => ({
