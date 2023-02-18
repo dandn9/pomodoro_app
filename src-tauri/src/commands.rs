@@ -8,6 +8,7 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use tauri::api::path::app_data_dir;
 use tauri::{Manager, State};
 
+use crate::preferences::SoundType;
 use crate::session::{self, Session, SessionState};
 use crate::state::{init_or_get_state, AppState, AppStateTrait};
 
@@ -39,43 +40,6 @@ pub fn set_long_pause_duration(pause_num: u32, state: State<'_, Mutex<AppState>>
     curr_state.get_state()
 }
 
-#[tauri::command]
-pub fn set_timer_sound_id(id: u64, state: State<'_, Mutex<AppState>>) -> AppState {
-    let mut curr_state = state.lock().unwrap();
-
-    curr_state.preferences.notification.audio_on_timer_id = id;
-    curr_state.preferences.save_state();
-    // let file_name = file_info.get("name").unwrap();
-    // let app_config = app.config();
-    // let path = app_data_dir(&app_config);
-    // let path = path.unwrap().join("audio").join(file_name);
-
-    // sound_data: Vec<u8>,
-    // file_info: HashMap<String, String>,
-    // let mut file = OpenOptions::new()
-    //     .write(true)
-    //     .truncate(true)
-    //     .create(true)
-    //     .open(path)
-    //     .unwrap();
-    // file.write_all(&sound_data).unwrap();
-
-    // let mut curr_state = state.lock().unwrap();
-    // // curr_state.preferences.notification.audio_on_timer = file_name.to_string();
-    // curr_state.preferences.save_state();
-    // println!("new state! {:?}", curr_state);
-
-    curr_state.get_state()
-}
-
-#[tauri::command]
-pub fn set_pause_sound_id(id: u64, state: State<'_, Mutex<AppState>>) -> AppState {
-    let mut curr_state = state.lock().unwrap();
-
-    curr_state.preferences.notification.audio_on_pause_id = id;
-    curr_state.preferences.save_state();
-    curr_state.get_state()
-}
 // SESSION API
 #[tauri::command]
 pub fn create_session(
@@ -277,6 +241,58 @@ pub fn update_order_task(
     curr_state.sessions.save_state();
     Ok(curr_state.get_state())
 }
+
+// PREFERENCES API
+
+#[tauri::command]
+pub fn set_timer_sound_id(id: u64, state: State<'_, Mutex<AppState>>) -> AppState {
+    let mut curr_state = state.lock().unwrap();
+
+    curr_state.preferences.notification.audio_on_timer_id = id;
+    curr_state.preferences.save_state();
+    // let file_name = file_info.get("name").unwrap();
+    // let app_config = app.config();
+    // let path = app_data_dir(&app_config);
+    // let path = path.unwrap().join("audio").join(file_name);
+
+    // sound_data: Vec<u8>,
+    // file_info: HashMap<String, String>,
+    // let mut file = OpenOptions::new()
+    //     .write(true)
+    //     .truncate(true)
+    //     .create(true)
+    //     .open(path)
+    //     .unwrap();
+    // file.write_all(&sound_data).unwrap();
+
+    // let mut curr_state = state.lock().unwrap();
+    // // curr_state.preferences.notification.audio_on_timer = file_name.to_string();
+    // curr_state.preferences.save_state();
+    // println!("new state! {:?}", curr_state);
+
+    curr_state.get_state()
+}
+
+#[tauri::command]
+pub fn set_pause_sound_id(id: u64, state: State<'_, Mutex<AppState>>) -> AppState {
+    let mut curr_state = state.lock().unwrap();
+
+    curr_state.preferences.notification.audio_on_pause_id = id;
+    curr_state.preferences.save_state();
+    curr_state.get_state()
+}
+#[tauri::command]
+pub fn add_sound(
+    name: String,
+    path_name: String,
+    state: State<'_, Mutex<AppState>>,
+) -> Result<AppState, String> {
+    let mut curr_state = state.lock().unwrap();
+
+    curr_state.preferences.add_sound(name, path_name)?;
+    Ok(curr_state.get_state())
+}
+
 // UTILITIES
 #[tauri::command]
 pub fn reload_state(state: State<Mutex<AppState>>, app_handle: tauri::AppHandle) -> AppState {

@@ -56,7 +56,7 @@ const Audio: React.FC<{ preferences: Preferences }> = ({ preferences }) => {
                 ))}
             </ul>
             <Modal open={isAddingSound} setOpen={setIsAddingSound}>
-                <AddSound setOpen={setIsAddingSound} />
+                <AddSound setOpen={setIsAddingSound} onAddSound={onAddAudio} />
             </Modal>
         </div>
     );

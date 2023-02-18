@@ -63,4 +63,8 @@ export class PreferencesCommands {
 	static async setPauseSoundById(id: number) {
 		return await invoke<AppStateData>('set_pause_sound_id', { id });
 	}
+
+	static async addSound(name: string, pathName: string) {
+		return await invoke<AppStateData>('add_sound', { name, pathName });
+	}
 }

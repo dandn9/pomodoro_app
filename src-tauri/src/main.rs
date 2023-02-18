@@ -132,6 +132,7 @@ fn main() {
             update_session,
             update_order_session,
             add_task,
+            add_sound,
             delete_task,
             update_done_task,
             update_order_task,

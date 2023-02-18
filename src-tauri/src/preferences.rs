@@ -35,7 +35,19 @@ impl Default for PreferencesState {
         }
     }
 }
-impl PreferencesState {}
+impl PreferencesState {
+    pub fn add_sound(&mut self, name: String, path_name: String) -> Result<String, String> {
+        let new_sound = SoundType::new(name, path_name);
+        let exist = self.available_sounds.iter().any(|s| s.id == new_sound.id);
+        if exist {
+            Err("Already exist!".to_string())
+        } else {
+            self.available_sounds.push(new_sound);
+            self.save_state();
+            Ok("ok".to_string())
+        }
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Notification {

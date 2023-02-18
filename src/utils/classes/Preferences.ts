@@ -1,7 +1,8 @@
-import { writeBinaryFile } from "@tauri-apps/api/fs";
+import { removeFile, writeBinaryFile } from "@tauri-apps/api/fs";
 import { PreferencesCommands } from "../commands";
 import { AddSoundPayload } from "../schemas";
 import { updateState } from "../utils";
+import { appDataDir, join } from "@tauri-apps/api/path";
 
 export class Notification {
     constructor(
@@ -40,11 +41,18 @@ export class Preferences extends PreferencesCommands {
         }
     }
     public async addSound(pl: AddSoundPayload) {
+        const soundBin = await pl.sound.arrayBuffer()
+        const fileExtension = pl.sound.name.split('.').pop()
+        const appData = await appDataDir()
+        const fullPath = await join(appData, 'audio', `${pl.name}.${fileExtension}`)
+
         try {
-            const soundBin = await pl.sound.arrayBuffer()
-            await writeBinaryFile('yo.txt', soundBin)
+            await writeBinaryFile(fullPath, soundBin)
+            const result = await Preferences.addSound(pl.name, `${pl.name}.${fileExtension}`)
+            updateState(result)
+
         } catch (e) {
-            console.log('error', e)
+            console.log('error! removing file', e) // just simply overrides it?
         }
 
     }
