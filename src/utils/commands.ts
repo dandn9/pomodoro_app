@@ -67,4 +67,11 @@ export class PreferencesCommands {
 	static async addSound(name: string, pathName: string) {
 		return await invoke<AppStateData>('add_sound', { name, pathName });
 	}
+	static async deleteSound(id: number) {
+		return await invoke<AppStateData>('delete_sound', { id });
+	}
+	static async renameSound(id: number, name: string) {
+		return await invoke<AppStateData>('rename_sound', { id, name });
+
+	}
 }

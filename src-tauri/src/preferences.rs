@@ -2,7 +2,9 @@ use crate::state::SETTINGS_FOLDER_PATH;
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use std::{
+    error::Error,
     fs::copy,
+    fs::remove_file,
     path::{self, Path},
 };
 
@@ -78,22 +80,62 @@ impl PreferencesState {
             Ok("ok".to_string())
         }
     }
+    pub fn delete_sound(&mut self, id: u32) {
+        println!("test");
+
+        self.available_sounds.retain(|f| {
+            if f.id == id {
+                if id == self.notification.audio_on_pause_id {
+                    self.notification.audio_on_pause_id = 0;
+                }
+                if id == self.notification.audio_on_timer_id {
+                    self.notification.audio_on_pause_id = 0;
+                }
+                let fold_path = SETTINGS_FOLDER_PATH.lock().unwrap();
+                let file_path = Path::new(fold_path.as_str())
+                    .join("audio")
+                    .join(&f.file_path);
+                remove_file(file_path).unwrap();
+                return false;
+            }
+            return true;
+        });
+        self.save_state();
+
+        println!("after {:?}", self.available_sounds);
+        // println!("sound! {:?}", sound);
+    }
+    pub fn rename_sound(&mut self, id: u32, new_name: String) {
+        for sound in self.available_sounds.iter_mut() {
+            if sound.id == id {
+                sound.name = new_name.clone();
+                sound.id = crate::hash::calculate_hash(&sound.name) as u32;
+                if id == self.notification.audio_on_pause_id {
+                    self.notification.audio_on_pause_id = sound.id;
+                }
+                if id == self.notification.audio_on_timer_id {
+                    self.notification.audio_on_pause_id = sound.id;
+                }
+            }
+        }
+        self.save_state();
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Notification {
     pub message_on_timer: String,
     pub message_on_pause: String,
-    pub audio_on_timer_id: u64,
-    pub audio_on_pause_id: u64,
+    pub audio_on_timer_id: u32,
+    pub audio_on_pause_id: u32,
 }
 impl Default for Notification {
     fn default() -> Self {
         Self {
             message_on_pause: "Pause is up!".to_string(),
             message_on_timer: "Timer is up!".to_string(),
-            audio_on_timer_id: 8871325601931092469,
-            audio_on_pause_id: 9799632646341056273,
+            audio_on_timer_id: 0,
+            audio_on_pause_id: 0,
         }
     }
 }
@@ -105,13 +147,13 @@ impl AppStateTrait for PreferencesState {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SoundType {
     pub name: String,
-    pub id: u64,
+    pub id: u32,
     pub file_path: String,
 }
 
 impl SoundType {
     pub fn new(name: String, file_path: String) -> Self {
-        let id = crate::hash::calculate_hash(&name);
+        let id = crate::hash::calculate_hash(&name) as u32;
         SoundType {
             name,
             file_path,

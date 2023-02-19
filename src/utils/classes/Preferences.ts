@@ -56,4 +56,20 @@ export class Preferences extends PreferencesCommands {
         }
 
     }
+    public async onDeleteSound(id: number) {
+        try {
+            const result = await Preferences.deleteSound(id)
+            updateState(result)
+        } catch (e) {
+            console.log('error!', e)
+        }
+    }
+    public async onRenameAudio(id: number, name: string) {
+        try {
+            const result = await Preferences.renameSound(id, name)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
 }

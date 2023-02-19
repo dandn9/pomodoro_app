@@ -245,7 +245,7 @@ pub fn update_order_task(
 // PREFERENCES API
 
 #[tauri::command]
-pub fn set_timer_sound_id(id: u64, state: State<'_, Mutex<AppState>>) -> AppState {
+pub fn set_timer_sound_id(id: u32, state: State<'_, Mutex<AppState>>) -> AppState {
     let mut curr_state = state.lock().unwrap();
 
     curr_state.preferences.notification.audio_on_timer_id = id;
@@ -274,7 +274,7 @@ pub fn set_timer_sound_id(id: u64, state: State<'_, Mutex<AppState>>) -> AppStat
 }
 
 #[tauri::command]
-pub fn set_pause_sound_id(id: u64, state: State<'_, Mutex<AppState>>) -> AppState {
+pub fn set_pause_sound_id(id: u32, state: State<'_, Mutex<AppState>>) -> AppState {
     let mut curr_state = state.lock().unwrap();
 
     curr_state.preferences.notification.audio_on_pause_id = id;
@@ -290,6 +290,26 @@ pub fn add_sound(
     let mut curr_state = state.lock().unwrap();
 
     curr_state.preferences.add_sound(name, path_name)?;
+    Ok(curr_state.get_state())
+}
+#[tauri::command]
+pub fn delete_sound(id: u32, state: State<'_, Mutex<AppState>>) -> Result<AppState, String> {
+    let mut curr_state = state.lock().unwrap();
+    println!("yo");
+    curr_state.preferences.delete_sound(id);
+
+    Ok(curr_state.get_state())
+}
+#[tauri::command]
+pub fn rename_sound(
+    id: u32,
+    name: String,
+    state: State<'_, Mutex<AppState>>,
+) -> Result<AppState, String> {
+    let mut curr_state = state.lock().unwrap();
+    println!("yo");
+    curr_state.preferences.rename_sound(id, name);
+
     Ok(curr_state.get_state())
 }
 

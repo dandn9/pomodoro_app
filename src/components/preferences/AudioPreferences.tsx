@@ -15,6 +15,13 @@ const Audio: React.FC<{ preferences: Preferences }> = ({ preferences }) => {
     };
     const onAddAudio = async (pl: AddSoundPayload) => {
         await preferences.addSound(pl);
+        setIsAddingSound(false);
+    };
+    const onDeleteAudio = async (id: number) => {
+        await preferences.onDeleteSound(id);
+    };
+    const onAudioRename = async (id: number, name: string) => {
+        await preferences.onRenameAudio(id, name);
     };
 
     return (
@@ -33,6 +40,8 @@ const Audio: React.FC<{ preferences: Preferences }> = ({ preferences }) => {
                         key={sound.id}
                         sound={sound}
                         onSelect={onAudioSelect}
+                        onDelete={onDeleteAudio}
+                        onRename={onAudioRename}
                         is_selected={
                             sound.id ===
                             preferences.notification.audio_on_timer_id
