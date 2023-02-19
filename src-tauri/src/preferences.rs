@@ -1,5 +1,10 @@
+use crate::state::SETTINGS_FOLDER_PATH;
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
+use std::{
+    fs::copy,
+    path::{self, Path},
+};
 
 use crate::state::AppStateTrait;
 
@@ -18,17 +23,43 @@ pub struct PreferencesState {
 
 impl Default for PreferencesState {
     fn default() -> Self {
+        // copy the files in assets/default_sounds to the appDir
+        let fold_path = SETTINGS_FOLDER_PATH.lock().unwrap();
+        let defaults_dir = Path::new("./assets/default_sounds");
+        let app_path = Path::new(fold_path.as_str()).join("audio");
+
+        let mut available_sounds: Vec<SoundType> = vec![];
+        for file in defaults_dir.read_dir().unwrap().into_iter() {
+            let file_path = file.unwrap().file_name();
+
+            let copy_result = copy(defaults_dir.join(&file_path), app_path.join(&file_path));
+            match copy_result {
+                Ok(_) => {
+                    let mut file_name: Vec<&str> = file_path.to_str().unwrap().split('.').collect();
+                    file_name.pop().unwrap();
+                    let file_name = file_name.join(" ");
+                    let mut file_chars = file_name.chars();
+                    let new = match file_chars.next() {
+                        None => String::new(),
+                        Some(f) => f.to_uppercase().collect::<String>() + file_chars.as_str(),
+                    };
+                    available_sounds
+                        .push(SoundType::new(new, file_path.to_str().unwrap().to_string()));
+                }
+                Err(_) => println!("Didn't copy"),
+            }
+        }
+
+        // copy(defaults_dir, "./").unwrap();
+        // copy(path, to)
+
         Self {
             notification: Notification::default(),
             autoplay: false,
             enable_sessions: true,
             sessions_to_complete: 4,
             sessions_for_long_pause: 4,
-            available_sounds: vec![
-                SoundType::new("Bonk".to_string(), "bonk.mp3".to_string()),
-                SoundType::new("Mario".to_string(), "mario.mp3".to_string()),
-                SoundType::new("Sonic".to_string(), "sonic.mp3".to_string()),
-            ],
+            available_sounds,
             show_percentage: false,
             resolution: (800, 600),
             time_to_add: 5.0,

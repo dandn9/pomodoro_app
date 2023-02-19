@@ -12,8 +12,6 @@ use once_cell::sync::Lazy;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use tauri::api::path::app_data_dir;
 
-// Preference Folder
-pub static PREF_FOLDER_NAME: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new("".to_string()));
 // Appdata settings folder
 pub static SETTINGS_FOLDER_PATH: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new("".to_string()));
 // Clone of config
@@ -92,7 +90,6 @@ pub fn init_or_get_state(app_config: &tauri::Config) -> AppState {
     CONFIG.lock().unwrap().clone_from(app_config);
 
     setup_state_folder();
-    println!("PREF_FOLDER_NAME: {}", PREF_FOLDER_NAME.lock().unwrap());
     println!("BASE PATH: {}", SETTINGS_FOLDER_PATH.lock().unwrap());
 
     let state = AppState {
