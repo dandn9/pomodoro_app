@@ -11,6 +11,7 @@ import useAppStore from './hooks/useAppTempStore';
  *
  * TODO: Optimize renders on playable sound and not re-render everything on state changes
  * TODO: Look into start up time (looks like it's rust side of things)
+ * TODO: Change UI components to be more like Select.tsx
  *
  */
 

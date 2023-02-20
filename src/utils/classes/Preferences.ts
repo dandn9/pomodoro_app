@@ -11,6 +11,12 @@ export class Notification {
         public message_on_pause: string,
         public message_on_timer: string) { }
 }
+
+export enum ThemeOptions {
+    Default = "Default",
+    Dark = "Dark",
+    White = "White"
+}
 export class Preferences extends PreferencesCommands {
     constructor(
         public notification: Notification,
@@ -20,7 +26,7 @@ export class Preferences extends PreferencesCommands {
         public sessions_for_long_pause: number,
         public available_sounds: { name: string, file_path: string, id: number }[],
         public show_percentage: boolean,
-        public resolution: [number, number]) { super(); }
+        public resolution: [number, number], public theme: ThemeOptions) { super(); }
 
 
     public async setAudioSound(id: number) {
@@ -67,6 +73,14 @@ export class Preferences extends PreferencesCommands {
     public async onRenameAudio(id: number, name: string) {
         try {
             const result = await Preferences.renameSound(id, name)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
+    public async onChangeTheme(theme: ThemeOptions) {
+        try {
+            const result = await Preferences.changeTheme(theme)
             updateState(result)
         } catch (e) {
             console.log('error', e)

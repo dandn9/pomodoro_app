@@ -65,6 +65,7 @@ const PlayableSound: React.FC<{
             {onDelete && (
                 <Popover
                     open={isPopover}
+                    side="top"
                     openSetter={setPopover}
                     content={
                         <PopoverContent

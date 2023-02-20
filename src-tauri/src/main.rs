@@ -141,7 +141,8 @@ fn main() {
             update_order_task,
             on_completed_session,
             on_selected_session,
-            reload_state
+            reload_state,
+            change_theme,
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application")

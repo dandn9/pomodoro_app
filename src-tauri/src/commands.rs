@@ -8,7 +8,7 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use tauri::api::path::app_data_dir;
 use tauri::{Manager, State};
 
-use crate::preferences::SoundType;
+use crate::preferences::{SoundType, ThemeOptions};
 use crate::session::{self, Session, SessionState};
 use crate::state::{init_or_get_state, AppState, AppStateTrait};
 
@@ -250,26 +250,6 @@ pub fn set_timer_sound_id(id: u32, state: State<'_, Mutex<AppState>>) -> AppStat
 
     curr_state.preferences.notification.audio_on_timer_id = id;
     curr_state.preferences.save_state();
-    // let file_name = file_info.get("name").unwrap();
-    // let app_config = app.config();
-    // let path = app_data_dir(&app_config);
-    // let path = path.unwrap().join("audio").join(file_name);
-
-    // sound_data: Vec<u8>,
-    // file_info: HashMap<String, String>,
-    // let mut file = OpenOptions::new()
-    //     .write(true)
-    //     .truncate(true)
-    //     .create(true)
-    //     .open(path)
-    //     .unwrap();
-    // file.write_all(&sound_data).unwrap();
-
-    // let mut curr_state = state.lock().unwrap();
-    // // curr_state.preferences.notification.audio_on_timer = file_name.to_string();
-    // curr_state.preferences.save_state();
-    // println!("new state! {:?}", curr_state);
-
     curr_state.get_state()
 }
 
@@ -309,6 +289,17 @@ pub fn rename_sound(
     let mut curr_state = state.lock().unwrap();
     println!("yo");
     curr_state.preferences.rename_sound(id, name);
+
+    Ok(curr_state.get_state())
+}
+#[tauri::command]
+pub fn change_theme(
+    theme: ThemeOptions,
+    state: State<'_, Mutex<AppState>>,
+) -> Result<AppState, String> {
+    let mut curr_state = state.lock().unwrap();
+    curr_state.preferences.theme = theme;
+    curr_state.preferences.save_state();
 
     Ok(curr_state.get_state())
 }

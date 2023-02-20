@@ -8,6 +8,7 @@ import useAppStore from '../hooks/useAppTempStore';
 import produce from 'immer';
 import TimerPreferences from '../components/preferences/TimerPreferences';
 import AudioPreferences from '../components/preferences/AudioPreferences';
+import SettingsPreferences from '../components/preferences/SettingsPreferences';
 
 const Preferences = () => {
     const preferences = useStateStore((state) => state.data.preferences);
@@ -15,7 +16,7 @@ const Preferences = () => {
 
     return (
         <div className="flex h-full w-full items-center justify-center">
-            <Tabs.Root defaultValue="audio">
+            <Tabs.Root defaultValue="settings">
                 <Tabs.List className="fixed top-5 left-1/2 flex -translate-x-1/2 gap-2 border border-gray-200">
                     <Tabs.Trigger value="timer">Timer</Tabs.Trigger>
                     <Tabs.Trigger value="audio">Audio</Tabs.Trigger>
@@ -26,6 +27,9 @@ const Preferences = () => {
                 </Tabs.Content>
                 <Tabs.Content value="audio">
                     <AudioPreferences preferences={preferences} />
+                </Tabs.Content>
+                <Tabs.Content value="settings">
+                    <SettingsPreferences preferences={preferences} />
                 </Tabs.Content>
             </Tabs.Root>
         </div>

@@ -4,7 +4,13 @@ import produce from 'immer';
 import { z } from 'zod';
 import { stateDataSchema } from '../utils/schemas';
 import useAppStore from './useAppTempStore';
-import { Notification, Preferences, Sessions, Timer } from '../utils/classes';
+import {
+    Notification,
+    Preferences,
+    Sessions,
+    ThemeOptions,
+    Timer,
+} from '../utils/classes';
 
 export type AppStateData = z.infer<typeof stateDataSchema>;
 
@@ -25,7 +31,8 @@ const initialDataState: AppStateData = {
         0,
         [],
         false,
-        [0, 0]
+        [0, 0],
+        ThemeOptions.Default
     ),
 };
 

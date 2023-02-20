@@ -11,6 +11,13 @@ use std::{
 use crate::state::AppStateTrait;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ThemeOptions {
+    Default,
+    Dark,
+    White,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PreferencesState {
     pub notification: Notification,
     pub autoplay: bool,
@@ -21,6 +28,7 @@ pub struct PreferencesState {
     pub show_percentage: bool,
     pub resolution: (u32, u32),
     pub time_to_add: f32,
+    pub theme: ThemeOptions,
 }
 
 impl Default for PreferencesState {
@@ -65,6 +73,7 @@ impl Default for PreferencesState {
             show_percentage: false,
             resolution: (800, 600),
             time_to_add: 5.0,
+            theme: ThemeOptions::Default,
         }
     }
 }

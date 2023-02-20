@@ -3,6 +3,7 @@ import { AppStateData, useStateStore } from '../hooks/useStateStore';
 import { invoke } from '@tauri-apps/api';
 import { Session } from './classes/Sessions';
 import { ChangeSessionOrderArgs, ChangeTaskOrderArgs } from './types';
+import { ThemeOptions } from './classes';
 
 export class TimerCommands {
 	static async setTimerDuration(timerDuration: number) {
@@ -72,6 +73,8 @@ export class PreferencesCommands {
 	}
 	static async renameSound(id: number, name: string) {
 		return await invoke<AppStateData>('rename_sound', { id, name });
-
+	}
+	static async changeTheme(theme: ThemeOptions) {
+		return await invoke<AppStateData>('change_theme', { theme });
 	}
 }
