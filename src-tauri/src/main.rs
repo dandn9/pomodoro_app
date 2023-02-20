@@ -128,6 +128,7 @@ fn main() {
             set_long_pause_duration,
             set_timer_sound_id,
             set_pause_sound_id,
+            set_autoplay,
             create_session,
             delete_session,
             update_session,

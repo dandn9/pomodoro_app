@@ -1,11 +1,15 @@
 import React from 'react';
 import { Preferences, ThemeOptions } from '../../utils/classes';
 import Select, { SelectGroup, SelectItem } from '../UI/Select';
+import Switch from '../UI/Switch';
 const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
     preferences,
 }) => {
     const onThemeSelect = (val: ThemeOptions) => {
         preferences.onChangeTheme(val);
+    };
+    const onAutoplay = (val: boolean) => {
+        preferences.onSetAutoplay(val);
     };
 
     return (
@@ -28,6 +32,13 @@ const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
                     })}
                 </SelectGroup>
             </Select>
+            <div className="flex">
+                <h3>Autoplay</h3>
+                <Switch
+                    defaultChecked={preferences.autoplay}
+                    onCheckedChange={onAutoplay}
+                />
+            </div>
         </div>
     );
 };

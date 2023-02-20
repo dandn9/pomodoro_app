@@ -77,4 +77,7 @@ export class PreferencesCommands {
 	static async changeTheme(theme: ThemeOptions) {
 		return await invoke<AppStateData>('change_theme', { theme });
 	}
+	static async setAutoplay(autoplay: boolean) {
+		return await invoke<AppStateData>('set_autoplay', { autoplay });
+	}
 }

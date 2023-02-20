@@ -86,4 +86,13 @@ export class Preferences extends PreferencesCommands {
             console.log('error', e)
         }
     }
+    public async onSetAutoplay(autoplay: boolean) {
+        try {
+
+            const result = await Preferences.setAutoplay(autoplay)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
 }
