@@ -11,8 +11,8 @@ interface SelectProps {
 }
 
 const Select: React.ForwardRefExoticComponent<
-    {} & React.RefAttributes<HTMLDivElement>
-> = React.forwardRef(
+    SelectProps & React.RefAttributes<HTMLDivElement>
+> = React.forwardRef<HTMLDivElement, SelectProps>(
     ({ valueProps, contentProps, children, rootProps }, ref) => {
         return (
             <RSelect.Root {...rootProps}>
@@ -44,23 +44,24 @@ const Select: React.ForwardRefExoticComponent<
 );
 export default Select;
 
-export const SelectItem: typeof RSelect.Item = React.forwardRef(
-    ({ children, className, ...props }, forwardRef) => {
-        return (
-            <RSelect.Item
-                ref={forwardRef}
-                {...props}
-                className={classnames(
-                    ' data-[disabled]:text-mauve8 relative flex h-[25px] select-none items-center rounded-[3px] pr-[35px] pl-[25px] text-[13px] leading-none text-violet-500 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet-900 data-[highlighted]:text-violet-200 data-[highlighted]:outline-none',
-                    className
-                )}>
-                <RSelect.ItemText>{children}</RSelect.ItemText>
-                <RSelect.ItemIndicator className="absolute left-0 inline-flex w-[25px] items-center justify-center">
-                    {/* <CheckIcon /> */}
-                </RSelect.ItemIndicator>
-            </RSelect.Item>
-        );
-    }
-);
+export const SelectItem: typeof RSelect.Item = React.forwardRef<
+    HTMLDivElement,
+    RSelect.SelectItemProps
+>(({ children, className, ...props }, forwardRef) => {
+    return (
+        <RSelect.Item
+            ref={forwardRef}
+            {...props}
+            className={classnames(
+                ' data-[disabled]:text-mauve8 relative flex h-[25px] select-none items-center rounded-[3px] pr-[35px] pl-[25px] text-[13px] leading-none text-violet-500 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet-900 data-[highlighted]:text-violet-200 data-[highlighted]:outline-none',
+                className
+            )}>
+            <RSelect.ItemText>{children}</RSelect.ItemText>
+            <RSelect.ItemIndicator className="absolute left-0 inline-flex w-[25px] items-center justify-center">
+                {/* <CheckIcon /> */}
+            </RSelect.ItemIndicator>
+        </RSelect.Item>
+    );
+});
 export const SelectGroup = RSelect.Group;
 export const SelectDivider = RSelect.Separator;
