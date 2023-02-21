@@ -19,6 +19,7 @@
     "@radix-ui/react-switch": "^1.0.1",
     "@radix-ui/react-tabs": "^1.0.2",
     "@radix-ui/react-toast": "^1.1.2",
+    "@radix-ui/react-tooltip": "^1.0.3",
     "@tauri-apps/api": "^1.2.0",
     "immer": "^9.0.17",
     "react": "^18.2.0",
