@@ -7,6 +7,10 @@ import { appWindow } from '@tauri-apps/api/window';
 
 import useStateStore, { AppStateData } from './hooks/useStateStore';
 import useAppStore from './hooks/useAppTempStore';
+// import Test from './Test';
+import LazyApp from './LazyApp';
+// import Test from './Test';
+// const App = React.lazy(() => import('./App'));
 
 /* TODO BLOCK
 /**
@@ -17,46 +21,11 @@ import useAppStore from './hooks/useAppTempStore';
  *
  */
 
-const App = React.lazy(() => {
-    return new Promise<typeof import('./App')>((resolve) => {
-        invoke<AppStateData>('get_state').then((res) => {
-            console.log(`initial - get `, res);
-            console.log('hihi!');
-            useStateStore.getState().setStateData(res);
-
-            window.addEventListener('keydown', async (ev) => {
-                if (ev.key === 'K') {
-                    console.log('state', useStateStore.getState());
-                    console.log('app state', useAppStore.getState());
-                }
-                if (ev.key === 'X') {
-                    console.log('reloading state');
-                    const res = await invoke<AppStateData>('reload_state');
-                    useStateStore.getState().setStateData(res);
-                }
-            });
-            // let timeoutRef: NodeJS.Timeout;
-
-            // const _unlisten = await appWindow.onResized((ev) => {
-            //     if (timeoutRef) clearTimeout(timeoutRef);
-            //     timeoutRef = setTimeout(async () => {
-            //         const factor = await appWindow.scaleFactor();
-            //         console.log('new size mainn', ev.payload.width, factor);
-            //     }, 400);
-            // });
-
-            // debug infos
-            console.log('app');
-            resolve(import('./App'));
-        });
-    });
-});
-
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
         <React.Suspense
             fallback={<div className="text-red-400">Loading..</div>}>
-            <App />
+            <LazyApp />
         </React.Suspense>
     </React.StrictMode>
 );

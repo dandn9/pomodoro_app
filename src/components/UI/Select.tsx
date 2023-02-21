@@ -20,6 +20,7 @@ const Select: React.ForwardRefExoticComponent<
                         <ChevronDown />
                     </RSelect.Icon>
                 </RSelect.Trigger>
+
                 <RSelect.Portal>
                     <RSelect.Content
                         align="center"
