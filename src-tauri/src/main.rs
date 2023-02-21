@@ -79,8 +79,16 @@ fn main() {
             }
 
             let app_state = Mutex::new(init_or_get_state(&app.config()));
+            let resolution = app_state.lock().unwrap().preferences.resolution.clone();
             app.manage(app_state);
             let main_window = app.get_window("main").unwrap();
+
+            main_window
+                .set_size(tauri::Size::Physical(tauri::PhysicalSize::new(
+                    resolution.0,
+                    resolution.1,
+                )))
+                .unwrap();
             let tray_handle = app.tray_handle();
             SYSTEM_TRAY.lock().unwrap().replace(tray_handle);
 
@@ -145,6 +153,7 @@ fn main() {
             reload_state,
             change_theme,
             change_circle_style,
+            change_app_resolution
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application")

@@ -80,6 +80,9 @@ export class PreferencesCommands {
 	static async changeCircleStyle(style: CircleStyles) {
 		return await invoke<AppStateData>('change_circle_style', { style });
 	}
+	static async changeAppResolution(resolution: [number, number]) {
+		return await invoke<AppStateData>('change_app_resolution', { resolution });
+	}
 	static async setAutoplay(autoplay: boolean) {
 		return await invoke<AppStateData>('set_autoplay', { autoplay });
 	}

@@ -115,4 +115,14 @@ export class Preferences extends PreferencesCommands {
             console.log('error', e)
         }
     }
+
+    public async onChangeAppResolution(resolution: [number, number]) {
+
+        try {
+            const result = await Preferences.changeAppResolution(resolution)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
 }

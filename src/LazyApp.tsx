@@ -2,13 +2,12 @@ import { invoke } from '@tauri-apps/api';
 import React from 'react';
 import useStateStore, { AppStateData } from './hooks/useStateStore';
 import useAppStore from './hooks/useAppTempStore';
-import { appWindow } from '@tauri-apps/api/window';
+import { PhysicalSize, appWindow } from '@tauri-apps/api/window';
 
+// makes sure state is correct before loading the app and attaches some event listeners
 const LazyApp = React.lazy(() => {
     return new Promise<typeof import('./App')>((resolve) => {
         invoke<AppStateData>('get_state').then(async (res) => {
-            console.log(`initial - get `, res);
-            console.log('hihi!');
             useStateStore.getState().setStateData(res);
 
             // debug infos
@@ -25,11 +24,16 @@ const LazyApp = React.lazy(() => {
                 }
             });
             let timeoutRef: NodeJS.Timeout | null = null;
-            const _unlisten = await appWindow.onResized((ev) => {
+            await appWindow.onResized((ev) => {
                 if (timeoutRef) clearTimeout(timeoutRef);
+
                 timeoutRef = setTimeout(async () => {
-                    const factor = await appWindow.scaleFactor();
-                    console.log('new size in test', ev.payload.width, factor);
+                    useStateStore
+                        .getState()
+                        .data.preferences.onChangeAppResolution([
+                            ev.payload.width,
+                            ev.payload.height,
+                        ]);
                 }, 400);
             });
 
