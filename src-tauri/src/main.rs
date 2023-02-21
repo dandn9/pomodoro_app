@@ -94,7 +94,6 @@ fn main() {
                 let g = tray_handle.get_item("toggle_timer");
                 g.set_title(payload.message.unwrap()).unwrap();
             });
-
             #[cfg(target_os = "macos")]
             apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None)
                 .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
@@ -129,6 +128,7 @@ fn main() {
             set_timer_sound_id,
             set_pause_sound_id,
             set_autoplay,
+            set_show_percentage,
             create_session,
             delete_session,
             update_session,
@@ -144,6 +144,7 @@ fn main() {
             on_selected_session,
             reload_state,
             change_theme,
+            change_circle_style,
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application")

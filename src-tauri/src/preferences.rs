@@ -18,13 +18,19 @@ pub enum ThemeOptions {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum CircleStyles {
+    Solid,
+    Dotted,
+    Drawn,
+}
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PreferencesState {
     pub notification: Notification,
     pub autoplay: bool,
-    pub enable_sessions: bool,
     pub sessions_to_complete: u32,
     pub sessions_for_long_pause: u32,
     pub available_sounds: Vec<SoundType>,
+    pub circle_style: CircleStyles,
     pub show_percentage: bool,
     pub resolution: (u32, u32),
     pub time_to_add: f32,
@@ -66,9 +72,9 @@ impl Default for PreferencesState {
         Self {
             notification: Notification::default(),
             autoplay: false,
-            enable_sessions: true,
             sessions_to_complete: 4,
             sessions_for_long_pause: 4,
+            circle_style: CircleStyles::Solid,
             available_sounds,
             show_percentage: false,
             resolution: (800, 600),

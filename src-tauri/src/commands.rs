@@ -8,7 +8,7 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use tauri::api::path::app_data_dir;
 use tauri::{Manager, State};
 
-use crate::preferences::{SoundType, ThemeOptions};
+use crate::preferences::{CircleStyles, SoundType, ThemeOptions};
 use crate::session::{self, Session, SessionState};
 use crate::state::{init_or_get_state, AppState, AppStateTrait};
 
@@ -305,11 +305,32 @@ pub fn change_theme(
 }
 
 #[tauri::command]
+pub fn change_circle_style(
+    style: CircleStyles,
+    state: State<'_, Mutex<AppState>>,
+) -> Result<AppState, String> {
+    let mut curr_state = state.lock().unwrap();
+    curr_state.preferences.circle_style = style;
+    curr_state.preferences.save_state();
+
+    Ok(curr_state.get_state())
+}
+#[tauri::command]
 pub fn set_autoplay(autoplay: bool, state: State<'_, Mutex<AppState>>) -> Result<AppState, String> {
     let mut curr_state = state.lock().unwrap();
     curr_state.preferences.autoplay = autoplay;
     curr_state.preferences.save_state();
 
+    Ok(curr_state.get_state())
+}
+#[tauri::command]
+pub fn set_show_percentage(
+    show_percentage: bool,
+    state: State<'_, Mutex<AppState>>,
+) -> Result<AppState, String> {
+    let mut curr_state = state.lock().unwrap();
+    curr_state.preferences.show_percentage = show_percentage;
+    curr_state.preferences.save_state();
     Ok(curr_state.get_state())
 }
 // UTILITIES

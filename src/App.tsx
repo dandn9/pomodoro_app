@@ -3,6 +3,7 @@ import useAppStore from './hooks/useAppTempStore';
 import useStateStore from './hooks/useStateStore';
 import Sidebar from './components/UI/Sidebar';
 import Toast from './components/UI/Toast';
+import { appWindow } from '@tauri-apps/api/window';
 const Home = React.lazy(() => import('./pages/Home'));
 const Sessions = React.lazy(() => import('./pages/Sessions'));
 const Preferences = React.lazy(() => import('./pages/Preferences'));
@@ -28,6 +29,33 @@ function App() {
             if (timeoutRef.current) clearTimeout(timeoutRef.current);
         };
     }, [isPlaying]);
+
+    useEffect(() => {
+        // global event listeners
+
+        let timeoutRef: NodeJS.Timeout;
+        let unlisten: ReturnType<typeof appWindow.onResized> extends Promise<
+            infer K
+        >
+            ? K | undefined
+            : never;
+        async function handleResize() {
+            unlisten = await appWindow.onResized((ev) => {
+                if (timeoutRef) clearTimeout(timeoutRef);
+                timeoutRef = setTimeout(async () => {
+                    const factor = await appWindow.scaleFactor();
+                    console.log('new size', ev.payload.width, factor);
+                }, 400);
+            });
+        }
+        handleResize();
+        console.log('effect');
+        return () => {
+            if (unlisten) unlisten();
+            if (timeoutRef) clearTimeout(timeoutRef);
+            console.log('remove effect', unlisten);
+        };
+    }, []);
 
     const CurrComponent = useMemo(() => {
         if (currPage === 'home') return Home;

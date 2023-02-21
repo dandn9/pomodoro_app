@@ -1,7 +1,7 @@
 import produce from 'immer'
 import { z } from 'zod'
 import type { AddSoundPayload as addSoundSchema } from '../components/preferences/AddSound';
-import { Task, Session, Timer, Preferences, Notification, Sessions, ThemeOptions } from './classes';
+import { Task, Session, Timer, Preferences, Notification, Sessions, ThemeOptions, CircleStyles } from './classes';
 import { o } from '@tauri-apps/api/dialog-15855a2f';
 
 export const taskSchema = z.object({
@@ -53,13 +53,13 @@ export const stateDataSchema = z.object({
     preferences: z.object({
         notification: notificationSchema,
         autoplay: z.boolean(),
-        enable_sessions: z.boolean(),
         sessions_to_complete: z.number(),
         sessions_for_long_pause: z.number(),
         available_sounds: z.array(z.object({ name: z.string(), file_path: z.string(), id: z.number() })),
         show_percentage: z.boolean(),
         resolution: z.tuple([z.number(), z.number()]),
-        theme: z.enum(["Default", "Dark", "White"])
+        theme: z.enum(["Default", "Dark", "White"]),
+        circle_style: z.enum(["Solid", "Dotted", "Drawn"])
     }),
 }).transform<StateType>((data) => {
     const sessions = data.sessions.sessions.map((session: SessionType) => {
@@ -70,7 +70,7 @@ export const stateDataSchema = z.object({
 
     const notification = new Notification(data.preferences.notification.audio_on_pause_id, data.preferences.notification.audio_on_timer_id, data.preferences.notification.message_on_pause, data.preferences.notification.message_on_timer)
     const transformedState: StateType = {
-        preferences: new Preferences(notification, data.preferences.autoplay, data.preferences.enable_sessions, data.preferences.sessions_to_complete, data.preferences.sessions_for_long_pause, data.preferences.available_sounds, data.preferences.show_percentage, data.preferences.resolution, data.preferences.theme as ThemeOptions),
+        preferences: new Preferences(notification, data.preferences.autoplay, data.preferences.sessions_to_complete, data.preferences.sessions_for_long_pause, data.preferences.available_sounds, data.preferences.show_percentage, data.preferences.resolution, data.preferences.theme as ThemeOptions, data.preferences.circle_style as CircleStyles),
         sessions: new Sessions(sessions),
         timer: new Timer(data.timer.pause_duration, data.timer.long_pause_duration, data.timer.timer_duration)
     }

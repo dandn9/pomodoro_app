@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { stateDataSchema } from '../utils/schemas';
 import useAppStore from './useAppTempStore';
 import {
+    CircleStyles,
     Notification,
     Preferences,
     Sessions,
@@ -26,13 +27,13 @@ const initialDataState: AppStateData = {
     preferences: new Preferences(
         new Notification(0, 0, '', ''),
         false,
-        false,
         0,
         0,
         [],
         false,
         [0, 0],
-        ThemeOptions.Default
+        ThemeOptions.Default,
+        CircleStyles.Solid
     ),
 };
 

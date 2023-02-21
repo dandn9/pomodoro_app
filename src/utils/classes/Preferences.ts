@@ -17,16 +17,20 @@ export enum ThemeOptions {
     Dark = "Dark",
     White = "White"
 }
+export enum CircleStyles {
+    Solid = "Solid",
+    Dotted = "Dotted",
+    Drawn = "Drawn"
+}
 export class Preferences extends PreferencesCommands {
     constructor(
         public notification: Notification,
         public autoplay: boolean,
-        public enable_sessions: boolean,
         public sessions_to_complete: number,
         public sessions_for_long_pause: number,
         public available_sounds: { name: string, file_path: string, id: number }[],
         public show_percentage: boolean,
-        public resolution: [number, number], public theme: ThemeOptions) { super(); }
+        public resolution: [number, number], public theme: ThemeOptions, public circleStyle: CircleStyles) { super(); }
 
 
     public async setAudioSound(id: number) {
@@ -86,10 +90,26 @@ export class Preferences extends PreferencesCommands {
             console.log('error', e)
         }
     }
+    public async onChangeCircleStyle(style: CircleStyles) {
+        try {
+            const result = await Preferences.changeCircleStyle(style)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
     public async onSetAutoplay(autoplay: boolean) {
         try {
 
             const result = await Preferences.setAutoplay(autoplay)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
+    public async onSetShowPercentage(showPercentage: boolean) {
+        try {
+            const result = await Preferences.setShowPercentage(showPercentage)
             updateState(result)
         } catch (e) {
             console.log('error', e)

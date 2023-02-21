@@ -3,10 +3,12 @@ import ReactDOM from 'react-dom/client';
 // import App from './App';
 import './index.css';
 import { invoke } from '@tauri-apps/api';
+import { appWindow } from '@tauri-apps/api/window';
+
 import useStateStore, { AppStateData } from './hooks/useStateStore';
 import useAppStore from './hooks/useAppTempStore';
 
-// TODO BLOCK
+/* TODO BLOCK
 /**
  *
  * TODO: Optimize renders on playable sound and not re-render everything on state changes
@@ -22,7 +24,6 @@ const App = React.lazy(() => {
             console.log('hihi!');
             useStateStore.getState().setStateData(res);
 
-            // debug infos
             window.addEventListener('keydown', async (ev) => {
                 if (ev.key === 'K') {
                     console.log('state', useStateStore.getState());
@@ -34,7 +35,18 @@ const App = React.lazy(() => {
                     useStateStore.getState().setStateData(res);
                 }
             });
-            console.log('finished');
+            // let timeoutRef: NodeJS.Timeout;
+
+            // const _unlisten = await appWindow.onResized((ev) => {
+            //     if (timeoutRef) clearTimeout(timeoutRef);
+            //     timeoutRef = setTimeout(async () => {
+            //         const factor = await appWindow.scaleFactor();
+            //         console.log('new size mainn', ev.payload.width, factor);
+            //     }, 400);
+            // });
+
+            // debug infos
+            console.log('app');
             resolve(import('./App'));
         });
     });

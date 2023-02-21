@@ -3,7 +3,7 @@ import { AppStateData, useStateStore } from '../hooks/useStateStore';
 import { invoke } from '@tauri-apps/api';
 import { Session } from './classes/Sessions';
 import { ChangeSessionOrderArgs, ChangeTaskOrderArgs } from './types';
-import { ThemeOptions } from './classes';
+import { CircleStyles, ThemeOptions } from './classes';
 
 export class TimerCommands {
 	static async setTimerDuration(timerDuration: number) {
@@ -77,7 +77,13 @@ export class PreferencesCommands {
 	static async changeTheme(theme: ThemeOptions) {
 		return await invoke<AppStateData>('change_theme', { theme });
 	}
+	static async changeCircleStyle(style: CircleStyles) {
+		return await invoke<AppStateData>('change_circle_style', { style });
+	}
 	static async setAutoplay(autoplay: boolean) {
 		return await invoke<AppStateData>('set_autoplay', { autoplay });
+	}
+	static async setShowPercentage(showPercentage: boolean) {
+		return await invoke<AppStateData>('set_show_percentage', { showPercentage });
 	}
 }
