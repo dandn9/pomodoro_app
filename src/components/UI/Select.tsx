@@ -3,13 +3,15 @@ import React, { forwardRef } from 'react';
 import ChevronDown from '../../assets/icons/chevron-down';
 import { classnames } from '../../utils/classnames';
 
+interface SelectProps {
+    contentProps?: RSelect.SelectContentProps;
+    valueProps?: RSelect.SelectValueProps;
+    rootProps?: RSelect.SelectProps;
+    children?: React.ReactNode;
+}
+
 const Select: React.ForwardRefExoticComponent<
-    {
-        contentProps?: RSelect.SelectContentProps;
-        valueProps?: RSelect.SelectValueProps;
-        rootProps?: RSelect.SelectProps;
-        children?: React.ReactNode;
-    } & React.RefAttributes<HTMLDivElement>
+    {} & React.RefAttributes<HTMLDivElement>
 > = React.forwardRef(
     ({ valueProps, contentProps, children, rootProps }, ref) => {
         return (
