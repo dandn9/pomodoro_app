@@ -26,8 +26,6 @@ use tauri::{
     SystemTrayMenu, SystemTrayMenuItem, WindowBuilder, WindowEvent, WindowUrl,
 };
 use tauri::{Manager, SystemTrayEvent};
-use timer::TimerState;
-use window_vibrancy::{apply_acrylic, apply_blur, apply_mica, Color};
 
 fn create_system_tray() -> SystemTray {
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
@@ -102,18 +100,6 @@ fn main() {
                 let g = tray_handle.get_item("toggle_timer");
                 g.set_title(payload.message.unwrap()).unwrap();
             });
-            #[cfg(target_os = "macos")]
-            apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None)
-                .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
-
-            #[cfg(target_os = "windows")]
-            {
-                apply_mica(&main_window).unwrap_or_else(|_| {
-                    println!("Failed to apply mica effect");
-                });
-            }
-
-            main_window.set_decorations(true).unwrap();
 
             Ok(())
         })
@@ -137,6 +123,7 @@ fn main() {
             set_pause_sound_id,
             set_autoplay,
             set_show_percentage,
+            set_sessions_for_long_pause,
             create_session,
             delete_session,
             update_session,

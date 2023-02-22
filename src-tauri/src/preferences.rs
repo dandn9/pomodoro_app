@@ -27,7 +27,6 @@ pub enum CircleStyles {
 pub struct PreferencesState {
     pub notification: Notification,
     pub autoplay: bool,
-    pub sessions_to_complete: u32,
     pub sessions_for_long_pause: u32,
     pub available_sounds: Vec<SoundType>,
     pub circle_style: CircleStyles,
@@ -72,7 +71,6 @@ impl Default for PreferencesState {
         Self {
             notification: Notification::default(),
             autoplay: false,
-            sessions_to_complete: 4,
             sessions_for_long_pause: 4,
             circle_style: CircleStyles::Solid,
             available_sounds,
