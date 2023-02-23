@@ -140,6 +140,8 @@ fn main() {
             reload_state,
             change_theme,
             change_circle_style,
+            change_message_on_pause,
+            change_message_on_timer,
             change_app_resolution
         ])
         .run(tauri::generate_context!())

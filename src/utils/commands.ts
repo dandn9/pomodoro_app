@@ -89,4 +89,13 @@ export class PreferencesCommands {
 	static async setShowPercentage(showPercentage: boolean) {
 		return await invoke<AppStateData>('set_show_percentage', { showPercentage });
 	}
+	static async setSessionsForLongPause(sessionsNumber: number) {
+		return await invoke<AppStateData>('set_sessions_for_long_pause', { sessionsNumber });
+	}
+	static async changeMessageOnPause(message: string) {
+		return await invoke<AppStateData>('change_message_on_pause', { message });
+	}
+	static async changeMessageOnTimer(message: string) {
+		return await invoke<AppStateData>('change_message_on_timer', { message });
+	}
 }

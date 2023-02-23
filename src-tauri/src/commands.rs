@@ -344,6 +344,27 @@ pub fn change_app_resolution(
     Ok(curr_state.get_state())
 }
 #[tauri::command]
+pub fn change_message_on_pause(
+    message: String,
+    state: State<'_, Mutex<AppState>>,
+) -> Result<AppState, String> {
+    let mut curr_state = state.lock().unwrap();
+    curr_state.preferences.notification.message_on_pause = message;
+    curr_state.preferences.save_state();
+    Ok(curr_state.get_state())
+}
+
+#[tauri::command]
+pub fn change_message_on_timer(
+    message: String,
+    state: State<'_, Mutex<AppState>>,
+) -> Result<AppState, String> {
+    let mut curr_state = state.lock().unwrap();
+    curr_state.preferences.notification.message_on_timer = message;
+    curr_state.preferences.save_state();
+    Ok(curr_state.get_state())
+}
+#[tauri::command]
 pub fn set_sessions_for_long_pause(
     sessions_number: u32,
     state: State<'_, Mutex<AppState>>,
@@ -353,6 +374,7 @@ pub fn set_sessions_for_long_pause(
     curr_state.preferences.save_state();
     Ok(curr_state.get_state())
 }
+
 // UTILITIES
 #[tauri::command]
 pub fn reload_state(state: State<Mutex<AppState>>, app_handle: tauri::AppHandle) -> AppState {

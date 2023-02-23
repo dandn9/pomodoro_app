@@ -32,7 +32,7 @@ pub struct PreferencesState {
     pub circle_style: CircleStyles,
     pub show_percentage: bool,
     pub resolution: (u32, u32),
-    pub time_to_add: f32,
+    pub time_to_add: u32,
     pub theme: ThemeOptions,
 }
 
@@ -76,7 +76,7 @@ impl Default for PreferencesState {
             available_sounds,
             show_percentage: false,
             resolution: (800, 600),
-            time_to_add: 5.0,
+            time_to_add: 300, // 5 minutes
             theme: ThemeOptions::Default,
         }
     }

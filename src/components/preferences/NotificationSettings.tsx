@@ -4,7 +4,11 @@ import PlayableSound from '../sounds/PlayableSound';
 import Modal from '../UI/Modal';
 import { AddSoundPayload } from '../../utils/schemas';
 import AddSound from './AddSound';
-const Audio: React.FC<{ preferences: Preferences }> = ({ preferences }) => {
+import Input from '../UI/Input';
+import { z } from 'zod';
+const Notification: React.FC<{ preferences: Preferences }> = ({
+    preferences,
+}) => {
     const [isAddingSound, setIsAddingSound] = useState(false);
 
     const onAudioSelect = (id: number) => {
@@ -23,7 +27,17 @@ const Audio: React.FC<{ preferences: Preferences }> = ({ preferences }) => {
     const onAudioRename = async (id: number, name: string) => {
         await preferences.onRenameAudio(id, name);
     };
+    const onChangeMessageOnPause = async (ev: React.ChangeEvent) => {
+        const target = ev.target as HTMLInputElement;
+        const message = z.string().min(1).parse(target.value);
+        preferences.onChangeMessageOnPause(message);
+    };
 
+    const onChangeMessageOnTimer = async (ev: React.ChangeEvent) => {
+        const target = ev.target as HTMLInputElement;
+        const message = z.string().min(1).parse(target.value);
+        preferences.onChangeMessageOnTimer(message);
+    };
     return (
         <div className="relative">
             <button
@@ -64,10 +78,25 @@ const Audio: React.FC<{ preferences: Preferences }> = ({ preferences }) => {
                     />
                 ))}
             </ul>
+            <h2 className="text-lg font-bold">Notification text</h2>
+            <div className="flex">
+                <h4>Timer</h4>
+                <Input
+                    defaultValue={preferences.notification.message_on_timer}
+                    onCommit={onChangeMessageOnTimer}
+                />
+            </div>
+            <div className="flex">
+                <h4>Pause</h4>
+                <Input
+                    defaultValue={preferences.notification.message_on_pause}
+                    onCommit={onChangeMessageOnPause}
+                />
+            </div>
             <Modal open={isAddingSound} setOpen={setIsAddingSound}>
                 <AddSound setOpen={setIsAddingSound} onAddSound={onAddAudio} />
             </Modal>
         </div>
     );
 };
-export default Audio;
+export default Notification;

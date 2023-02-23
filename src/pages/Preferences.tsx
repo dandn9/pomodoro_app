@@ -7,7 +7,7 @@ import * as Tabs from '@radix-ui/react-tabs';
 import useAppStore from '../hooks/useAppTempStore';
 import produce from 'immer';
 import TimerPreferences from '../components/preferences/TimerPreferences';
-import AudioPreferences from '../components/preferences/AudioPreferences';
+import NotificationPreferences from '../components/preferences/NotificationSettings';
 import SettingsPreferences from '../components/preferences/SettingsPreferences';
 
 const Preferences = () => {
@@ -19,14 +19,16 @@ const Preferences = () => {
             <Tabs.Root defaultValue="settings">
                 <Tabs.List className="fixed top-5 left-1/2 flex -translate-x-1/2 gap-2 border border-gray-200">
                     <Tabs.Trigger value="timer">Timer</Tabs.Trigger>
-                    <Tabs.Trigger value="audio">Audio</Tabs.Trigger>
+                    <Tabs.Trigger value="notification">
+                        Notification
+                    </Tabs.Trigger>
                     <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
                 </Tabs.List>
                 <Tabs.Content value="timer">
                     <TimerPreferences timer={timer} />
                 </Tabs.Content>
-                <Tabs.Content value="audio">
-                    <AudioPreferences preferences={preferences} />
+                <Tabs.Content value="notification">
+                    <NotificationPreferences preferences={preferences} />
                 </Tabs.Content>
                 <Tabs.Content value="settings">
                     <SettingsPreferences preferences={preferences} />

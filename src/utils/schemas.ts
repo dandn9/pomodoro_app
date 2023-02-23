@@ -53,10 +53,10 @@ export const stateDataSchema = z.object({
     preferences: z.object({
         notification: notificationSchema,
         autoplay: z.boolean(),
-        sessions_to_complete: z.number(),
         sessions_for_long_pause: z.number(),
         available_sounds: z.array(z.object({ name: z.string(), file_path: z.string(), id: z.number() })),
         show_percentage: z.boolean(),
+        time_to_add: z.number(),
         resolution: z.tuple([z.number(), z.number()]),
         theme: z.enum(["Default", "Dark", "White"]),
         circle_style: z.enum(["Solid", "Dotted", "Drawn"])
@@ -70,7 +70,7 @@ export const stateDataSchema = z.object({
 
     const notification = new Notification(data.preferences.notification.audio_on_pause_id, data.preferences.notification.audio_on_timer_id, data.preferences.notification.message_on_pause, data.preferences.notification.message_on_timer)
     const transformedState: StateType = {
-        preferences: new Preferences(notification, data.preferences.autoplay, data.preferences.sessions_to_complete, data.preferences.sessions_for_long_pause, data.preferences.available_sounds, data.preferences.show_percentage, data.preferences.resolution, data.preferences.theme as ThemeOptions, data.preferences.circle_style as CircleStyles),
+        preferences: new Preferences(notification, data.preferences.autoplay, data.preferences.sessions_for_long_pause, data.preferences.available_sounds, data.preferences.show_percentage, data.preferences.time_to_add, data.preferences.resolution, data.preferences.theme as ThemeOptions, data.preferences.circle_style as CircleStyles),
         sessions: new Sessions(sessions),
         timer: new Timer(data.timer.pause_duration, data.timer.long_pause_duration, data.timer.timer_duration)
     }

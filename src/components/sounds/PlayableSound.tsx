@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { appConfigDir, appDataDir, join } from '@tauri-apps/api/path';
 import { readDir, BaseDirectory, readBinaryFile } from '@tauri-apps/api/fs';
 import Popover from '../UI/Popover';
-import Input from '../UI/TextInput';
+import Input from '../UI/Input';
 import { z } from 'zod';
 
 const PlayableSound: React.FC<{
@@ -14,7 +14,6 @@ const PlayableSound: React.FC<{
     index?: number;
 }> = ({ sound, is_selected, onSelect, onDelete, onRename }) => {
     const [isPopover, setPopover] = useState(false);
-    const [isRenaming, setIsRenaming] = useState(false);
 
     const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -34,29 +33,26 @@ const PlayableSound: React.FC<{
         source.start();
     };
 
-    const onRenameToggle = (ev: React.MouseEvent<HTMLButtonElement>) => {
-        ev.stopPropagation();
-        ev.preventDefault();
-        if (!isRenaming) inputRef.current?.focus(); // if it was falsy
-        setIsRenaming(!isRenaming);
-    };
-    const onRenameHandle = (ev: React.KeyboardEvent<HTMLInputElement>) => {
-        if (ev.key == 'Enter' && inputRef.current && onRename) {
+    const onRenameHandle = () => {
+        // if (ev.key == 'Enter' && inputRef.current && onRename) {
+        if (onRename && inputRef.current) {
             const rename = z.string().min(1).parse(inputRef.current.value);
             onRename(sound.id, rename);
         }
+        // }
     };
 
     return (
         <li
             className={`${is_selected ? 'bg-gray-700' : ''}`}
             onClick={onSelect.bind(null, sound.id)}>
-            <input
+            <Input
+                onClick={(ev) => {
+                    ev.stopPropagation();
+                }}
                 defaultValue={sound.name}
-                className={`bg-gray-800 disabled:bg-transparent ${
-                    isRenaming ? 'pointer-events-auto' : 'pointer-events-none'
-                }`}
-                onKeyDown={onRenameHandle}
+                className={`bg-gray-800 disabled:bg-transparent`}
+                onCommit={onRenameHandle}
                 ref={inputRef}
             />
             <button className="bg-gray-500" onClick={onAudioPlay}>
@@ -88,12 +84,6 @@ const PlayableSound: React.FC<{
                     </button>
                 </Popover>
             )}
-
-            <button
-                className="ml-4 bg-gray-500 text-blue-200"
-                onClick={onRenameToggle}>
-                RENAME
-            </button>
         </li>
     );
 };

@@ -3,7 +3,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 
 import { TModalContent } from '../../types/ModalContent';
 import useStateStore from '../../hooks/useStateStore';
-import Input from '../UI/TextInput';
+import Input from '../UI/Input';
 import Switch from '../UI/Switch';
 import TaskItemEdit from '../tasks/TaskItemEdit';
 import Popover from '../UI/Popover';

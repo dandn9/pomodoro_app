@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Task } from '../../utils/classes';
-import TextInput from '../UI/TextInput';
+import TextInput from '../UI/Input';
 import Checkbox from '../UI/Checkbox';
 
 interface TaskProps {

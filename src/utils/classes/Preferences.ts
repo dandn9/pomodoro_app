@@ -26,10 +26,10 @@ export class Preferences extends PreferencesCommands {
     constructor(
         public notification: Notification,
         public autoplay: boolean,
-        public sessions_to_complete: number,
         public sessions_for_long_pause: number,
         public available_sounds: { name: string, file_path: string, id: number }[],
         public show_percentage: boolean,
+        public time_to_add: number,
         public resolution: [number, number], public theme: ThemeOptions, public circleStyle: CircleStyles) { super(); }
 
 
@@ -120,6 +120,31 @@ export class Preferences extends PreferencesCommands {
 
         try {
             const result = await Preferences.changeAppResolution(resolution)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
+    public async onSetSessionsForLongPause(sessionsNumber: number) {
+
+        try {
+            const result = await Preferences.setSessionsForLongPause(sessionsNumber)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
+    public async onChangeMessageOnPause(message: string) {
+        try {
+            const result = await Preferences.changeMessageOnPause(message)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
+    public async onChangeMessageOnTimer(message: string) {
+        try {
+            const result = await Preferences.changeMessageOnTimer(message)
             updateState(result)
         } catch (e) {
             console.log('error', e)

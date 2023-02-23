@@ -28,10 +28,9 @@ const initialDataState: AppStateData = {
         new Notification(0, 0, '', ''),
         false,
         0,
-        0,
         [],
-
         false,
+        0,
         [0, 0],
         ThemeOptions.Default,
         CircleStyles.Solid

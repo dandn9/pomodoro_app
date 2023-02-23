@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TModalContent } from '../../types/ModalContent';
-import TextInput from '../UI/TextInput';
+import TextInput from '../UI/Input';
 import { z } from 'zod';
 import produce from 'immer';
 
