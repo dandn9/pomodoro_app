@@ -134,6 +134,14 @@ export class Preferences extends PreferencesCommands {
             console.log('error', e)
         }
     }
+    public async onSetTimeToAdd(timeToAdd: number) {
+        try {
+            const result = await Preferences.setTimeToAdd(timeToAdd)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
     public async onChangeMessageOnPause(message: string) {
         try {
             const result = await Preferences.changeMessageOnPause(message)

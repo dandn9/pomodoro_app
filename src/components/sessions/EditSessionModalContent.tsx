@@ -26,7 +26,7 @@ export const formSchema = z
             .array(),
     })
     .superRefine((val, ctx) => {
-        let tasks_name = val.tasks.map((task) => task.name);
+        const tasks_name = val.tasks.map((task) => task.name);
 
         if (val.tasks.length !== new Set(tasks_name).size) {
             ctx.addIssue({
@@ -43,7 +43,7 @@ const EditSessionModalContent: TModalContent<{
     onEditClose: () => void;
 }> = ({ onEditClose, session, setOpen, open }) => {
     if (!session) {
-        return <div>Couldn't load the session</div>;
+        return <div>{`Couldn't load the session`}</div>;
     }
     const [errors, setErrors] = React.useState<
         z.ZodFormattedError<z.infer<typeof formSchema>>
@@ -120,8 +120,12 @@ const EditSessionModalContent: TModalContent<{
                 <Dialog.Close onClick={() => setOpen(false)}>X</Dialog.Close>
             </div>
             <Popover
-                open={isPopoverOpen}
-                openSetter={setIsPopoverOpen}
+                padding="sm"
+                rootProps={{ open: isPopoverOpen }}
+                contentProps={{
+                    onPointerDownOutside: () => setIsPopoverOpen(false),
+                }}
+                popoverSize="md"
                 content={
                     <PopOverContent
                         onDelete={onDeleteSession}
@@ -136,7 +140,9 @@ const EditSessionModalContent: TModalContent<{
             </Popover>
             <form onSubmit={onFormSubmit}>
                 {errors._errors.map((error) => (
-                    <p className="text-red-500">{error}</p>
+                    <p className="text-red-500" key={error}>
+                        {error}
+                    </p>
                 ))}
                 <div>
                     Name:{' '}
@@ -221,7 +227,7 @@ const PopOverContent: React.FC<{
     setPopover: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({ onDelete, setPopover }) => {
     return (
-        <div>
+        <div className="z-50 h-full">
             <div>Are you sure you want to delete this session?</div>
             <button onClick={onDelete}>YES</button>
             <button onClick={() => setPopover(false)}>NO</button>

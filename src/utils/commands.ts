@@ -98,4 +98,8 @@ export class PreferencesCommands {
 	static async changeMessageOnTimer(message: string) {
 		return await invoke<AppStateData>('change_message_on_timer', { message });
 	}
+
+	static async setTimeToAdd(time: number) {
+		return await invoke<AppStateData>('set_time_to_add', { time });
+	}
 }

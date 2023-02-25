@@ -6,31 +6,53 @@ import { classnames } from '../../utils/classnames';
 import Popover from './Popover';
 
 interface SliderProps extends RSliderProps {
-    withPopover?: boolean;
+    withIndicator?: boolean;
+    displayFn?: (val: number[] | undefined) => string;
+    indicatorProps?: React.HTMLProps<HTMLDivElement>;
 }
 
 const Slider = forwardRef<HTMLSpanElement, SliderProps>(
-    ({ className, withPopover, ...props }, ref) => {
-        const [showPopover, setShowPopover] = React.useState(true);
-        const [popoverValue, setPopoverValue] = React.useState(
-            props.defaultValue
-        );
-        const sliderRef = React.useRef<HTMLSpanElement>(null);
-        const thumbRef = React.useRef<HTMLSpanElement>(null);
+    (
+        { className, withIndicator, displayFn, indicatorProps, ...props },
+        ref
+    ) => {
+        const [indicator, setIndicator] = React.useState({
+            show: false,
+            value: props.defaultValue,
+        });
+        const timeoutRef = React.useRef<NodeJS.Timeout>();
 
-        console.log('is p', showPopover, popoverValue);
-        useImperativeHandle(ref, () => sliderRef.current as HTMLSpanElement);
+        const showIndicator = () => {
+            setIndicator((prev) => ({ show: true, value: prev.value }));
+        };
+        const hideIndicator = () => {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = setTimeout(() => {
+                setIndicator((prev) => ({ show: false, value: prev.value }));
+            }, 400);
+        };
         return (
             <RxSlider.Root
-                ref={sliderRef}
+                ref={ref}
                 className={classnames(
                     `relative flex h-5 w-52 touch-none select-none items-center`,
                     className
                 )}
+                onPointerOver={(e) => {
+                    if (withIndicator) {
+                        showIndicator();
+                    }
+                    props.onPointerOver?.(e);
+                }}
+                onPointerLeave={(e) => {
+                    if (withIndicator) {
+                        hideIndicator();
+                    }
+                    props.onPointerLeave?.(e);
+                }}
                 onValueChange={(val) => {
-                    if (withPopover) {
-                        setShowPopover(true);
-                        setPopoverValue(val);
+                    if (withIndicator) {
+                        setIndicator({ value: val, show: true });
                     }
                     props.onValueChange?.(val);
                 }}
@@ -38,18 +60,20 @@ const Slider = forwardRef<HTMLSpanElement, SliderProps>(
                 <RxSlider.Track className="relative h-1 grow rounded-full dark:bg-black">
                     <RxSlider.Range className="absolute h-full rounded-full dark:bg-white" />
                 </RxSlider.Track>
-                <Popover
-                    content={<div className="text-black">{popoverValue}</div>}
-                    rootProps={{ open: showPopover }}
-                    portalProps={{ container: thumbRef.current }}
-                    contentProps={{
-                        side: 'top',
-                        align: 'center',
-                    }}>
-                    <RxSlider.Thumb
-                        ref={thumbRef}
-                        className="relative block h-5 w-5 rounded-full shadow-2xl dark:bg-white "></RxSlider.Thumb>
-                </Popover>
+                <RxSlider.Thumb className="animate relative block h-5  w-5 animate-slideUpAndFade cursor-grabbing rounded-full shadow-2xl outline-none dark:bg-white ">
+                    {withIndicator && indicator.show && (
+                        <div
+                            {...indicatorProps}
+                            className={classnames(
+                                ' animate absolute bottom-full left-1/2 flex h-8 w-8 -translate-y-2 -translate-x-1/2 rotate-45 animate-slideUpAndFade  items-center justify-center rounded-l-full rounded-tr-full bg-white text-xs font-extrabold text-black'
+                            )}>
+                            <span className="-rotate-45">
+                                {displayFn?.(indicator.value) ||
+                                    indicator.value}
+                            </span>
+                        </div>
+                    )}
+                </RxSlider.Thumb>
             </RxSlider.Root>
         );
     }

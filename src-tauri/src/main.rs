@@ -124,6 +124,7 @@ fn main() {
             set_autoplay,
             set_show_percentage,
             set_sessions_for_long_pause,
+            set_time_to_add,
             create_session,
             delete_session,
             update_session,

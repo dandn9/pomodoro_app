@@ -60,9 +60,11 @@ const PlayableSound: React.FC<{
             </button>
             {onDelete && (
                 <Popover
-                    open={isPopover}
-                    side="top"
-                    openSetter={setPopover}
+                    rootProps={{ open: isPopover }}
+                    contentProps={{
+                        side: 'top',
+                        onPointerDownOutside: () => setPopover(false),
+                    }}
                     content={
                         <PopoverContent
                             onConfirm={() => {

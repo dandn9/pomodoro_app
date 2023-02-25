@@ -10,9 +10,7 @@ interface SelectProps {
     children?: React.ReactNode;
 }
 
-const Select: React.ForwardRefExoticComponent<
-    SelectProps & React.RefAttributes<HTMLDivElement>
-> = React.forwardRef<HTMLDivElement, SelectProps>(
+const Select = React.forwardRef<HTMLDivElement, SelectProps>(
     ({ valueProps, contentProps, children, rootProps }, ref) => {
         return (
             <RSelect.Root {...rootProps}>
@@ -44,7 +42,7 @@ const Select: React.ForwardRefExoticComponent<
 );
 export default Select;
 
-export const SelectItem: typeof RSelect.Item = React.forwardRef<
+export const SelectItem = React.forwardRef<
     HTMLDivElement,
     RSelect.SelectItemProps
 >(({ children, className, ...props }, forwardRef) => {

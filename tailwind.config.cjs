@@ -10,20 +10,52 @@ module.exports = {
                     '100%': { opacity: 1 },
                 },
                 slideDownAndFade: {
-                    from: { opacity: 0, transform: 'translateY(-2px)' },
-                    to: { opacity: 1, transform: 'translateY(0)' },
+                    from: {
+                        opacity: 0,
+                        transform:
+                            'translate(var(--tw-translate-x), calc(var(--tw-translate-y) - 4px)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))',
+                    },
+                    to: {
+                        opacity: 1,
+                        transform:
+                            'translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))',
+                    },
                 },
                 slideLeftAndFade: {
-                    from: { opacity: 0, transform: 'translateX(2px)' },
-                    to: { opacity: 1, transform: 'translateX(0)' },
+                    from: {
+                        opacity: 0,
+                        transform:
+                            'translate(calc(var(--tw-translate-x) - 4px), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))',
+                    },
+                    to: {
+                        opacity: 1,
+                        transform:
+                            'translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))',
+                    },
                 },
                 slideUpAndFade: {
-                    from: { opacity: 0, transform: 'translateY(2px)' },
-                    to: { opacity: 1, transform: 'translateY(0)' },
+                    from: {
+                        opacity: 0,
+                        transform:
+                            'translate(var(--tw-translate-x), calc(var(--tw-translate-y) + 4px)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))',
+                    },
+                    to: {
+                        opacity: 1,
+                        transform:
+                            'translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))',
+                    },
                 },
                 slideRightAndFade: {
-                    from: { opacity: 0, transform: 'translateX(2px)' },
-                    to: { opacity: 1, transform: 'translateX(0)' },
+                    from: {
+                        opacity: 0,
+                        transform:
+                            'translate(calc(var(--tw-translate-x) + 4px), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))',
+                    },
+                    to: {
+                        opacity: 1,
+                        transform:
+                            'translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))',
+                    },
                 },
             },
         },

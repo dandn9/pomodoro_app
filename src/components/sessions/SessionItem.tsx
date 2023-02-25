@@ -14,74 +14,91 @@ import * as Accordion from '@radix-ui/react-accordion';
 import { z } from 'zod';
 import useDragHandler from '../../hooks/useDragHandler';
 import { DragSessionTypeData } from './SessionList';
+import {
+    DndContext,
+    DragEndEvent,
+    PointerSensor,
+    closestCenter,
+    useDndContext,
+    useDndMonitor,
+    useDroppable,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    verticalListSortingStrategy,
+    arrayMove,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { ChangeTaskOrderArgs } from '../../utils/types';
 
 interface SessionItemProps {
     index: number;
     session: Session;
     onEdit: (session: Session) => void;
-    setDroppable: (
-        el: HTMLLIElement | HTMLDivElement | null,
-        key: any,
-        data: DragSessionTypeData
-    ) => void;
-    setDraggable: (
-        el: HTMLLIElement | HTMLDivElement | null,
-        key: any,
-        data: DragSessionTypeData
-    ) => void;
+    onUpdateOrder: (data: ChangeTaskOrderArgs) => void;
 }
 
 const SessionItem = React.forwardRef<HTMLDivElement, SessionItemProps>(
-    ({ index, session, onEdit, setDroppable, setDraggable }, ref) => {
+    ({ index, session, onEdit, onUpdateOrder }, ref) => {
+        const sessionRef = useRef<HTMLDivElement>(null);
         function onEditClick(ev: React.MouseEvent) {
             ev.stopPropagation();
             onEdit(session);
         }
+        const [items, setItems] = React.useState(session.tasks);
         function onTaskCheck(taskId: number, checked: boolean) {
             session.updateTaskDone(taskId, checked);
         }
+        const {
+            attributes,
+            listeners,
+            setNodeRef,
+            setDroppableNodeRef,
+            transform,
+            transition,
+            node,
+        } = useSortable({ id: session.id });
+        const style = {
+            transform: CSS.Transform.toString(transform),
+            transition,
+        };
 
+        console.log('new items', items);
         return (
-            <Accordion.Item value={`${session.id}`} ref={ref}>
-                <AccordionTrigger asChild>
+            <Accordion.Item
+                value={`${session.id}`}
+                ref={(r) => {
+                    setNodeRef(r);
+                    setDroppableNodeRef(r);
+                }}
+                style={style}>
+                <AccordionTrigger asChild {...attributes} {...listeners}>
                     <div className={`flex justify-between `}>
                         <h3>{session.name}</h3>
                         <div onClick={onEditClick}>EDIT</div>
                     </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                    {session.tasks.map((task, index) => {
-                        return (
-                            <TaskItemSession
-                                ref={(el) => {
-                                    setDroppable(
-                                        el,
-                                        `${session.id}-${task.id}`,
-                                        {
-                                            id: task.id,
-                                            sessionId: session.id,
-                                            order: index,
-                                            type: 'task',
-                                        }
-                                    );
-                                    setDraggable(
-                                        el,
-                                        `${session.id}-${task.id}`,
-                                        {
-                                            id: task.id,
-                                            sessionId: session.id,
-                                            order: index,
-                                            type: 'task',
-                                        }
-                                    );
-                                }}
-                                index={index}
-                                task={task}
-                                key={task.id}
-                                onTaskChecked={onTaskCheck}
-                            />
-                        );
-                    })}
+                    <SortableContext
+                        items={items}
+                        strategy={verticalListSortingStrategy}>
+                        {items.map((task, index) => {
+                            return (
+                                <TaskItemSession
+                                    ref={(el) => {
+                                        return el;
+                                    }}
+                                    index={index}
+                                    task={task}
+                                    key={task.id}
+                                    onTaskChecked={onTaskCheck}
+                                />
+                            );
+                        })}
+                    </SortableContext>
                 </AccordionContent>
             </Accordion.Item>
         );

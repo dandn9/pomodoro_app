@@ -9,6 +9,7 @@ import MinusIcon from '../../assets/icons/minus-icon';
 import PlusIcon from '../../assets/icons/plus-icon';
 import Popover from '../UI/Popover';
 import Slider from '../UI/Slider';
+import { secondsToTimeString } from '../../utils/displayTime';
 const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
     preferences,
 }) => {
@@ -34,11 +35,7 @@ const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
         preferences.onSetSessionsForLongPause(val);
     };
     const onSetTimeToAdd = (val: number) => {
-        if (val < 1 || val > 8) {
-            setSessionError(true);
-            return;
-        }
-        preferences.onSetSessionsForLongPause(val);
+        preferences.onSetTimeToAdd(val);
     };
     return (
         <div className="relative">
@@ -104,10 +101,6 @@ const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
                 <Tooltip tooltipText="Sessions to complete to take a long pause">
                     <h3 className="underline">Sessions For Long Pause</h3>
                 </Tooltip>
-                {/* <Popover
-                    content={<div>It can only be between 1 and 8</div>}
-                    open={sessionError}
-                    openSetter={setSessionError}> */}
                 <div className="flex items-center gap-2">
                     <button
                         onClick={onSetSessionsLongPause.bind(
@@ -134,8 +127,14 @@ const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
                 </Tooltip>
                 <div className=" flex items-center gap-2">
                     <Slider
-                        withPopover
+                        withIndicator
                         defaultValue={[preferences.time_to_add]}
+                        step={30}
+                        displayFn={(val) => {
+                            if (val) return secondsToTimeString(val[0]);
+                            return '';
+                        }}
+                        onValueCommit={(val) => onSetTimeToAdd(val[0])}
                         min={0}
                         max={600}
                     />

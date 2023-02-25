@@ -375,6 +375,13 @@ pub fn set_sessions_for_long_pause(
     Ok(curr_state.get_state())
 }
 
+#[tauri::command]
+pub fn set_time_to_add(time: u32, state: State<'_, Mutex<AppState>>) -> Result<AppState, String> {
+    let mut curr_state = state.lock().unwrap();
+    curr_state.preferences.time_to_add = time;
+    curr_state.preferences.save_state();
+    Ok(curr_state.get_state())
+}
 // UTILITIES
 #[tauri::command]
 pub fn reload_state(state: State<Mutex<AppState>>, app_handle: tauri::AppHandle) -> AppState {

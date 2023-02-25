@@ -20,6 +20,7 @@
     "plugins": ["react", "@typescript-eslint", "react-refresh"],
     "rules": {
         "react-refresh/only-export-components": "warn",
-        "react/display-name": "off"
+        "react/display-name": "off",
+        "react/prop-types": "off"
     }
 }
