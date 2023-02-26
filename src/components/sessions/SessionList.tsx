@@ -59,6 +59,7 @@ const SessionList: React.FC<{
         (session) => `sess-${session.id}`
     ) as UniqueIdentifier[];
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+    const [accordionValue, setAccordionValue] = useState<string[]>([]);
     const lastOverId = useRef<UniqueIdentifier | null>(null);
     const recentlyMovedToNewContainer = useRef(false);
     const updateTaskOrder = (data: ChangeTaskOrderArgs) => {
@@ -72,6 +73,7 @@ const SessionList: React.FC<{
         console.log('active and over', active, over);
     };
 
+    console.log('accordion', accordionValue);
     const collisionDetectionStrategy: CollisionDetection = useCallback(
         (args) => {
             if (activeId && activeId in sessionsId) {
@@ -127,10 +129,12 @@ const SessionList: React.FC<{
         },
         [sessions, activeId]
     );
-    console.log('initail', sessions);
 
     return (
-        <Accordion.Root type="multiple">
+        <Accordion.Root
+            type="multiple"
+            onValueChange={(val) => setAccordionValue(val)}
+            value={accordionValue}>
             <DndContext
                 onDragEnd={onDragEnd}
                 sensors={sensors}
@@ -140,7 +144,11 @@ const SessionList: React.FC<{
                 }}
                 onDragOver={({ active, over }) => {
                     const findContainer = (id: UniqueIdentifier) => {
-                        if (id in sessionsId) return id;
+                        console.log('over', over, 'searrching', id, sessionsId);
+                        if (sessionsId.includes(id)) {
+                            console.log('is in');
+                            return id;
+                        }
 
                         const session = sessions.find((session) => {
                             const hasTask = session.tasks.find(
@@ -162,6 +170,11 @@ const SessionList: React.FC<{
                     }
                     const overContainer = findContainer(overId);
                     const activeContainer = findContainer(active.id);
+                    console.log(
+                        'over container e active',
+                        overContainer,
+                        activeContainer
+                    );
 
                     if (!overContainer || !activeContainer) return;
 
@@ -169,7 +182,18 @@ const SessionList: React.FC<{
                         setSessions((items) => {
                             const activeItems =
                                 findSession(activeContainer)?.tasks;
-                            const overItems = findSession(overContainer)?.tasks;
+                            const overSession = findSession(overContainer);
+                            if (
+                                !accordionValue.includes(
+                                    overSession!.id.toString()
+                                )
+                            ) {
+                                setAccordionValue((val) => [
+                                    ...val,
+                                    overSession!.id.toString(),
+                                ]);
+                            }
+                            const overItems = overSession?.tasks;
                             const overIndex = overItems?.findIndex(
                                 (item) => `task-${item.id}` === overId
                             );
@@ -241,7 +265,6 @@ const SessionList: React.FC<{
                                     activeIndex!,
                                     1
                                 );
-                                console.log('moving');
                             });
                             console.log('new state!', newState);
                             return newState;
