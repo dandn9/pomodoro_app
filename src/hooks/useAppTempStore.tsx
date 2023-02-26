@@ -39,7 +39,7 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
     curr_pause: 0,
     curr_long_pause: 0,
     is_playing: false,
-    curr_page: 'preferences',
+    curr_page: 'sessions',
     curr_session_count: 0,
     curr_state: 'timer',
     curr_session: undefined,
@@ -125,7 +125,7 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
         if (get().toast_saved.curr_timer) {
             clearTimeout(get().toast_saved.curr_timer);
         }
-        let timer = setTimeout(() => {
+        const timer = setTimeout(() => {
             set((state) =>
                 produce(state, (draft) => {
                     draft.toast_saved.open = false;

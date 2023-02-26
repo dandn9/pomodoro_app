@@ -18,6 +18,7 @@ import {
     DndContext,
     DragEndEvent,
     PointerSensor,
+    UniqueIdentifier,
     closestCenter,
     useDndContext,
     useDndMonitor,
@@ -35,62 +36,81 @@ import { CSS } from '@dnd-kit/utilities';
 import { ChangeTaskOrderArgs } from '../../utils/types';
 
 interface SessionItemProps {
-    index: number;
+    index?: number;
     session: Session;
-    onEdit: (session: Session) => void;
-    onUpdateOrder: (data: ChangeTaskOrderArgs) => void;
+    id: UniqueIdentifier;
+    onEdit?: (session: Session) => void;
+    onUpdateOrder?: (data: ChangeTaskOrderArgs) => void;
 }
 
 const SessionItem = React.forwardRef<HTMLDivElement, SessionItemProps>(
-    ({ index, session, onEdit, onUpdateOrder }, ref) => {
+    ({ index, session, onEdit, onUpdateOrder, id }, ref) => {
         const sessionRef = useRef<HTMLDivElement>(null);
         function onEditClick(ev: React.MouseEvent) {
             ev.stopPropagation();
-            onEdit(session);
+            onEdit?.(session);
         }
-        const [items, setItems] = React.useState(session.tasks);
+
         function onTaskCheck(taskId: number, checked: boolean) {
             session.updateTaskDone(taskId, checked);
         }
         const {
+            active,
             attributes,
+            isDragging,
             listeners,
+            over,
             setNodeRef,
-            setDroppableNodeRef,
-            transform,
             transition,
-            node,
-        } = useSortable({ id: session.id });
+            transform,
+        } = useSortable({
+            id,
+            data: { type: 'session', children: session.tasks },
+        });
         const style = {
             transform: CSS.Transform.toString(transform),
             transition,
+            opacity: isDragging ? 0.5 : undefined,
         };
 
-        console.log('new items', items);
+        const taskIds = session.tasks.map(
+            (task) => `task-${task.id}` as UniqueIdentifier
+        );
+
+        // console.log('new items', items);
         return (
             <Accordion.Item
                 value={`${session.id}`}
-                ref={(r) => {
-                    setNodeRef(r);
-                    setDroppableNodeRef(r);
-                }}
-                style={style}>
-                <AccordionTrigger asChild {...attributes} {...listeners}>
-                    <div className={`flex justify-between `}>
-                        <h3>{session.name}</h3>
-                        <div onClick={onEditClick}>EDIT</div>
-                    </div>
-                </AccordionTrigger>
+                ref={setNodeRef}
+                style={style}
+                onClick={() => {
+                    console.log('click');
+                }}>
+                <div>
+                    <AccordionTrigger asChild>
+                        <div className={`flex justify-between `}>
+                            <h3>{session.id}</h3>
+                            <h3>{session.name}</h3>
+                            <div onClick={onEditClick}>EDIT</div>
+
+                            <div
+                                className="h-5 w-5 rounded-full bg-green-400"
+                                {...attributes}
+                                {...listeners}>
+                                H
+                            </div>
+                        </div>
+                    </AccordionTrigger>
+                </div>
                 <AccordionContent>
-                    <SortableContext
-                        items={items}
-                        strategy={verticalListSortingStrategy}>
-                        {items.map((task, index) => {
+                    <SortableContext items={taskIds}>
+                        {session.tasks.map((task, index) => {
                             return (
                                 <TaskItemSession
                                     ref={(el) => {
                                         return el;
                                     }}
+                                    id={taskIds[index]}
                                     index={index}
                                     task={task}
                                     key={task.id}

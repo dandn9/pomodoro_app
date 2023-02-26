@@ -1,38 +1,47 @@
 import React, { useState } from 'react';
 import { Task } from '../../utils/classes';
 import Checkbox from '../UI/Checkbox';
-import { useDraggable, useDroppable } from '@dnd-kit/core';
+import { UniqueIdentifier, useDraggable, useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { useSortable } from '@dnd-kit/sortable';
+import {
+    AnimateLayoutChanges,
+    defaultAnimateLayoutChanges,
+    useSortable,
+} from '@dnd-kit/sortable';
 import { classnames } from '../../utils/classnames';
 
 interface TaskItemSessionProps {
     task: Task;
-    index: number;
-    onTaskChecked: (taskId: number, checked: boolean) => void;
+    index?: number;
+    onTaskChecked?: (taskId: number, checked: boolean) => void;
+    id: UniqueIdentifier;
 }
+const animateLayoutChanges: AnimateLayoutChanges = (args) =>
+    defaultAnimateLayoutChanges({ ...args, wasDragging: true });
 
 const TaskItemSession = React.forwardRef<
     React.MutableRefObject<HTMLElement | null>,
     TaskItemSessionProps
->(({ index, task, onTaskChecked }, ref) => {
+>(({ index, task, onTaskChecked, id }, ref) => {
     const {
-        attributes,
-        listeners,
         setNodeRef,
+        setActivatorNodeRef,
+        listeners,
+        isDragging,
+        isSorting,
+        over,
+        overIndex,
         transform,
         transition,
-        node,
-        // setActivatorNodeRef,
-        setDraggableNodeRef,
-    } = useSortable({ id: task.id });
+    } = useSortable({
+        id,
+        animateLayoutChanges,
+    });
 
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
     };
-
-    React.useImperativeHandle(ref, () => node, []);
 
     return (
         <li
@@ -42,13 +51,8 @@ const TaskItemSession = React.forwardRef<
                     // ['text-red-500']: isOver,
                 }
             )}
-            ref={(ref) => {
-                setNodeRef(ref);
-                setDraggableNodeRef(ref);
-                // setActivatorNodeRef(ref);
-            }}
+            ref={setNodeRef}
             {...listeners}
-            {...attributes}
             style={style}>
             <div className="select-none">
                 {task.id} - {index} - {task.name}
@@ -57,7 +61,7 @@ const TaskItemSession = React.forwardRef<
                 <Checkbox
                     defaultChecked={task.is_done}
                     onCheckedChange={(checked) => {
-                        onTaskChecked(task.id, !!checked);
+                        onTaskChecked?.(task.id, !!checked);
                     }}
                 />
             </div>
