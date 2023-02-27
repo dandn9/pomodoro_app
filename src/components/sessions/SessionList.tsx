@@ -54,8 +54,8 @@ const SessionList: React.FC<{
     sessions: Sessions;
     onEdit: (session: Session) => void;
 }> = ({ sessions: stateSessions, onEdit }) => {
-    const [sessions, setSessions] = useState(stateSessions.sessions);
-    const sessionsId = sessions.map(
+    const [tempSessions, setTempSessions] = useState(stateSessions.sessions);
+    const sessionsId = tempSessions.map(
         (session) => `sess-${session.id}`
     ) as UniqueIdentifier[];
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -94,7 +94,7 @@ const SessionList: React.FC<{
             let overId = getFirstCollision(intersections, 'id');
             if (overId != null) {
                 if (overId in sessionsId) {
-                    const session = sessions.find(
+                    const session = tempSessions.find(
                         (session) => session.id === overId
                     );
                     const containerItemsIds = session?.tasks.map(
@@ -127,7 +127,7 @@ const SessionList: React.FC<{
 
             return lastOverId.current ? [{ id: lastOverId.current }] : [];
         },
-        [sessions, activeId]
+        [tempSessions, activeId]
     );
 
     return (
@@ -150,7 +150,7 @@ const SessionList: React.FC<{
                             return id;
                         }
 
-                        const session = sessions.find((session) => {
+                        const session = tempSessions.find((session) => {
                             const hasTask = session.tasks.find(
                                 (task) => `task-${task.id}` === id
                             );
@@ -160,7 +160,7 @@ const SessionList: React.FC<{
                         return `sess-${session?.id}` as UniqueIdentifier;
                     };
                     const findSession = (id: UniqueIdentifier) => {
-                        return sessions.find(
+                        return tempSessions.find(
                             (session) => `sess-${session.id}` === id
                         );
                     };
@@ -179,7 +179,7 @@ const SessionList: React.FC<{
                     if (!overContainer || !activeContainer) return;
 
                     if (activeContainer !== overContainer) {
-                        setSessions((items) => {
+                        setTempSessions((items) => {
                             const activeItems =
                                 findSession(activeContainer)?.tasks;
                             const overSession = findSession(overContainer);
@@ -276,7 +276,7 @@ const SessionList: React.FC<{
                 <SortableContext
                     items={sessionsId}
                     strategy={verticalListSortingStrategy}>
-                    {sessions.map((session, index) => (
+                    {tempSessions.map((session, index) => (
                         <SessionItem
                             onUpdateOrder={updateTaskOrder}
                             session={session}
@@ -304,12 +304,14 @@ const SessionList: React.FC<{
         </Accordion.Root>
     );
     function renderSession(id: UniqueIdentifier) {
-        const session = sessions.find((session) => `sess-${session.id}` === id);
+        const session = tempSessions.find(
+            (session) => `sess-${session.id}` === id
+        );
         if (!session) return undefined;
         return <SessionItem session={session} id={id}></SessionItem>;
     }
     function renderTask(id: UniqueIdentifier) {
-        const tasks = sessions.flatMap((session) => session.tasks);
+        const tasks = tempSessions.flatMap((session) => session.tasks);
         const task = tasks.find((task) => `task-${task.id}` === id);
         if (!task) return undefined;
 

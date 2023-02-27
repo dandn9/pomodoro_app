@@ -23,8 +23,12 @@ const LazyApp = React.lazy(() => {
                     useStateStore.getState().setStateData(res);
                 }
             });
+
             let timeoutRef: NodeJS.Timeout | null = null;
-            await appWindow.onResized((ev) => {
+            await appWindow.onResized(async (ev) => {
+                const isVis = await appWindow.isVisible();
+                console.log('is vis', isVis);
+                console.log('resized', ev);
                 if (timeoutRef) clearTimeout(timeoutRef);
 
                 timeoutRef = setTimeout(async () => {

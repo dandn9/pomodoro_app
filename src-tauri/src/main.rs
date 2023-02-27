@@ -112,6 +112,9 @@ fn main() {
                 window.hide().unwrap();
                 api.prevent_close();
             }
+            WindowEvent::Resized(size) => {
+                println!("resized {:?}", size);
+            }
             _ => {}
         })
         .invoke_handler(tauri::generate_handler![
