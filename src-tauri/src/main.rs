@@ -113,7 +113,9 @@ fn main() {
                 api.prevent_close();
             }
             WindowEvent::Resized(size) => {
-                println!("resized {:?}", size);
+                let c = event.window().is_visible();
+
+                println!("resized {:?}, {:?}", size, c);
             }
             _ => {}
         })

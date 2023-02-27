@@ -143,21 +143,37 @@ const SessionList: React.FC<{
                     setActiveId(active.id);
                 }}
                 onDragOver={({ active, over }) => {
-                    const findContainer = (id: UniqueIdentifier) => {
-                        console.log('over', over, 'searrching', id, sessionsId);
-                        if (sessionsId.includes(id)) {
-                            console.log('is in');
-                            return id;
-                        }
-
-                        const session = tempSessions.find((session) => {
-                            const hasTask = session.tasks.find(
-                                (task) => `task-${task.id}` === id
+                    const getTargetInfo = (id: UniqueIdentifier) => {
+                        let taskIndex = -1;
+                        let containerIndex = sessionsId.indexOf(id);
+                        if (containerIndex !== -1) {
+                            return {
+                                containerId: id,
+                                containerIndex,
+                                taskIndex,
+                            };
+                        } else {
+                            containerIndex = tempSessions.findIndex(
+                                (session) => {
+                                    const taskIdx = session.tasks.findIndex(
+                                        (task) => `task-${task.id}` === id
+                                    );
+                                    if (taskIdx !== -1) {
+                                        console.log('found task', id);
+                                        taskIndex = taskIdx;
+                                        return true;
+                                    } else {
+                                        return false;
+                                    }
+                                }
                             );
-                            return !!hasTask;
-                        });
-                        if (!session) return undefined;
-                        return `sess-${session?.id}` as UniqueIdentifier;
+                            if (containerIndex === -1) return undefined;
+                            return {
+                                containerIndex,
+                                taskIndex,
+                                containerId: `sess-${tempSessions[containerIndex].id}`,
+                            };
+                        }
                     };
                     const findSession = (id: UniqueIdentifier) => {
                         return tempSessions.find(
@@ -165,72 +181,66 @@ const SessionList: React.FC<{
                         );
                     };
                     const overId = over?.id;
-                    if (overId == null || active.id in sessionsId) {
+                    if (overId == null || sessionsId.includes(active.id)) {
+                        console.log('return early');
                         return;
                     }
-                    const overContainer = findContainer(overId);
-                    const activeContainer = findContainer(active.id);
+                    const overInfo = getTargetInfo(overId);
+                    const activeInfo = getTargetInfo(active.id);
                     console.log(
                         'over container e active',
-                        overContainer,
-                        activeContainer
+                        overInfo,
+                        activeInfo
                     );
 
-                    if (!overContainer || !activeContainer) return;
+                    if (!overInfo || !activeInfo) return;
 
-                    if (activeContainer !== overContainer) {
+                    if (activeInfo !== overInfo) {
                         setTempSessions((items) => {
-                            const activeItems =
-                                findSession(activeContainer)?.tasks;
-                            const overSession = findSession(overContainer);
+                            const activeSession = findSession(
+                                activeInfo.containerId
+                            );
+                            const overSession = findSession(
+                                overInfo.containerId
+                            );
+                            if (!overSession || !activeSession) return items;
                             if (
                                 !accordionValue.includes(
-                                    overSession!.id.toString()
+                                    overSession.id.toString()
                                 )
                             ) {
+                                // open the over accordion
                                 setAccordionValue((val) => [
                                     ...val,
-                                    overSession!.id.toString(),
+                                    overSession.id.toString(),
                                 ]);
                             }
-                            const overItems = overSession?.tasks;
-                            const overIndex = overItems?.findIndex(
-                                (item) => `task-${item.id}` === overId
+
+                            const activeItems = activeSession.tasks;
+                            const overItems = overSession.tasks;
+
+                            const overIndex = overInfo.taskIndex;
+                            const activeIndex = activeInfo.taskIndex;
+                            const activeContainerIndex =
+                                activeInfo.containerIndex;
+                            const overContainerIndex = overInfo.containerIndex;
+                            console.log(
+                                'infos',
+                                overContainerIndex,
+                                activeContainerIndex,
+                                overIndex,
+                                activeIndex,
+                                tempSessions
                             );
-                            const activeIndex = activeItems?.findIndex(
-                                (item) => `task-${item.id}` === active.id
-                            );
-                            const activeContainerIndex = items.findIndex(
-                                (sess) => `sess-${sess.id}` === activeContainer
-                            );
-                            const overContainerIndex = items.findIndex(
-                                (sess) => `sess-${sess.id}` === overContainer
-                            );
-                            if (
-                                activeIndex === -1 ||
-                                activeContainerIndex === -1 ||
-                                overContainerIndex === -1
-                            ) {
-                                console.log(
-                                    'exiting',
-                                    activeIndex,
-                                    activeContainerIndex,
-                                    overContainerIndex
-                                );
-                                return items;
-                            }
 
                             let newIndex: number;
-                            if (overId in sessionsId && overItems) {
+                            if (
+                                overInfo.containerIndex >= 0 &&
+                                overInfo.taskIndex === -1
+                            ) {
+                                // we're over a container
                                 newIndex = overItems.length + 1;
                             } else {
-                                console.log(
-                                    'over',
-                                    over,
-                                    active,
-                                    activeContainer,
-                                    overContainer
-                                );
                                 const isBelowOverItem =
                                     over &&
                                     active.rect.current.translated &&
@@ -240,36 +250,30 @@ const SessionList: React.FC<{
                                 const modifier = isBelowOverItem ? 1 : 0;
 
                                 newIndex =
-                                    overIndex! >= 0
-                                        ? overIndex! + modifier
-                                        : overItems!.length + 1;
+                                    overIndex >= 0
+                                        ? overIndex + modifier
+                                        : overItems.length + 1;
                             }
+                            console.log('new index!', newIndex);
 
                             recentlyMovedToNewContainer.current = true;
-                            console.log('prev state', items);
 
                             const newState = produce(items, (draft) => {
+                                const newElem = draft[
+                                    activeContainerIndex
+                                ].tasks.splice(activeIndex, 1);
                                 draft[overContainerIndex].tasks = [
                                     ...draft[overContainerIndex].tasks.slice(
                                         0,
                                         newIndex
                                     ),
-                                    draft[activeContainerIndex].tasks[
-                                        activeIndex!
-                                    ],
+                                    newElem[0],
                                     ...draft[overContainerIndex].tasks.slice(
                                         newIndex
                                     ),
                                 ];
-                                draft[activeContainerIndex].tasks.splice(
-                                    activeIndex!,
-                                    1
-                                );
                             });
-                            console.log('new state!', newState);
                             return newState;
-
-                            return items;
                         });
                     }
                 }}>

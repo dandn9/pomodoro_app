@@ -26,9 +26,7 @@ const LazyApp = React.lazy(() => {
 
             let timeoutRef: NodeJS.Timeout | null = null;
             await appWindow.onResized(async (ev) => {
-                const isVis = await appWindow.isVisible();
-                console.log('is vis', isVis);
-                console.log('resized', ev);
+                if (ev.payload.width === 0 || ev.payload.height === 0) return; // means whe minimized the app
                 if (timeoutRef) clearTimeout(timeoutRef);
 
                 timeoutRef = setTimeout(async () => {
