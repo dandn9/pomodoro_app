@@ -32,6 +32,14 @@ export class Sessions extends SessionsCommands {
         }
 
     }
+    public async saveSessions(sessions: Session[]) {
+        try {
+            const result = await Sessions.saveSessions(sessions)
+            updateState(result)
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
     public static async onCreateSession(name: string, color: string, tasks: string[]) {
         try {
             const result = await Sessions.createSession(name, color, tasks)

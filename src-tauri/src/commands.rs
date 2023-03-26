@@ -78,6 +78,17 @@ pub fn update_session(
     curr_state.sessions.update_session(session);
     Ok(curr_state.get_state())
 }
+#[tauri::command]
+pub fn save_sessions(
+    sessions: Vec<Session>,
+    state: State<'_, Mutex<AppState>>,
+) -> Result<AppState, String> {
+    let mut curr_state = state.lock().unwrap();
+    println!("updating session");
+    curr_state.sessions.sessions = sessions;
+    curr_state.sessions.save_state();
+    Ok(curr_state.get_state())
+}
 
 #[tauri::command]
 pub fn on_completed_session(id: u32, time: u32, state: State<'_, Mutex<AppState>>) -> AppState {

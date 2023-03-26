@@ -1,7 +1,7 @@
 import React from 'react';
 import { AppStateData, useStateStore } from '../hooks/useStateStore';
 import { invoke } from '@tauri-apps/api';
-import { Session } from './classes/Sessions';
+import { Session, Sessions } from './classes/Sessions';
 import { ChangeSessionOrderArgs, ChangeTaskOrderArgs } from './types';
 import { CircleStyles, ThemeOptions } from './classes';
 
@@ -36,6 +36,10 @@ export class SessionsCommands {
 	static async createSession(name: string, color: string, tasks: string[]) {
 		return await invoke<AppStateData>('create_session', { name, color, tasks });
 	}
+	static async saveSessions(sessions: Session[]) {
+		return await invoke<AppStateData>('save_sessions', { sessions });
+	}
+
 }
 export class SessionCommands {
 	static async onSessionDone(id: number, time: number) {

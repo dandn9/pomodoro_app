@@ -148,7 +148,8 @@ fn main() {
             change_circle_style,
             change_message_on_pause,
             change_message_on_timer,
-            change_app_resolution
+            change_app_resolution,
+            save_sessions
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application")

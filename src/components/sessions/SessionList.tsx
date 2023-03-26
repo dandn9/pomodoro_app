@@ -22,13 +22,11 @@ import {
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
-import {
-    SortableContext,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { createPortal } from 'react-dom';
 import TaskItemSession from '../tasks/TaskItemSession';
 import produce from 'immer';
+import { isSessionFromId } from '../../utils/typeNarrowers';
 
 export type DragSessionTypeData = {
     id: number;
@@ -55,9 +53,7 @@ const SessionList: React.FC<{
     onEdit: (session: Session) => void;
 }> = ({ sessions: stateSessions, onEdit }) => {
     const [tempSessions, setTempSessions] = useState(stateSessions.sessions);
-    const sessionsId = tempSessions.map(
-        (session) => `sess-${session.id}`
-    ) as UniqueIdentifier[];
+    const sessionsId = tempSessions.map((session) => `sess-${session.id}`) as UniqueIdentifier[];
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
     const [accordionValue, setAccordionValue] = useState<string[]>([]);
     const lastOverId = useRef<UniqueIdentifier | null>(null);
@@ -67,48 +63,29 @@ const SessionList: React.FC<{
     };
 
     const sensors = useSensors(useSensor(PointerSensor));
-    const onDragEnd = (e: DragEndEvent) => {
-        const { active, over } = e;
-        if (!active || !over) return;
-        console.log('active and over', active, over);
-    };
-
-    console.log('accordion', accordionValue);
     const collisionDetectionStrategy: CollisionDetection = useCallback(
         (args) => {
             if (activeId && activeId in sessionsId) {
                 return closestCenter({
                     ...args,
-                    droppableContainers: args.droppableContainers.filter(
-                        (container) => container.id in sessionsId
-                    ),
+                    droppableContainers: args.droppableContainers.filter((container) => container.id in sessionsId),
                 });
             }
 
             const pointerIntersection = pointerWithin(args);
-            const intersections =
-                pointerIntersection.length > 0
-                    ? pointerIntersection
-                    : rectIntersection(args);
+            const intersections = pointerIntersection.length > 0 ? pointerIntersection : rectIntersection(args);
 
             let overId = getFirstCollision(intersections, 'id');
             if (overId != null) {
                 if (overId in sessionsId) {
-                    const session = tempSessions.find(
-                        (session) => session.id === overId
-                    );
-                    const containerItemsIds = session?.tasks.map(
-                        (item) => item.id as UniqueIdentifier
-                    );
+                    const session = tempSessions.find((session) => session.id === overId);
+                    const containerItemsIds = session?.tasks.map((item) => item.id as UniqueIdentifier);
                     if (containerItemsIds && containerItemsIds.length > 0) {
                         overId = closestCenter({
                             ...args,
-                            droppableContainers:
-                                args.droppableContainers.filter(
-                                    (container) =>
-                                        container.id !== overId &&
-                                        containerItemsIds.includes(container.id)
-                                ),
+                            droppableContainers: args.droppableContainers.filter(
+                                (container) => container.id !== overId && containerItemsIds.includes(container.id)
+                            ),
                         })[0]?.id;
                     }
                 }
@@ -131,12 +108,48 @@ const SessionList: React.FC<{
     );
 
     return (
-        <Accordion.Root
-            type="multiple"
-            onValueChange={(val) => setAccordionValue(val)}
-            value={accordionValue}>
+        <Accordion.Root type="multiple" onValueChange={(val) => setAccordionValue(val)} value={accordionValue}>
             <DndContext
-                onDragEnd={onDragEnd}
+                onDragEnd={({ active, over, activatorEvent }) => {
+                    const isActiveSession = isSessionFromId(active.id as string);
+                    const isOverSession = isSessionFromId(over?.id as string);
+                    console.log('ok', activatorEvent, isOverSession, isActiveSession);
+
+                    console.log(active.id, over?.id);
+                    if (isActiveSession && isOverSession && active.id === over?.id) return; // we don't need to change anything if a session is dropped over itself
+
+                    if (isActiveSession && isOverSession) {
+                        // handle session to session reorder
+
+                        const translatedTop = active.rect.current.translated?.top;
+                        const overTop = over && over?.rect?.top - over?.rect?.height / 2; // subtract half since the collision strategy swaps them early
+                        const activeSession = tempSessions.findIndex((session) => `sess-${session.id}` === active.id);
+                        const overSession = tempSessions.findIndex((session) => `sess-${session.id}` === over?.id);
+
+                        let modifier = 0;
+                        const directionMod = activeSession < overSession ? 1 : 0; // 1 = down ; 0 = up
+                        console.log(translatedTop, overTop);
+                        if (translatedTop && overTop && translatedTop > overTop && directionMod === 1) {
+                            modifier = 1;
+                        }
+
+                        setTempSessions((prev) => {
+                            const x = [...prev];
+                            const activeSessionElem = x.splice(activeSession, 1)[0];
+                            const newState = [
+                                ...x.slice(0, overSession - directionMod + modifier),
+                                activeSessionElem,
+                                ...x.slice(overSession - directionMod + modifier, x.length + 1),
+                            ];
+
+                            stateSessions.saveSessions(newState);
+                            return newState; // reorders the sessions
+                        });
+                    } else {
+                        // TODO
+                        stateSessions.saveSessions(tempSessions);
+                    }
+                }}
                 sensors={sensors}
                 collisionDetection={collisionDetectionStrategy}
                 onDragStart={({ active }) => {
@@ -153,20 +166,16 @@ const SessionList: React.FC<{
                                 taskIndex,
                             };
                         } else {
-                            containerIndex = tempSessions.findIndex(
-                                (session) => {
-                                    const taskIdx = session.tasks.findIndex(
-                                        (task) => `task-${task.id}` === id
-                                    );
-                                    if (taskIdx !== -1) {
-                                        console.log('found task', id);
-                                        taskIndex = taskIdx;
-                                        return true;
-                                    } else {
-                                        return false;
-                                    }
+                            containerIndex = tempSessions.findIndex((session) => {
+                                const taskIdx = session.tasks.findIndex((task) => `task-${task.id}` === id);
+                                if (taskIdx !== -1) {
+                                    console.log('found task', id);
+                                    taskIndex = taskIdx;
+                                    return true;
+                                } else {
+                                    return false;
                                 }
-                            );
+                            });
                             if (containerIndex === -1) return undefined;
                             return {
                                 containerIndex,
@@ -176,9 +185,7 @@ const SessionList: React.FC<{
                         }
                     };
                     const findSession = (id: UniqueIdentifier) => {
-                        return tempSessions.find(
-                            (session) => `sess-${session.id}` === id
-                        );
+                        return tempSessions.find((session) => `sess-${session.id}` === id);
                     };
                     const overId = over?.id;
                     if (overId == null || sessionsId.includes(active.id)) {
@@ -187,33 +194,17 @@ const SessionList: React.FC<{
                     }
                     const overInfo = getTargetInfo(overId);
                     const activeInfo = getTargetInfo(active.id);
-                    console.log(
-                        'over container e active',
-                        overInfo,
-                        activeInfo
-                    );
 
                     if (!overInfo || !activeInfo) return;
 
                     if (activeInfo !== overInfo) {
                         setTempSessions((items) => {
-                            const activeSession = findSession(
-                                activeInfo.containerId
-                            );
-                            const overSession = findSession(
-                                overInfo.containerId
-                            );
+                            const activeSession = findSession(activeInfo.containerId);
+                            const overSession = findSession(overInfo.containerId);
                             if (!overSession || !activeSession) return items;
-                            if (
-                                !accordionValue.includes(
-                                    overSession.id.toString()
-                                )
-                            ) {
+                            if (!accordionValue.includes(overSession.id.toString())) {
                                 // open the over accordion
-                                setAccordionValue((val) => [
-                                    ...val,
-                                    overSession.id.toString(),
-                                ]);
+                                setAccordionValue((val) => [...val, overSession.id.toString()]);
                             }
 
                             const activeItems = activeSession.tasks;
@@ -221,8 +212,7 @@ const SessionList: React.FC<{
 
                             const overIndex = overInfo.taskIndex;
                             const activeIndex = activeInfo.taskIndex;
-                            const activeContainerIndex =
-                                activeInfo.containerIndex;
+                            const activeContainerIndex = activeInfo.containerIndex;
                             const overContainerIndex = overInfo.containerIndex;
                             console.log(
                                 'infos',
@@ -234,52 +224,35 @@ const SessionList: React.FC<{
                             );
 
                             let newIndex: number;
-                            if (
-                                overInfo.containerIndex >= 0 &&
-                                overInfo.taskIndex === -1
-                            ) {
+                            if (overInfo.containerIndex >= 0 && overInfo.taskIndex === -1) {
                                 // we're over a container
                                 newIndex = overItems.length + 1;
                             } else {
                                 const isBelowOverItem =
                                     over &&
                                     active.rect.current.translated &&
-                                    active.rect.current.translated.top >
-                                        over.rect.top + over.rect.height;
+                                    active.rect.current.translated.top > over.rect.top + over.rect.height;
 
                                 const modifier = isBelowOverItem ? 1 : 0;
 
-                                newIndex =
-                                    overIndex >= 0
-                                        ? overIndex + modifier
-                                        : overItems.length + 1;
+                                newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
                             }
-                            console.log('new index!', newIndex);
 
                             recentlyMovedToNewContainer.current = true;
 
                             const newState = produce(items, (draft) => {
-                                const newElem = draft[
-                                    activeContainerIndex
-                                ].tasks.splice(activeIndex, 1);
+                                const replaceElem = draft[activeContainerIndex].tasks.splice(activeIndex, 1);
                                 draft[overContainerIndex].tasks = [
-                                    ...draft[overContainerIndex].tasks.slice(
-                                        0,
-                                        newIndex
-                                    ),
-                                    newElem[0],
-                                    ...draft[overContainerIndex].tasks.slice(
-                                        newIndex
-                                    ),
+                                    ...draft[overContainerIndex].tasks.slice(0, newIndex),
+                                    replaceElem[0],
+                                    ...draft[overContainerIndex].tasks.slice(newIndex),
                                 ];
                             });
                             return newState;
                         });
                     }
                 }}>
-                <SortableContext
-                    items={sessionsId}
-                    strategy={verticalListSortingStrategy}>
+                <SortableContext items={sessionsId} strategy={verticalListSortingStrategy}>
                     {tempSessions.map((session, index) => (
                         <SessionItem
                             onUpdateOrder={updateTaskOrder}
@@ -308,9 +281,7 @@ const SessionList: React.FC<{
         </Accordion.Root>
     );
     function renderSession(id: UniqueIdentifier) {
-        const session = tempSessions.find(
-            (session) => `sess-${session.id}` === id
-        );
+        const session = tempSessions.find((session) => `sess-${session.id}` === id);
         if (!session) return undefined;
         return <SessionItem session={session} id={id}></SessionItem>;
     }
