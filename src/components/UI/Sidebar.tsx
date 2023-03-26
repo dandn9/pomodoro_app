@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useAppStore from '../../hooks/useAppTempStore';
+import useAppStore from '../../hooks/useTempStore';
 
 const Sidebar: React.FC<{ isOpen: boolean }> = (props) => {
     function onMenuClick(page: 'home' | 'sessions' | 'preferences') {

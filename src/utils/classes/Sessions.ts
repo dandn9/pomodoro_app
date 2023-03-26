@@ -1,5 +1,5 @@
 import { editFormType } from "../../components/sessions/EditSessionModalContent"
-import useAppStore from "../../hooks/useAppTempStore"
+import useAppStore from "../../hooks/useTempStore"
 import { SessionCommands, SessionsCommands } from "../commands"
 import { ChangeSessionOrderArgs, ChangeTaskOrderArgs } from "../types"
 import { updateState } from "../utils"
@@ -9,7 +9,7 @@ import { updateState } from "../utils"
 
 export class Sessions extends SessionsCommands {
     public sessions: Session[]
-    constructor(sessions: Session[]) {
+    constructor(sessions: Session[] = []) {
         super()
         this.sessions = sessions
 

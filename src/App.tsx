@@ -6,8 +6,8 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import useAppStore from './hooks/useAppTempStore';
-import useStateStore, { AppStateData } from './hooks/useStateStore';
+import useAppStore from './hooks/useTempStore';
+import useStateStore, { AppStateData } from './hooks/usePermanentStore';
 import Sidebar from './components/UI/Sidebar';
 import Toast from './components/UI/Toast';
 import { appWindow } from '@tauri-apps/api/window';

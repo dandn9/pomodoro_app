@@ -1,7 +1,7 @@
 import React, { startTransition } from 'react';
 import SessionItem from '../components/sessions/SessionItem';
-import useAppStore from '../hooks/useAppTempStore';
-import useStateStore from '../hooks/useStateStore';
+import useAppStore from '../hooks/useTempStore';
+import useStateStore from '../store/PermanentStore';
 import Modal from '../components/UI/Modal';
 import SessionModalContent from '../components/sessions/NewSessionModalContent';
 import EditSessionModalContent from '../components/sessions/EditSessionModalContent';

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 
 import { TModalContent } from '../../types/ModalContent';
-import useStateStore from '../../hooks/useStateStore';
+import useStateStore from '../../store/usePermanentStore';
 import Input from '../UI/Input';
 import Switch from '../UI/Switch';
 import TaskItemEdit from '../tasks/TaskItemEdit';

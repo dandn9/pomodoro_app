@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Slider from '../components/UI/Slider';
 import { TimerCommands } from '../utils/commands';
-import useStateStore from '../hooks/useStateStore';
-import type { AppStateData } from '../hooks/useStateStore';
+import useStateStore from '../hooks/usePermanentStore';
+import type { AppStateData } from '../hooks/usePermanentStore';
 import * as Tabs from '@radix-ui/react-tabs';
-import useAppStore from '../hooks/useAppTempStore';
+import useAppStore from '../hooks/useTempStore';
 import produce from 'immer';
 import TimerPreferences from '../components/preferences/TimerPreferences';
 import NotificationPreferences from '../components/preferences/NotificationSettings';

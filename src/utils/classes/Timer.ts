@@ -2,9 +2,9 @@ import { TimerCommands } from "../commands";
 import { updateState } from "../utils";
 export class Timer extends TimerCommands {
     constructor(
-        public pause_duration: number,
-        public long_pause_duration: number,
-        public timer_duration: number) {
+        public pause_duration: number = 0,
+        public long_pause_duration: number = 0,
+        public timer_duration: number = 0) {
         super();
     }
     public async onTimerDuration(timerDuration: number) {

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { z } from 'zod';
 import { SessionCommands, SessionsCommands } from '../../utils/commands';
-import useStateStore from '../../hooks/useStateStore';
+import useStateStore from '../../hooks/usePermanentStore';
 import { TModalContentProps, TModalContent } from '../../types/ModalContent';
 import { Sessions } from '../../utils/classes';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import Timer from '../components/UI/Timer';
-import useAppStore from '../hooks/useAppTempStore';
+import useAppStore from '../hooks/useTempStore';
 import { secondsToTimeString } from '../utils/displayTime';
 
 const Home = () => {

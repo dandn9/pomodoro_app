@@ -5,8 +5,8 @@ import './index.css';
 import { invoke } from '@tauri-apps/api';
 import { appWindow } from '@tauri-apps/api/window';
 
-import useStateStore, { AppStateData } from './hooks/useStateStore';
-import useAppStore from './hooks/useAppTempStore';
+import useStateStore, { AppStateData } from './hooks/usePermanentStore';
+import useAppStore from './hooks/useTempStore';
 // import Test from './Test';
 import LazyApp from './LazyApp';
 // import Test from './Test';

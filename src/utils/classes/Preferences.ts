@@ -6,10 +6,10 @@ import { appDataDir, join } from "@tauri-apps/api/path";
 
 export class Notification {
     constructor(
-        public audio_on_pause_id: number,
-        public audio_on_timer_id: number,
-        public message_on_pause: string,
-        public message_on_timer: string) { }
+        public audio_on_pause_id: number = 0,
+        public audio_on_timer_id: number = 0,
+        public message_on_pause: string = "",
+        public message_on_timer: string = "") { }
 }
 
 export enum ThemeOptions {

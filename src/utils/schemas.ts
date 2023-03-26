@@ -62,6 +62,7 @@ export const stateDataSchema = z.object({
         circle_style: z.enum(["Solid", "Dotted", "Drawn"])
     }),
 }).transform<StateType>((data) => {
+    // VALIDATION FOR SAVED STATE
     const sessions = data.sessions.sessions.map((session: SessionType) => {
         const tasks = session.tasks.map((task) => new Task(task.name, task.id, task.is_done, false));
         return new Session(session.name, session.id, session.color, session.is_selected, session.time_spent, session.total_sessions, new Date(session.created_at), tasks);

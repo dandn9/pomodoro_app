@@ -104,14 +104,6 @@ fn main() {
             Ok(())
         })
         .on_window_event(|event| match event.event() {
-            WindowEvent::CloseRequested { api, .. } => {
-                println!("CLOSE REQUESTED");
-
-                let window = event.window();
-                window.set_decorations(false).unwrap();
-                window.hide().unwrap();
-                api.prevent_close();
-            }
             WindowEvent::Resized(size) => {
                 let c = event.window().is_visible();
 

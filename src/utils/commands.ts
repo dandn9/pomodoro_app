@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppStateData, useStateStore } from '../hooks/useStateStore';
+import { AppStateData, useStateStore } from '../hooks/usePermanentStore';
 import { invoke } from '@tauri-apps/api';
 import { Session, Sessions } from './classes/Sessions';
 import { ChangeSessionOrderArgs, ChangeTaskOrderArgs } from './types';

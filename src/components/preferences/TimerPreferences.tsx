@@ -1,6 +1,6 @@
-import useStateStore, { AppStateData } from '../../hooks/useStateStore';
+import useStateStore, { AppStateData } from '../../store/PermanentStore';
 import produce from 'immer';
-import useAppStore from '../../hooks/useAppTempStore';
+import useAppStore from '../../hooks/useTempStore';
 import Slider from '../UI/Slider';
 import { TimerCommands } from '../../utils/commands';
 import { Timer } from '../../utils/classes';
