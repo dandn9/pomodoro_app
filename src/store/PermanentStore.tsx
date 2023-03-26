@@ -14,7 +14,7 @@ import {
     Timer,
 } from '../utils/classes';
 import { Actions, DispatchArgs, reducer } from '../reducers/PermanentStore';
-import { Nullable } from '../utils/types';
+import { Initialized, Nullable } from '../utils/types';
 
 export type PersistentData = Nullable<z.infer<typeof stateDataSchema>>;
 
@@ -35,8 +35,10 @@ export const usePermanentStore = create<PermanentState>()((set, get) => ({
     data: initialDataState,
     _isInitiated: false,
     _set: (state) => set({ _isInitiated: true, data: state }),
-    dispatch: (args) => set((state) => ({ data: reducer(state.data, args) }))
-}));
+    dispatch: (args) => set(produce<PermanentState>((state => {
+        state.data = reducer(state.data, args)
+    })))
+}))
 export default usePermanentStore
 
 export const permanentStore = usePermanentStore.getState

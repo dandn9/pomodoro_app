@@ -3,11 +3,14 @@ import { PreferencesCommands } from "../commands";
 import { AddSoundPayload } from "../schemas";
 import { updateState } from "../utils";
 import { appDataDir, join } from "@tauri-apps/api/path";
+import { immerable } from "immer";
 
 export class Notification {
+    [immerable] = true
+
     constructor(
-        public audio_on_pause_id: number = 0,
-        public audio_on_timer_id: number = 0,
+        public pauseCompletionAudioId: number = 0,
+        public workCompletionAudioId: number = 0,
         public message_on_pause: string = "",
         public message_on_timer: string = "") { }
 }
@@ -23,6 +26,8 @@ export enum CircleStyles {
     Drawn = "Drawn"
 }
 export class Preferences extends PreferencesCommands {
+    [immerable] = true
+
     constructor(
         public notification: Notification,
         public autoplay: boolean,

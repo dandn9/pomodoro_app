@@ -12,6 +12,7 @@ import Sidebar from './components/UI/Sidebar';
 import Toast from './components/UI/Toast';
 import { appWindow } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api';
+import Test from './pages/Test';
 const Home = React.lazy(() => import('./pages/Home'));
 const Sessions = React.lazy(() => import('./pages/Sessions'));
 const Preferences = React.lazy(() => import('./pages/Preferences'));
@@ -29,6 +30,7 @@ const App = () => {
         if (currPage === 'home') return Home;
         if (currPage === 'sessions') return Sessions;
         if (currPage === 'preferences') return Preferences;
+        if (currPage === 'test') return Test;
         return NotFound;
     }, [currPage]);
 

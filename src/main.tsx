@@ -1,16 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-// import App from './App';
 import './index.css';
-import { invoke } from '@tauri-apps/api';
-import { appWindow } from '@tauri-apps/api/window';
-
-import useStateStore, { AppStateData } from './hooks/usePermanentStore';
 import useAppStore from './hooks/useTempStore';
-// import Test from './Test';
 import LazyApp from './LazyApp';
-// import Test from './Test';
-// const App = React.lazy(() => import('./App'));
 
 /* TODO BLOCK
 /**

@@ -39,7 +39,7 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
     curr_pause: 0,
     curr_long_pause: 0,
     is_playing: false,
-    curr_page: 'sessions',
+    curr_page: 'test',
     curr_session_count: 0,
     curr_state: 'timer',
     curr_session: undefined,
