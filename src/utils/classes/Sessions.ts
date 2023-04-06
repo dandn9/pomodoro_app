@@ -1,16 +1,15 @@
 import { editFormType } from "../../components/sessions/EditSessionModalContent"
 import useAppStore from "../../hooks/useTempStore"
-import { SessionCommands, SessionsCommands } from "../commands"
 import { ChangeSessionOrderArgs, ChangeTaskOrderArgs } from "../types"
 import { updateState } from "../utils"
 
 
 
 
-export class Sessions extends SessionsCommands {
+export class Sessions {
     public sessions: Session[]
+
     constructor(sessions: Session[] = []) {
-        super()
         this.sessions = sessions
 
     }
@@ -51,17 +50,53 @@ export class Sessions extends SessionsCommands {
 
 }
 
-export class Session extends SessionCommands {
+export class Session {
     constructor(
-        public name: string,
-        public readonly id: number,
-        public color: string,
-        public is_selected: boolean,
-        public readonly time_spent: number,
-        public readonly total_sessions: number,
-        public readonly created_at: Date,
-        public tasks: Task[]) {
-        super();
+        private _name: string,
+        private readonly _id: number,
+        private _color: string,
+        private _is_selected: boolean,
+        private readonly _time_spent: number,
+        private readonly _total_sessions: number,
+        private readonly _created_at: Date,
+        private _tasks: Task[]) {
+    }
+
+    public get tasks(): Task[] {
+        return this._tasks
+    }
+    public set tasks(value: Task[]) {
+        this._tasks = value
+    }
+    public get created_at(): Date {
+        return this._created_at
+    }
+    public get total_sessions(): number {
+        return this._total_sessions
+    }
+    public get time_spent(): number {
+        return this._time_spent
+    }
+    public get is_selected(): boolean {
+        return this._is_selected
+    }
+    public set is_selected(value: boolean) {
+        this._is_selected = value
+    }
+    public get color(): string {
+        return this._color
+    }
+    public set color(value: string) {
+        this._color = value
+    }
+    public get id(): number {
+        return this._id
+    }
+    public get name(): string {
+        return this._name
+    }
+    public set name(value: string) {
+        this._name = value
     }
     public async selected() {
         const newState = await Session.onSelectedSession(this.id)

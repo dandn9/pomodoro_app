@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Slider from '../components/UI/Slider';
-import { TimerCommands } from '../utils/commands';
-import useStateStore from '../hooks/usePermanentStore';
+import { permanentStore, usePermanentStore } from '../store/PermanentStore';
 import type { AppStateData } from '../hooks/usePermanentStore';
 import * as Tabs from '@radix-ui/react-tabs';
 import useAppStore from '../hooks/useTempStore';
@@ -11,8 +10,8 @@ import NotificationPreferences from '../components/preferences/NotificationSetti
 import SettingsPreferences from '../components/preferences/SettingsPreferences';
 
 const Preferences = () => {
-    const preferences = useStateStore((state) => state.data.preferences);
-    const timer = useStateStore((state) => state.data.timer);
+    const preferences = usePermanentStore((state) => state.data.preferences!);
+    const timer = usePermanentStore((state) => state.data.timer!);
 
     return (
         <div className="flex h-full w-full items-center justify-center">

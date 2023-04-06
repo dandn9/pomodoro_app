@@ -5,6 +5,7 @@ import { exit } from '@tauri-apps/api/process'
 import useAppStore from './hooks/useTempStore';
 import { PhysicalSize, appWindow } from '@tauri-apps/api/window';
 import { stateDataSchema } from './utils/schemas';
+import { Commands } from './utils/commands';
 
 // makes sure state is correct before loading the app and attaches some event listeners
 const LazyApp = React.lazy(() => {
@@ -53,7 +54,8 @@ const LazyApp = React.lazy(() => {
              */
             await appWindow.onCloseRequested(async (ev) => {
                 ev.preventDefault()
-                const ok = await invoke<boolean>('save_state', { data: permanentStore().data })
+                console.log(permanentStore().data)
+                const ok = await Commands.saveState(permanentStore().data)
                 if (ok) {
                     await exit(1)
                 }

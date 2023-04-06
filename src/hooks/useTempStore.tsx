@@ -3,7 +3,6 @@ import produce from 'immer';
 import useStateStore from '../store/PermanentStore';
 import type { stateDataSchema } from '../utils/schemas';
 import { object, z } from 'zod';
-import { SessionCommands } from '../utils/commands';
 
 type Sessions = z.infer<typeof stateDataSchema>['sessions']['sessions'];
 type Session = Sessions extends Array<infer U> ? U : never;
@@ -66,13 +65,13 @@ const useAppStore = create<AppTempStore>()((set, get) => ({
                         draft.curr_session_count++;
 
                         draft.queue.push(async () => {
-                            const newState =
-                                await SessionCommands.onSessionDone(
-                                    state.curr_session!.id!,
-                                    app_state.timer.timer_duration +
-                                    state.temp_time_added
-                                );
-                            useStateStore.getState().setStateData(newState);
+                            // const newState =
+                            // await SessionCommands.onSessionDone(
+                            //     state.curr_session!.id!,
+                            //     app_state.timer.timer_duration +
+                            //     state.temp_time_added
+                            // );
+                            // useStateStore.getState().setStateData(newState);
                         });
                     }
                     if (

@@ -3,7 +3,6 @@ import * as Accordion from '@radix-ui/react-accordion';
 import { Session, Sessions } from '../../utils/classes';
 import SessionItem from './SessionItem';
 import { z } from 'zod';
-import { SessionCommands } from '../../utils/commands';
 import useDragHandler from '../../hooks/useDragHandler';
 import { ChangeTaskOrderArgs } from '../../utils/types';
 import {

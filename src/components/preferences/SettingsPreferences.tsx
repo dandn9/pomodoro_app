@@ -15,7 +15,7 @@ const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
 }) => {
     const [sessionError, setSessionError] = React.useState(false);
     const onThemeSelect = (val: ThemeOptions) => {
-        preferences.onChangeTheme(val);
+        preferences.theme = val
     };
     const onCircleStyleSelect = (val: CircleStyles) => {
         preferences.onChangeCircleStyle(val);

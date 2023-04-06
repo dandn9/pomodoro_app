@@ -3,17 +3,64 @@ import { PreferencesCommands } from "../commands";
 import { AddSoundPayload } from "../schemas";
 import { updateState } from "../utils";
 import { appDataDir, join } from "@tauri-apps/api/path";
-import { immerable } from "immer";
+import { stateUpdater } from "../decorators";
+import produce, { immerable } from "immer";
+import usePermanentStore from "../../store/PermanentStore";
+
+
 
 export class Notification {
     [immerable] = true
 
-    constructor(
-        public pauseCompletionAudioId: number = 0,
-        public workCompletionAudioId: number = 0,
-        public message_on_pause: string = "",
-        public message_on_timer: string = "") { }
+    // @stateUpdater('preferences')
+    private _pause_completion_audio_id: number
+    private _work_completion_audio_id: number;
+    private _message_on_pause: string;
+    private _message_on_timer: string;
+
+    constructor(pause_completion_audio_id = 0, work_completion_audio_id = 0, message_on_pause = "", message_on_timer = "") {
+        this._pause_completion_audio_id = pause_completion_audio_id
+        this._work_completion_audio_id = work_completion_audio_id
+        this._message_on_pause = message_on_pause
+        this._message_on_timer = message_on_timer
+    }
+
+    public get pause_completion_audio_id() {
+        return this._pause_completion_audio_id
+    }
+
+    @stateUpdater((data) => data.preferences)
+    public set pause_completion_audio_id(value: number) {
+        this._pause_completion_audio_id = value
+    }
+
+    public get work_completion_audio_id(): number {
+        return this._work_completion_audio_id;
+    }
+
+    @stateUpdater((data) => data.preferences)
+    public set work_completion_audio_id(value: number) {
+        this._work_completion_audio_id = value;
+    }
+
+    public get message_on_timer(): string {
+        return this._message_on_timer;
+    }
+    @stateUpdater((data) => data.preferences)
+    public set message_on_timer(value: string) {
+        this._message_on_timer = value;
+    }
+
+    public get message_on_pause(): string {
+        return this._message_on_pause;
+    }
+
+    @stateUpdater((data) => data.preferences)
+    public set message_on_pause(value: string) {
+        this._message_on_pause = value;
+    }
 }
+
 
 export enum ThemeOptions {
     Default = "Default",
@@ -25,142 +72,82 @@ export enum CircleStyles {
     Dotted = "Dotted",
     Drawn = "Drawn"
 }
-export class Preferences extends PreferencesCommands {
+export class Preferences {
     [immerable] = true
 
     constructor(
-        public notification: Notification,
-        public autoplay: boolean,
-        public sessions_for_long_pause: number,
-        public available_sounds: { name: string, file_path: string, id: number }[],
-        public show_percentage: boolean,
-        public time_to_add: number,
-        public resolution: [number, number], public theme: ThemeOptions, public circleStyle: CircleStyles) { super(); }
+        private _notification: Notification,
+        private _autoplay: boolean,
+        private _sessions_for_long_pause: number,
+        private _available_sounds: { name: string; file_path: string; id: number; }[],
+        private _show_percentage: boolean,
+        private _time_to_add: number,
+        private _resolution: [number, number],
+        private _theme: ThemeOptions,
+        private _circleStyle: CircleStyles) { }
 
-
-    public async setAudioSound(id: number) {
-        try {
-            const result = await Preferences.setAudioSoundById(id)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
+    public get circleStyle(): CircleStyles {
+        return this._circleStyle;
     }
-
-    public async setPauseSound(id: number) {
-        try {
-            const result = await Preferences.setPauseSoundById(id)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
+    @stateUpdater()
+    public set circleStyle(value: CircleStyles) {
+        this._circleStyle = value;
     }
-    public async addSound(pl: AddSoundPayload) {
-        const soundBin = await pl.sound.arrayBuffer()
-        const fileExtension = pl.sound.name.split('.').pop()
-        const appData = await appDataDir()
-        const fullPath = await join(appData, 'audio', `${pl.name}.${fileExtension}`)
-
-        try {
-            await writeBinaryFile(fullPath, soundBin)
-            const result = await Preferences.addSound(pl.name, `${pl.name}.${fileExtension}`)
-            updateState(result)
-
-        } catch (e) {
-            console.log('error! removing file', e) // just simply overrides it?
-        }
-
+    public get theme(): ThemeOptions {
+        return this._theme;
     }
-    public async onDeleteSound(id: number) {
-        try {
-            const result = await Preferences.deleteSound(id)
-            updateState(result)
-        } catch (e) {
-            console.log('error!', e)
-        }
+    @stateUpdater()
+    public set theme(value: ThemeOptions) {
+        this._theme = value;
     }
-    public async onRenameAudio(id: number, name: string) {
-        try {
-            const result = await Preferences.renameSound(id, name)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
+    public get resolution(): [number, number] {
+        return this._resolution;
     }
-    public async onChangeTheme(theme: ThemeOptions) {
-        try {
-            const result = await Preferences.changeTheme(theme)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
+    @stateUpdater()
+    public set resolution(value: [number, number]) {
+        this._resolution = value;
     }
-    public async onChangeCircleStyle(style: CircleStyles) {
-        try {
-            const result = await Preferences.changeCircleStyle(style)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
+    public get time_to_add(): number {
+        return this._time_to_add;
     }
-    public async onSetAutoplay(autoplay: boolean) {
-        try {
-
-            const result = await Preferences.setAutoplay(autoplay)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
+    @stateUpdater()
+    public set time_to_add(value: number) {
+        this._time_to_add = value;
     }
-    public async onSetShowPercentage(showPercentage: boolean) {
-        try {
-            const result = await Preferences.setShowPercentage(showPercentage)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
+    public get show_percentage(): boolean {
+        return this._show_percentage;
+    }
+    @stateUpdater()
+    public set show_percentage(value: boolean) {
+        this._show_percentage = value;
+    }
+    public get available_sounds(): { name: string; file_path: string; id: number; }[] {
+        return this._available_sounds;
+    }
+    @stateUpdater()
+    public set available_sounds(value: { name: string; file_path: string; id: number; }[]) {
+        this._available_sounds = value;
+    }
+    public get sessions_for_long_pause(): number {
+        return this._sessions_for_long_pause;
+    }
+    @stateUpdater()
+    public set sessions_for_long_pause(value: number) {
+        this._sessions_for_long_pause = value;
+    }
+    public get autoplay(): boolean {
+        return this._autoplay;
+    }
+    @stateUpdater()
+    public set autoplay(value: boolean) {
+        this._autoplay = value;
+    }
+    public get notification(): Notification {
+        return this._notification;
+    }
+    @stateUpdater()
+    public set notification(value: Notification) {
+        this._notification = value;
     }
 
-    public async onChangeAppResolution(resolution: [number, number]) {
-
-        try {
-            const result = await Preferences.changeAppResolution(resolution)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
-    }
-    public async onSetSessionsForLongPause(sessionsNumber: number) {
-
-        try {
-            const result = await Preferences.setSessionsForLongPause(sessionsNumber)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
-    }
-    public async onSetTimeToAdd(timeToAdd: number) {
-        try {
-            const result = await Preferences.setTimeToAdd(timeToAdd)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
-    }
-    public async onChangeMessageOnPause(message: string) {
-        try {
-            const result = await Preferences.changeMessageOnPause(message)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
-    }
-    public async onChangeMessageOnTimer(message: string) {
-        try {
-            const result = await Preferences.changeMessageOnTimer(message)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
-    }
 }

@@ -4,7 +4,7 @@ import create from 'zustand';
 import produce from 'immer';
 import { z } from 'zod';
 import { stateDataSchema } from '../utils/schemas';
-import useAppStore from './useTempStore';
+// import useAppStore from './useTempStore';
 import {
     CircleStyles,
     Notification,
@@ -16,28 +16,29 @@ import {
 import { Actions, DispatchArgs, reducer } from '../reducers/PermanentStore';
 import { Initialized, Nullable } from '../utils/types';
 
-export type PersistentData = Nullable<z.infer<typeof stateDataSchema>>;
+export type PermanentData = Nullable<z.infer<typeof stateDataSchema>>;
 
-interface PermanentState {
-    data: PersistentData;
+export interface PermanentState {
+    data: PermanentData;
     _isInitiated: boolean,
-    _set: (newState: PersistentData) => void;
-    dispatch: (args: DispatchArgs) => void
+    _set: (newState: PermanentData) => void;
+    mutate: (arg: (state: PermanentState) => PermanentState) => void;
 }
 
-const initialDataState: PersistentData = {
+const initialDataState: PermanentData = {
     timer: null,
     sessions: null,
     preferences: null,
 };
 
+
+
+
 export const usePermanentStore = create<PermanentState>()((set, get) => ({
     data: initialDataState,
     _isInitiated: false,
     _set: (state) => set({ _isInitiated: true, data: state }),
-    dispatch: (args) => set(produce<PermanentState>((state => {
-        state.data = reducer(state.data, args)
-    })))
+    mutate: set,
 }))
 export default usePermanentStore
 

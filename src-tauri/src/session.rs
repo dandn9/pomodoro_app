@@ -11,31 +11,31 @@ pub struct SessionState {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Session {
-    pub id: u32,
-    pub name: String,
-    pub color: String,
-    pub is_selected: bool,
-    pub time_spent: u32,
-    pub total_sessions: u32,
-    pub created_at: DateTime<Local>,
-    pub tasks: Vec<Task>,
+    pub _id: u32,
+    pub _name: String,
+    pub _color: String,
+    pub _is_selected: bool,
+    pub _time_spent: u32,
+    pub _total_sessions: u32,
+    pub _created_at: DateTime<Local>,
+    pub _tasks: Vec<Task>,
 }
 
 impl Session {
-    pub fn new(name: String, color: Option<String>, id: u32) -> Session {
-        let color = match color {
+    pub fn new(_name: String, _color: Option<String>, _id: u32) -> Session {
+        let _color = match _color {
             Some(color) => color,
             None => "#000000".to_string(),
         };
         Session {
-            id,
-            name,
-            color,
-            is_selected: false,
-            total_sessions: 0,
-            time_spent: 0,
-            created_at: Local::now(),
-            tasks: vec![],
+            _id,
+            _name,
+            _color,
+            _is_selected: false,
+            _total_sessions: 0,
+            _time_spent: 0,
+            _created_at: Local::now(),
+            _tasks: vec![],
         }
     }
     pub fn on_done(&mut self, time: u32) {

@@ -2,7 +2,6 @@ import useStateStore, { AppStateData } from '../../store/PermanentStore';
 import produce from 'immer';
 import useAppStore from '../../hooks/useTempStore';
 import Slider from '../UI/Slider';
-import { TimerCommands } from '../../utils/commands';
 import { Timer } from '../../utils/classes';
 import React from 'react';
 const TimerPreferences: React.FC<{ timer: Timer }> = ({ timer }) => {
@@ -48,8 +47,7 @@ const TimerPreferences: React.FC<{ timer: Timer }> = ({ timer }) => {
                     onValueChange={(val) =>
                         onUpdatePreferences(val, 'timerDuration')
                     }
-                    onValueCommit={(val) =>
-                        onCommitVal(val[0], TimerCommands.setTimerDuration)
+                    onValueCommit={(val) => { }
                     }
                 />
                 {timerPreferences.timerDuration[0]}
@@ -63,8 +61,7 @@ const TimerPreferences: React.FC<{ timer: Timer }> = ({ timer }) => {
                     onValueChange={(val) =>
                         onUpdatePreferences(val, 'pauseDuration')
                     }
-                    onValueCommit={(val) =>
-                        onCommitVal(val[0], TimerCommands.setPauseDuration)
+                    onValueCommit={(val) => { }
                     }
                 />
                 {timerPreferences.pauseDuration[0]}
@@ -78,8 +75,7 @@ const TimerPreferences: React.FC<{ timer: Timer }> = ({ timer }) => {
                     onValueChange={(val) =>
                         onUpdatePreferences(val, 'longPauseDuration')
                     }
-                    onValueCommit={(val) =>
-                        onCommitVal(val[0], TimerCommands.setLongPauseDuration)
+                    onValueCommit={(val) => { }
                     }
                 />
                 {timerPreferences.longPauseDuration[0]}
