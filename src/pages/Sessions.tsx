@@ -6,14 +6,6 @@ import Modal from '../components/UI/Modal';
 import SessionModalContent from '../components/sessions/NewSessionModalContent';
 import EditSessionModalContent from '../components/sessions/EditSessionModalContent';
 import { Session } from '../utils/classes';
-import {
-    DndContext,
-    DragEndEvent,
-    PointerSensor,
-    closestCenter,
-    useSensor,
-    useSensors,
-} from '@dnd-kit/core';
 import SessionList from '../components/sessions/SessionList';
 
 const Sessions = () => {

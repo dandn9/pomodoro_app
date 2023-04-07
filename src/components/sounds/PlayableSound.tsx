@@ -4,9 +4,10 @@ import { readDir, BaseDirectory, readBinaryFile } from '@tauri-apps/api/fs';
 import Popover from '../UI/Popover';
 import Input from '../UI/Input';
 import { z } from 'zod';
+import { Sound } from '../../utils/classes';
 
 const PlayableSound: React.FC<{
-    sound: { name: string; file_path: string; id: number };
+    sound: Sound;
     is_selected: boolean;
     onSelect: (id: number) => void;
     onDelete?: (id: number) => void;

@@ -1,22 +1,11 @@
 
-import React, { useState } from 'react';
 import create from 'zustand';
-import produce from 'immer';
 import { z } from 'zod';
 import { stateDataSchema } from '../utils/schemas';
-// import useAppStore from './useTempStore';
-import {
-    CircleStyles,
-    Notification,
-    Preferences,
-    Sessions,
-    ThemeOptions,
-    Timer,
-} from '../utils/classes';
-import { Actions, DispatchArgs, reducer } from '../reducers/PermanentStore';
-import { Initialized, Nullable } from '../utils/types';
+import { Nullable } from '../utils/types';
+import { Timer, Preferences } from '../utils/classes';
 
-export type PermanentData = Nullable<z.infer<typeof stateDataSchema>>;
+export type PermanentData = z.infer<typeof stateDataSchema>;
 
 export interface PermanentState {
     data: PermanentData;
@@ -25,17 +14,10 @@ export interface PermanentState {
     mutate: (arg: (state: PermanentState) => PermanentState) => void;
 }
 
-const initialDataState: PermanentData = {
-    timer: null,
-    sessions: null,
-    preferences: null,
-};
-
-
-
 
 export const usePermanentStore = create<PermanentState>()((set, get) => ({
-    data: initialDataState,
+    // @ts-ignore - this will get updated when the app starts.. so it will be undefined, but nothing will fetch from it - so it's better to just ignore it at init and pretend its always filled
+    data: undefined,
     _isInitiated: false,
     _set: (state) => set({ _isInitiated: true, data: state }),
     mutate: set,

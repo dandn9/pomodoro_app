@@ -10,11 +10,8 @@
 )]
 
 mod commands;
-mod hash;
 mod preferences;
-mod session;
 mod state;
-mod timer;
 
 use std::sync::{Arc, Mutex};
 
@@ -46,29 +43,6 @@ pub static SYSTEM_TRAY: Lazy<Mutex<Option<SystemTrayHandle>>> = Lazy::new(|| Mut
 fn main() {
     tauri::Builder::default()
         .system_tray(create_system_tray())
-        .on_system_tray_event(|app, event| match event {
-            SystemTrayEvent::DoubleClick { .. } => {
-                let window = app.get_window("main").unwrap();
-                window.show().unwrap();
-                window.set_decorations(true).unwrap();
-                window.unminimize().unwrap();
-                window.set_focus().unwrap();
-            }
-            SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
-                "quit" => {
-                    std::process::exit(0);
-                }
-                "toggle_timer" => {
-                    let window = app.get_window("main").unwrap();
-                    window
-                        .emit("toggle_timer_tray", Payload { message: None })
-                        .unwrap()
-                }
-
-                _ => {}
-            },
-            _ => {}
-        })
         .setup(|app| {
             #[cfg(debug_assertions)]
             {
@@ -76,30 +50,21 @@ fn main() {
                 window.open_devtools();
             }
 
-            let app_state = Mutex::new(init_or_get_state(&app.config()));
-            let resolution = app_state.lock().unwrap().preferences.resolution.clone();
+            let app_state = init_or_get_state(&app.handle());
+            // let resolution = app_state.lock().unwrap().preferences._resolution.clone();
             app.manage(app_state);
             let main_window = app.get_window("main").unwrap();
 
-            main_window
-                .set_size(tauri::Size::Physical(tauri::PhysicalSize::new(
-                    resolution.0,
-                    resolution.1,
-                )))
-                .unwrap();
-            let tray_handle = app.tray_handle();
-            SYSTEM_TRAY.lock().unwrap().replace(tray_handle);
+            // main_window
+            //     .set_size(tauri::Size::Physical(tauri::PhysicalSize::new(
+            //         resolution.0,
+            //         resolution.1,
+            //     )))
+            //     .unwrap();
+            // let tray_handle = app.tray_handle();
+            // SYSTEM_TRAY.lock().unwrap().replace(tray_handle);
 
             // event for system tray to switch between "start timer" and "stop timer"
-            main_window.listen("toggle_timer_app", |event| {
-                println!("got event! {:?}", event.payload());
-                let payload = serde_json::from_str::<Payload>(event.payload().unwrap()).unwrap();
-                let mut tray_handle_ref = SYSTEM_TRAY.lock().unwrap();
-                let tray_handgg = tray_handle_ref.as_mut();
-                let tray_handle = tray_handgg.unwrap();
-                let g = tray_handle.get_item("toggle_timer");
-                g.set_title(payload.message.unwrap()).unwrap();
-            });
 
             Ok(())
         })
@@ -111,38 +76,7 @@ fn main() {
             }
             _ => {}
         })
-        .invoke_handler(tauri::generate_handler![
-            get_state,
-            set_timer_duration,
-            set_pause_duration,
-            set_long_pause_duration,
-            set_timer_sound_id,
-            set_pause_sound_id,
-            set_autoplay,
-            set_show_percentage,
-            set_sessions_for_long_pause,
-            set_time_to_add,
-            create_session,
-            delete_session,
-            update_session,
-            update_order_session,
-            add_task,
-            add_sound,
-            delete_sound,
-            rename_sound,
-            delete_task,
-            update_done_task,
-            update_order_task,
-            on_completed_session,
-            on_selected_session,
-            reload_state,
-            change_theme,
-            change_circle_style,
-            change_message_on_pause,
-            change_message_on_timer,
-            change_app_resolution,
-            save_sessions
-        ])
+        .invoke_handler(tauri::generate_handler![get_state, save_state])
         .run(tauri::generate_context!())
         .expect("error while building tauri application")
 }

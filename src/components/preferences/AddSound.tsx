@@ -27,14 +27,14 @@ const formSchema = z.object({
 export type AddSoundPayload = z.infer<typeof formSchema>;
 
 const AddSound: TModalContent<{
-    onAddSound: (pl: AddSoundPayload) => Promise<void>;
+    onAddSound: (pl: AddSoundPayload) => void;
 }> = ({ onAddSound }) => {
     const [addedSound, setAddedSound] = useState('');
     const [errors, setErrors] = React.useState<
         z.ZodFormattedError<z.infer<typeof formSchema>>
     >({ _errors: [] });
 
-    const onFormSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
+    const onFormSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
         ev.preventDefault();
         const data = new FormData(ev.currentTarget);
 
@@ -46,8 +46,9 @@ const AddSound: TModalContent<{
             setErrors(formData.error.format());
             return;
         }
+        console.log('form data', formData)
 
-        await onAddSound(formData.data);
+        onAddSound(formData.data);
     };
     const audioFile = React.useRef<HTMLInputElement | null>(null);
     console.log('errors', errors);

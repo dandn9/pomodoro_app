@@ -51,6 +51,7 @@ const SessionList: React.FC<{
     sessions: Sessions;
     onEdit: (session: Session) => void;
 }> = ({ sessions: stateSessions, onEdit }) => {
+    console.log(stateSessions)
     const [tempSessions, setTempSessions] = useState(stateSessions.sessions);
     const sessionsId = tempSessions.map((session) => `sess-${session.id}`) as UniqueIdentifier[];
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);

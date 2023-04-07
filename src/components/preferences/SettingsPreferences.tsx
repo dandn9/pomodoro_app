@@ -4,39 +4,14 @@ import Select, { SelectGroup, SelectItem } from '../UI/Select';
 import Switch from '../UI/Switch';
 import Tooltip from '../UI/Tooltip';
 import Separator from '../UI/Separator';
-import Input from '../UI/Input';
 import MinusIcon from '../../assets/icons/minus-icon';
 import PlusIcon from '../../assets/icons/plus-icon';
-import Popover from '../UI/Popover';
 import Slider from '../UI/Slider';
 import { secondsToTimeString } from '../../utils/displayTime';
-const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
-    preferences,
-}) => {
-    const [sessionError, setSessionError] = React.useState(false);
-    const onThemeSelect = (val: ThemeOptions) => {
-        preferences.theme = val
-    };
-    const onCircleStyleSelect = (val: CircleStyles) => {
-        preferences.onChangeCircleStyle(val);
-    };
-    const onAutoplay = (val: boolean) => {
-        preferences.onSetAutoplay(val);
-    };
-
-    const onShowPercentage = (val: boolean) => {
-        preferences.onSetShowPercentage(val);
-    };
-    const onSetSessionsLongPause = (val: number) => {
-        if (val < 1 || val > 8) {
-            setSessionError(true);
-            return;
-        }
-        preferences.onSetSessionsForLongPause(val);
-    };
-    const onSetTimeToAdd = (val: number) => {
-        preferences.onSetTimeToAdd(val);
-    };
+import usePermanentStore from '@/store/PermanentStore';
+const SettingsPreferences = (
+) => {
+    const preferences = usePermanentStore((state) => state.data.preferences)
     return (
         <div className="relative">
             <h3>Color theme</h3>
@@ -45,7 +20,7 @@ const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
                     placeholder: preferences.theme,
                 }}
                 rootProps={{
-                    onValueChange: onThemeSelect,
+                    onValueChange: (v: ThemeOptions) => preferences.theme = v,
                 }}>
                 <SelectGroup>
                     {Object.keys(ThemeOptions).map((option) => {
@@ -61,10 +36,10 @@ const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
             <h3>Circle styles</h3>
             <Select
                 valueProps={{
-                    placeholder: preferences.circleStyle,
+                    placeholder: preferences.circle_style,
                 }}
                 rootProps={{
-                    onValueChange: onCircleStyleSelect,
+                    onValueChange: (v: CircleStyles) => preferences.circle_style = v,
                 }}>
                 <SelectGroup>
                     {Object.keys(CircleStyles).map((option) => {
@@ -83,7 +58,7 @@ const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
                 </Tooltip>
                 <Switch
                     defaultChecked={preferences.autoplay}
-                    onCheckedChange={onAutoplay}
+                    onCheckedChange={(v) => preferences.autoplay = v}
                 />
             </div>
             <div className="flex">
@@ -92,7 +67,7 @@ const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
                 </Tooltip>
                 <Switch
                     defaultChecked={preferences.show_percentage}
-                    onCheckedChange={onShowPercentage}
+                    onCheckedChange={(v) => preferences.show_percentage = v}
                 />
             </div>
             <Separator className="my-4 mx-0 w-full" />
@@ -103,18 +78,12 @@ const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
                 </Tooltip>
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={onSetSessionsLongPause.bind(
-                            null,
-                            preferences.sessions_for_long_pause - 1
-                        )}>
+                        onClick={() => preferences.sessions_for_long_pause -= 1}>
                         <MinusIcon />
                     </button>
                     {preferences.sessions_for_long_pause}
                     <button
-                        onClick={onSetSessionsLongPause.bind(
-                            null,
-                            preferences.sessions_for_long_pause + 1
-                        )}>
+                        onClick={() => preferences.sessions_for_long_pause += 1}>
                         <PlusIcon />
                     </button>
                 </div>
@@ -129,12 +98,12 @@ const SettingsPreferences: React.FC<{ preferences: Preferences }> = ({
                     <Slider
                         withIndicator
                         defaultValue={[preferences.time_to_add]}
-                        step={30}
+                        step={5}
                         displayFn={(val) => {
                             if (val) return secondsToTimeString(val[0]);
                             return '';
                         }}
-                        onValueCommit={(val) => onSetTimeToAdd(val[0])}
+                        onValueCommit={(val) => preferences.time_to_add = val[0]}
                         min={0}
                         max={600}
                     />

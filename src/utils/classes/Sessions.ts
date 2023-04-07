@@ -7,46 +7,34 @@ import { updateState } from "../utils"
 
 
 export class Sessions {
-    public sessions: Session[]
+    private _sessions: Session[]
 
     constructor(sessions: Session[] = []) {
-        this.sessions = sessions
+        this._sessions = sessions
 
     }
 
-    public async onUpdateTaskOrder(data: ChangeTaskOrderArgs) {
-        try {
-            const result = await Sessions.updateTaskOrder(data)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
+    public get sessions(): Session[] {
+        return this._sessions
     }
-    public async onUpdateSessionOrder(data: ChangeSessionOrderArgs) {
-        try {
-            const result = await Sessions.updateSessionOrder(data)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
+    public set sessions(value: Session[]) {
+        this._sessions = value
+    }
 
-    }
-    public async saveSessions(sessions: Session[]) {
-        try {
-            const result = await Sessions.saveSessions(sessions)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
+    [Symbol.iterator]() {
+        let i = 0;
+        return {
+            next: () => {
+                if (i < this.sessions.length) {
+                    return { value: this.sessions[i++], done: false }
+                } else {
+                    return { done: true }
+                }
+            }
         }
     }
-    public static async onCreateSession(name: string, color: string, tasks: string[]) {
-        try {
-            const result = await Sessions.createSession(name, color, tasks)
-            updateState(result)
-        } catch (e) {
-            console.log('error', e)
-        }
-    }
+
+
 
 }
 
@@ -131,6 +119,8 @@ export class Session {
             console.log('error', e)
         }
     }
+
+    public static createSession(name: string, color: string, tasks?: Task[]) { }
 }
 export class Task {
     constructor(

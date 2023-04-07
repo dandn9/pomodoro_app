@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Slider from '../components/UI/Slider';
 import { permanentStore, usePermanentStore } from '../store/PermanentStore';
-import type { AppStateData } from '../hooks/usePermanentStore';
 import * as Tabs from '@radix-ui/react-tabs';
 import useAppStore from '../hooks/useTempStore';
 import produce from 'immer';
@@ -10,8 +9,6 @@ import NotificationPreferences from '../components/preferences/NotificationSetti
 import SettingsPreferences from '../components/preferences/SettingsPreferences';
 
 const Preferences = () => {
-    const preferences = usePermanentStore((state) => state.data.preferences!);
-    const timer = usePermanentStore((state) => state.data.timer!);
 
     return (
         <div className="flex h-full w-full items-center justify-center">
@@ -24,13 +21,13 @@ const Preferences = () => {
                     <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
                 </Tabs.List>
                 <Tabs.Content value="timer">
-                    <TimerPreferences timer={timer} />
+                    <TimerPreferences />
                 </Tabs.Content>
                 <Tabs.Content value="notification">
-                    <NotificationPreferences preferences={preferences} />
+                    <NotificationPreferences />
                 </Tabs.Content>
                 <Tabs.Content value="settings">
-                    <SettingsPreferences preferences={preferences} />
+                    <SettingsPreferences />
                 </Tabs.Content>
             </Tabs.Root>
         </div>

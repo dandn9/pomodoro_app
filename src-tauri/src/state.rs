@@ -7,103 +7,140 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::{preferences::PreferencesState, session::SessionState, timer::TimerState};
+use crate::preferences::PreferencesState;
+use chrono::{DateTime, Local};
 use once_cell::sync::Lazy;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use tauri::api::path::app_data_dir;
+use tauri::{api::path::app_data_dir, App};
 
-// Appdata settings folder
-pub static SETTINGS_FOLDER_PATH: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new("".to_string()));
-// Clone of config
-pub static CONFIG: Lazy<Mutex<tauri::Config>> = Lazy::new(|| Mutex::new(tauri::Config::default()));
+#[derive(Debug, Clone, Serialize, Deserialize, Copy)]
+pub struct TimerState {
+    pub _timer_duration: u32,
+    pub _pause_duration: u32,
+    pub _long_pause_duration: u32,
+}
+
+impl Default for TimerState {
+    fn default() -> Self {
+        TimerState {
+            _timer_duration: 1500,      // 25 minutes
+            _pause_duration: 300,       // 5 minutes
+            _long_pause_duration: 1200, // 20 minutes
+        }
+    }
+}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Session {
+    pub _id: u32,
+    pub _name: String,
+    pub _color: String,
+    pub _is_selected: bool,
+    pub _time_spent: u32,
+    pub _total_sessions: u32,
+    pub _created_at: DateTime<Local>,
+    pub _tasks: Vec<Task>,
+}
+
+// TASK --
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Task {
+    pub id: u32,
+    pub name: String,
+    pub is_done: bool,
+}
+impl Task {
+    pub fn new(name: String, id: u32) -> Task {
+        Task {
+            id,
+            name,
+            is_done: false,
+        }
+    }
+    pub fn update_task_done(&mut self, is_done: bool) {
+        self.is_done = is_done
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AppState {
     pub timer: TimerState,
-    pub sessions: SessionState,
+    pub sessions: SessionsState,
     pub preferences: PreferencesState,
 }
-impl AppState {
-    pub fn get_state(&self) -> AppState {
-        self.clone()
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SessionsState {
+    pub _sessions: Vec<Session>,
+}
+impl Default for SessionsState {
+    fn default() -> Self {
+        Self { _sessions: vec![] }
     }
 }
 
-pub trait AppStateTrait
-where
-    Self: Sized + Default + Serialize + DeserializeOwned,
-{
-    const FILE_NAME: &'static str;
-
-    fn get_state_settings_or_init() -> Self {
-        match Self::get_saved_state() {
-            Ok(state) => {
-                println!("State loaded from file");
-                state
-            }
-            Err(_) => {
-                println!("State not loaded from file");
-
-                let state = Self::default();
-                Self::save_state(&state);
-                state
-            }
+impl AppState {
+    pub fn default(app: &tauri::AppHandle) -> Self {
+        Self {
+            preferences: PreferencesState::default(app),
+            sessions: SessionsState::default(),
+            timer: TimerState::default(),
         }
-    }
-    fn save_state(&self) -> () {
-        let serialized = serde_json::to_string_pretty(self).unwrap();
-
-        let file_path =
-            PathBuf::from(SETTINGS_FOLDER_PATH.lock().unwrap().to_string()).join(Self::FILE_NAME);
-
-        println!("SAVED STATE");
-        OpenOptions::new()
-            .write(true)
-            .truncate(true)
-            .create(true)
-            .open(file_path)
-            .unwrap()
-            .write_all(serialized.as_bytes())
-            .unwrap();
-    }
-    fn get_saved_state() -> Result<Self, Box<dyn Error>> {
-        let file_path =
-            PathBuf::from(SETTINGS_FOLDER_PATH.lock().unwrap().to_string()).join(Self::FILE_NAME);
-
-        let f = OpenOptions::new().read(true).open(file_path)?;
-
-        let reader = BufReader::new(f);
-        let saved_state = serde_json::from_reader::<BufReader<File>, Self>(reader)?;
-
-        Ok(saved_state)
     }
 }
 
 // pub static STATE: Mutex<AppState> = Mutex::new(AppState { timer: None });
 
-pub fn init_or_get_state(app_config: &tauri::Config) -> AppState {
-    *SETTINGS_FOLDER_PATH.lock().unwrap() = app_data_dir(app_config)
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .to_string();
-    CONFIG.lock().unwrap().clone_from(app_config);
+const APP_STATE_FILE: &str = "app_state.json";
 
-    setup_state_folder();
-    println!("BASE PATH: {}", SETTINGS_FOLDER_PATH.lock().unwrap());
-
-    let state = AppState {
-        timer: TimerState::get_state_settings_or_init(),
-        sessions: SessionState::get_state_settings_or_init(),
-        preferences: PreferencesState::get_state_settings_or_init(),
-    };
-    state
+pub fn get_data_path(app: &tauri::AppHandle) -> PathBuf {
+    app.path_resolver().app_data_dir().unwrap()
 }
 
-pub fn setup_state_folder() {
+pub fn save_state(state: AppState, app: &tauri::AppHandle) -> Result<bool, Box<dyn Error>> {
+    let serialized = serde_json::to_string_pretty(&state)?;
+
+    let file_path = get_data_path(app).join(APP_STATE_FILE);
+
+    OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .create(true)
+        .open(file_path)?
+        .write_all(serialized.as_bytes())?;
+
+    Ok(true)
+}
+
+fn get_saved_state(app: &tauri::AppHandle) -> Result<AppState, Box<dyn Error>> {
+    let file_path = get_data_path(app).join(APP_STATE_FILE);
+
+    let f = OpenOptions::new().read(true).open(file_path)?;
+
+    let reader = BufReader::new(f);
+    let saved_state = serde_json::from_reader::<BufReader<File>, AppState>(reader)?;
+
+    Ok(saved_state)
+}
+
+pub fn init_or_get_state(app: &tauri::AppHandle) -> AppState {
+    setup_state_folder(app);
+
+    match get_saved_state(app) {
+        Ok(state) => state,
+        Err(_) => AppState::default(app),
+    }
+
+    // let state = AppState {
+    //     timer: TimerState::get_state_settings_or_init(),
+    //     sessions: SessionState::get_state_settings_or_init(),
+    //     preferences: PreferencesState::get_state_settings_or_init(),
+    // };
+    // state
+}
+
+pub fn setup_state_folder(app: &tauri::AppHandle) {
     println!("Settings folder path!");
-    // let config_dir = dirs::config_dir().unwrap().join(PREF_FOLDER_NAME);
-    let base_path = PathBuf::from(SETTINGS_FOLDER_PATH.lock().unwrap().to_string());
+    let base_path = get_data_path(app);
 
     println!("Got folder path {:?}", base_path);
     match fs::create_dir(&base_path) {

@@ -1,43 +1,48 @@
 import React, { useState } from 'react';
-import { Preferences } from '../../utils/classes';
+import { Preferences, Sound } from '../../utils/classes';
 import PlayableSound from '../sounds/PlayableSound';
 import Modal from '../UI/Modal';
 import { AddSoundPayload } from '../../utils/schemas';
 import AddSound from './AddSound';
 import Input from '../UI/Input';
 import { z } from 'zod';
-const Notification: React.FC<{ preferences: Preferences }> = ({
-    preferences,
-}) => {
+import usePermanentStore from '@/store/PermanentStore';
+import { hashString } from '@/utils/utils';
+const Notification = () => {
+    const preferences = usePermanentStore((state) => state.data.preferences)
     const [isAddingSound, setIsAddingSound] = useState(false);
 
-    const onAudioSelect = (id: number) => {
-        preferences.setAudioSound(id);
-    };
-    const onPauseSelect = (id: number) => {
-        preferences.setPauseSound(id);
-    };
     const onAddAudio = async (pl: AddSoundPayload) => {
-        await preferences.addSound(pl);
-        setIsAddingSound(false);
-    };
-    const onDeleteAudio = async (id: number) => {
-        await preferences.onDeleteSound(id);
+        try {
+            const newSound = await Sound.createSound(pl.name, pl.sound)
+            preferences.available_sounds = [...preferences.available_sounds, newSound]
+            setIsAddingSound(false);
+        } catch (e) {
+            console.log(e) // TODO: show error message
+        }
     };
     const onAudioRename = async (id: number, name: string) => {
-        await preferences.onRenameAudio(id, name);
+        const sound = preferences.available_sounds.find((sound) => sound.id === id);
+        if (sound) {
+            /** Recompute id because its based on name */
+            sound.name = name
+            /** Setting id is always last, since the decorator uses it in this case since its array */
+            const newId = hashString(name)
+            sound.id = newId
+        }
     };
     const onChangeMessageOnPause = async (ev: React.ChangeEvent) => {
         const target = ev.target as HTMLInputElement;
         const message = z.string().min(1).parse(target.value);
-        preferences.onChangeMessageOnPause(message);
+        preferences.notification.message_on_pause = message
     };
 
     const onChangeMessageOnTimer = async (ev: React.ChangeEvent) => {
         const target = ev.target as HTMLInputElement;
         const message = z.string().min(1).parse(target.value);
-        preferences.onChangeMessageOnTimer(message);
+        preferences.notification.message_on_timer = message
     };
+    console.log(preferences)
     return (
         <div className="relative">
             <button
@@ -53,8 +58,10 @@ const Notification: React.FC<{ preferences: Preferences }> = ({
                     <PlayableSound
                         key={sound.id}
                         sound={sound}
-                        onSelect={onAudioSelect}
-                        onDelete={onDeleteAudio}
+                        onSelect={(id) => preferences.notification.audio_on_timer_id = id}
+                        onDelete={
+                            (id) => preferences.available_sounds = preferences.available_sounds.filter((s) => s.id !== id)}
+
                         onRename={onAudioRename}
                         is_selected={
                             sound.id ===
@@ -68,7 +75,7 @@ const Notification: React.FC<{ preferences: Preferences }> = ({
             <ul>
                 {preferences.available_sounds.map((sound) => (
                     <PlayableSound
-                        onSelect={onPauseSelect}
+                        onSelect={(id) => preferences.notification.audio_on_pause_id = id}
                         key={sound.id}
                         sound={sound}
                         is_selected={

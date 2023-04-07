@@ -46,7 +46,7 @@
                 "icons/icon.icns",
                 "icons/icon.ico"
             ],
-            "identifier": "pmdr_settings",
+            "identifier": "pomodoro",
             "longDescription": "",
             "macOS": {
                 "entitlements": null,
