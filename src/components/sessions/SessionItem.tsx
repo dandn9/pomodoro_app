@@ -12,7 +12,6 @@ import { Session, Task } from '../../utils/classes';
 import TaskItemSession from '../tasks/TaskItemSession';
 import * as Accordion from '@radix-ui/react-accordion';
 import { z } from 'zod';
-import useDragHandler from '../../hooks/useDragHandler';
 import { DragSessionTypeData } from './SessionList';
 import {
     DndContext,
@@ -54,24 +53,6 @@ const SessionItem = React.forwardRef<HTMLDivElement, SessionItemProps>(
         function onTaskCheck(taskId: number, checked: boolean) {
             session.updateTaskDone(taskId, checked);
         }
-        const {
-            active,
-            attributes,
-            isDragging,
-            listeners,
-            over,
-            setNodeRef,
-            transition,
-            transform,
-        } = useSortable({
-            id,
-            data: { type: 'session', children: session.tasks },
-        });
-        const style = {
-            transform: CSS.Transform.toString(transform),
-            transition,
-            opacity: isDragging ? 0.5 : undefined,
-        };
 
         const taskIds = session.tasks.map(
             (task) => `task-${task.id}` as UniqueIdentifier
@@ -80,9 +61,7 @@ const SessionItem = React.forwardRef<HTMLDivElement, SessionItemProps>(
         // console.log('new items', items);
         return (
             <Accordion.Item
-                value={`${session.id}`}
-                ref={setNodeRef}
-                style={style}
+                value={session.id.toString()}
                 onClick={() => {
                     console.log('click');
                 }}>
@@ -95,30 +74,27 @@ const SessionItem = React.forwardRef<HTMLDivElement, SessionItemProps>(
 
                             <div
                                 className="h-5 w-5 rounded-full bg-green-400"
-                                {...attributes}
-                                {...listeners}>
+                            >
                                 H
                             </div>
                         </div>
                     </AccordionTrigger>
                 </div>
                 <AccordionContent>
-                    <SortableContext items={taskIds}>
-                        {session.tasks.map((task, index) => {
-                            return (
-                                <TaskItemSession
-                                    ref={(el) => {
-                                        return el;
-                                    }}
-                                    id={taskIds[index]}
-                                    index={index}
-                                    task={task}
-                                    key={task.id}
-                                    onTaskChecked={onTaskCheck}
-                                />
-                            );
-                        })}
-                    </SortableContext>
+                    {session.tasks.map((task, index) => {
+                        return (
+                            <TaskItemSession
+                                ref={(el) => {
+                                    return el;
+                                }}
+                                id={taskIds[index]}
+                                index={index}
+                                task={task}
+                                key={task.id}
+                                onTaskChecked={onTaskCheck}
+                            />
+                        );
+                    })}
                 </AccordionContent>
             </Accordion.Item>
         );

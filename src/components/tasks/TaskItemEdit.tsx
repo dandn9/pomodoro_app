@@ -5,30 +5,25 @@ import Checkbox from '../UI/Checkbox';
 
 interface TaskProps {
     task: Task;
-    index: number;
+    onDelete: (id: number) => void
 }
 
-const TaskItemEdit: React.FC<TaskProps> = ({ task, index }) => {
-    const [toDelete, setToDelete] = React.useState(false);
+const TaskItemEdit: React.FC<TaskProps> = ({ task, onDelete }) => {
     const inputEl = React.useRef<HTMLInputElement>(null);
+    const isDraft = task.id === -1
     useEffect(() => {
-        if (task.is_draft && inputEl.current) {
+        if (isDraft && inputEl.current) {
             inputEl.current.focus();
         }
     }, []);
-    const bg = toDelete
-        ? 'bg-red-400'
-        : task.is_draft
-        ? 'bg-slate-400'
-        : 'bg-slate-200';
 
     return (
-        <li className={`flex w-full justify-between ${bg}`}>
+        <li className={`flex w-full justify-between `}>
             <div>
                 <TextInput
                     defaultValue={task.name}
-                    name={`task-${index}`}
                     ref={inputEl}
+                    name={`task-name`}
                 />
                 - {task.id}
             </div>
@@ -36,22 +31,12 @@ const TaskItemEdit: React.FC<TaskProps> = ({ task, index }) => {
                 <button
                     className="text-red-600"
                     type="button"
-                    onClick={() => {
-                        setToDelete((x) => !x);
-                    }}>
+                    onClick={onDelete.bind(null, task.id)}>
                     DELETE
                 </button>
-                <Checkbox
-                    defaultChecked={task.is_done}
-                    name={`task-${index}-done`}
-                />
             </div>
-            <input type="hidden" name={`task-${index}-id`} value={task.id} />
-            <input
-                type="hidden"
-                name={`task-${index}-delete`}
-                value={`${toDelete}`}
-            />
+            <input type="hidden" name={`task-done`} value={`${task.is_done}`} />
+
         </li>
     );
 };

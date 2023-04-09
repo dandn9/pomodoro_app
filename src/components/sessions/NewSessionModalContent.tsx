@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { z } from 'zod';
-import useStateStore from '../../hooks/usePermanentStore';
-import { TModalContentProps, TModalContent } from '../../types/ModalContent';
-import { Sessions } from '../../utils/classes';
+import { TModalContent } from '../../types/ModalContent';
+import { Session } from '@/utils/classes';
+import { permanentStore } from '@/store/PermanentStore';
 
 const formSchema = z.object({
     sessionName: z.string().max(20).min(1),
@@ -31,15 +31,26 @@ const SessionModalContent: TModalContent = ({ open, setOpen }) => {
             tasks: formData.getAll('task'),
         });
 
+        console.log(errors)
         if (!result.success) {
             setErrors(result.error.format());
         } else {
-            await Sessions.onCreateSession(
-                result.data.sessionName,
-                '#000',
-                result.data.tasks
-            );
-            setOpen(false);
+            try {
+                const newSession = Session.createSession(
+                    result.data.sessionName,
+                    '#000',
+                    result.data.tasks
+                );
+                permanentStore().data.sessions.sessions = [...permanentStore().data.sessions.sessions, newSession]
+                // console.log(store)
+                setOpen(false);
+            } catch (e) {
+                if (e instanceof Error) {
+                    /** Typescript???? */
+                    setErrors((prev) => ({ ...prev, sessionName: { _errors: prev.sessionName?._errors ? [...prev.sessionName._errors, (e as Error).message] : [(e as Error).message] } }))
+                }
+                console.log(e)
+            }
         }
     }
     return (
@@ -49,8 +60,10 @@ const SessionModalContent: TModalContent = ({ open, setOpen }) => {
                 <Dialog.Close>X</Dialog.Close>
             </div>
             <form onSubmit={onSubmitHandler}>
+                <label htmlFor="sessionName">Session Name</label>
                 <input
                     type="text"
+                    id="sessionName"
                     name="sessionName"
                     className="bg-black"
                     onChange={resetErrors}

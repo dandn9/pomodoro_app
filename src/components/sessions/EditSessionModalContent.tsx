@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 
 import { TModalContent } from '../../types/ModalContent';
-import useStateStore from '../../store/usePermanentStore';
 import Input from '../UI/Input';
 import Switch from '../UI/Switch';
 import TaskItemEdit from '../tasks/TaskItemEdit';
@@ -10,7 +9,9 @@ import Popover from '../UI/Popover';
 import produce from 'immer';
 import { Session, Task } from '../../utils/classes';
 import { Writable } from '../../utils/utilityTypes';
-import { z } from 'zod';
+import { ZodError, z } from 'zod';
+import Sessions from '@/pages/Sessions';
+import { permanentStore } from '@/store/PermanentStore';
 
 export const formSchema = z
     .object({
@@ -21,7 +22,6 @@ export const formSchema = z
             .object({
                 name: z.string().min(1).max(30),
                 is_done: z.boolean(),
-                id: z.coerce.number(),
             })
             .array(),
     })
@@ -33,6 +33,12 @@ export const formSchema = z
                 code: z.ZodIssueCode.custom,
                 message: 'No duplicate names allowed',
             });
+        }
+        if (permanentStore().data.sessions.sessions.some((s) => s.name === val.name)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Cannot have sessions with the same name"
+            })
         }
     });
 
@@ -51,45 +57,40 @@ const EditSessionModalContent: TModalContent<{
 
     console.log('errors', errors);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-    const [sessionDraft, setSessionDraft] = useState(structuredClone(session));
+    const [tasks, setTasks] = useState<Task[]>(session.tasks)
 
     function onFormSubmit(e: React.FormEvent) {
         e.preventDefault();
         setErrors({ _errors: [] });
         const formData = new FormData(e.currentTarget as HTMLFormElement);
         // const tasks: { taskName: string; isDone: boolean } = [];
-        const formPayload: any = { tasks: [] };
-        for (const [key, value] of formData) {
-            if (
-                key.endsWith('-done') ||
-                key.endsWith('-id') ||
-                key.endsWith('-delete')
-            )
-                continue;
-            if (key.startsWith('task-')) {
-                const taskIndex = key[key.length - 1];
+        console.log('formData', ...formData)
+        const formPayload = {} as editFormType;
 
-                if (formData.get(`task-${taskIndex}-delete`) === 'true') {
-                    continue;
-                }
-                formPayload['tasks'].push({
-                    name: value,
-                    is_done: formData.get(`task-${taskIndex}-done`) === 'on',
-                    id: formData.get(`task-${taskIndex}-id`),
-                });
-            } else {
-                formPayload[key] = value;
-            }
+        /** TODO: clean up this */
+
+        formPayload.tasks = []
+        const allNames = formData.getAll('task-name')
+        const allDones = formData.getAll('task-done')
+        for (let i = 0; i < allNames.length; i++) {
+            formPayload.tasks.push({ name: allNames[i].toString(), is_done: allDones[i] === 'true' })
         }
+        formPayload.color = formData.get('color') as string
+        formPayload.name = formData.get('name') as string
+        formPayload.is_selected = formData.get('is_selected') as 'on' | undefined
 
-        const result = formSchema.safeParse(formPayload);
 
-        console.log(formPayload);
-        if (!result.success) {
-            setErrors(result.error.format());
-        } else {
-            session?.update(result.data);
+        try {
+            const result = formSchema.parse(formPayload);
+            session?.update(result);
             onEditClose();
+
+        } catch (e) {
+            console.log('error', e)
+            if (e instanceof ZodError) {
+                setErrors((e as ZodError).format());
+            }
+
         }
     }
     async function onDeleteSession() {
@@ -98,19 +99,14 @@ const EditSessionModalContent: TModalContent<{
         onEditClose();
     }
     async function onAddTask() {
-        let highestId = 0;
-        if (sessionDraft.tasks.length) {
-            for (const task of sessionDraft.tasks) {
-                if (task.id > highestId) highestId = task.id;
-            }
-        }
-        const newTask = new Task('', highestId + 1, false, true);
-        setSessionDraft((prev) =>
-            produce(prev, (draft) => {
-                draft.tasks.push(newTask);
-            })
-        );
+        const lowestId = tasks.reduce((a, b) => b.id < a ? b.id : a, 0)
+        const newTask = new Task('', lowestId - 1, false); // Every task with id < 0 will be a draft and its id will be created after
+        setTasks((prev) => [...prev, newTask]);
         // const newTask = new Task('');
+    }
+    function onDeleteTask(id: number) {
+        console.log('deleting', id)
+        setTasks((prev) => prev.filter((t) => t.id !== id))
     }
 
     return (
@@ -139,38 +135,41 @@ const EditSessionModalContent: TModalContent<{
                 </div>
             </Popover>
             <form onSubmit={onFormSubmit}>
-                {errors._errors.map((error) => (
+                {errors._errors?.map((error) => (
                     <p className="text-red-500" key={error}>
                         {error}
                     </p>
                 ))}
                 <div>
-                    Name:{' '}
+                    <label htmlFor="name">Name:</label>
                     <Input
                         defaultValue={session.name}
                         type="text"
+                        id="name"
                         name="name"
                     />
                 </div>
                 <div>
-                    Color:{' '}
+                    <label htmlFor="color">Color:</label>
                     <Input
                         defaultValue={session.color}
                         type="text"
+                        id="color"
                         name="color"
                     />
                 </div>
                 <div>
-                    Id:{' '}
+                    <label htmlFor="id">Id:</label>
                     <Input
                         defaultValue={session.id}
                         type="text"
+                        id="id"
                         name="id"
                         disabled
                     />
                 </div>
                 <div>
-                    Is Selected:{' '}
+                    <label htmlFor="is_selected">Is Selected:</label>
                     <Switch
                         defaultChecked={session.is_selected}
                         name="is_selected"
@@ -184,13 +183,12 @@ const EditSessionModalContent: TModalContent<{
                     Tasks:
                     <div className="w-full bg-gray-600/20">
                         <ul>
-                            {sessionDraft?.tasks.map((task, index) => {
+                            {tasks.map((task, index) => {
                                 return (
                                     <React.Fragment key={task.id}>
                                         <TaskItemEdit
                                             task={task}
-                                            key={task.id}
-                                            index={index}
+                                            onDelete={onDeleteTask}
                                         />
                                         {errors.tasks &&
                                             errors.tasks[

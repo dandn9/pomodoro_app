@@ -1,9 +1,10 @@
 import { stateUpdater } from "../decorators";
-import { immerable } from "immer";
+import produce, { immerable } from "immer";
 import { hashString } from "../utils";
 import { appDataDir, join } from "@tauri-apps/api/path";
 import { writeBinaryFile } from "@tauri-apps/api/fs";
-import { permanentStore } from "../../store/PermanentStore";
+import { PermanentData, permanentStore } from "../../store/PermanentStore";
+import { WritableDraft } from "immer/dist/internal";
 
 
 
@@ -138,7 +139,7 @@ export class Preferences {
     }
     @stateUpdater()
     public set autoplay(value: boolean) {
-        this._autoplay = value;
+        this._autoplay = value
     }
     public get notification(): Notification {
         return this._notification;
@@ -149,6 +150,7 @@ export class Preferences {
     }
 
 }
+
 
 
 export class Sound {
@@ -211,6 +213,7 @@ export class Sound {
     public static async deleteSound(id: number) {
         const sound = permanentStore().data.preferences.available_sounds.find((s) => s.id === id)
         if (!sound) throw new Error('Something went wrong')
+
 
 
     }

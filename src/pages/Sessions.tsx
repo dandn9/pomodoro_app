@@ -38,7 +38,7 @@ const Sessions = () => {
                 session={editSession}
             />
 
-            <SessionList sessions={sessionsData} onEdit={onEdit} />
+            <SessionList onEdit={onEdit} />
         </div>
     );
 };
